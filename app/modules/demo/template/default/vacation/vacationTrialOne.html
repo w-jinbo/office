@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{$title}</title>
+    {res:css css/bootstrap.min.css}
+    {res:css css/common.css}
+</head>
+
+<body>
+{include demo.public.back_header}
+<main class='main clearfix max-w'>
+    {include demo.public.back_main_left}
+    <div class='right'>
+        <h3 style="text-align:center;">{$data.tip} </h3>
+        <div class="basic_top r">假期申请详情</div>
+        <h3 style="text-align:center;">{$data.tip} </h3>
+        <div class="form_panel">
+
+            <ul class="clearfix">
+                <li>
+                    <label class="labelText">申请人</label>
+                    {$data.user.name}
+                </li>
+                <li>
+                    <label class="labelText">所属部门</label>
+                    {$data.user.department}
+                </li>
+                <li>
+                    <label class="labelText">职务</label>
+                    {$data.user.position}
+                </li>
+                <li>
+                    <label class="labelText">假期申请时间</label>
+                    {$data.vacation.nowtime}
+                </li>
+                <li>
+                    <label class="labelText">请假类别</label>
+                    <label >{$data.vacation.type}</label>
+                </li>
+                <li>
+                    <label class="labelText">请假时间段</label>
+                    <label >
+                        {$data.vacation.starttime} 至 {$data.vacation.endtime}</label>
+                </li>
+                <li>
+                    <label class="labelText">状态</label>
+                    <label >{$data.vacation.stateName}</label>
+                </li>
+                <li>
+                    <label class="labelText">请假理由</label>
+                    <label>
+                        {$data.vacation.reason}
+                    </label>
+                </li>
+
+            </ul>
+        </div>
+        {if $_SESSION['roleID'] == '3'}
+        <div >
+            <form class="form_panel"  novalidate="novalidate" action="/demo/vacation/judge" method="post">
+                <input type="hidden" name="vacationID" value="{$data.vacation.id}">
+                <li>
+                    <label class="labelText">反馈</label>
+                    <div class="txt">
+                        <textarea name="feedback" class="areaText">{$data.vacation.feedback}</textarea>
+                        <span class="limit-tip">(0/100个字)</span>
+                    </div>
+                </li>
+                {if $data['vacation']['state'] == '0'}
+                <div class="btn-group" style="text-align:center;margin: 20px auto">
+                <input type="submit" class="btn btn-orange subm" data-act="submit" name="state[]" value="同意">
+                </div>
+                <div class="btn-group" style="text-align:center;margin: 20px auto">
+                    <input type="submit" class="btn btn-orange subm" data-act="submit" name="state[]" value="拒绝">
+                </div>
+                {/if}
+             </form>
+    </div>
+        {/if}
+</main>
+
+</body>
+</html>
+
+

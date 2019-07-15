@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+<head>
+    {include admin.public.head}
+</head>
+<body style="height: 100%">
+<div id="layout" class="clearfix">
+    <!--左侧导航栏-->
+    <div class="layout-nav layout-left left">
+        <div class="layout-system-title">sys-title</br>管理后台</div>
+        <ul class="layout-nav-home layout-nav-list">
+            <li class="layout-nav-list-item">
+                <a href="javascript:void(0)" _href="/admin/main/main" _refresh="1" title="首页">
+                    <cite>首页</cite>
+                    <i class="rhly-iconfont shouye right"></i>
+                </a>
+            </li>
+        </ul>
+        <ul id="layout-nav-list" class="layout-nav-list">
+        </ul>
+    </div>
+    <!--左侧导航栏-->
+
+    <div class="layout-right" style="">
+        <!--页面头部-->
+        <div class="layout-header clearfix" style="">
+            <div class="layout-header-left clearfix">
+
+                <ul class="layout-header-top-list clearfix" style="display:none;">
+                    <li class="layout-header-top-item activity" _href="/admin/main/left">
+                        <i class="rhly-iconfont dianshang"></i>
+                        <cite>左侧菜单一</cite>
+                    </li>
+                    <li class="layout-header-top-item " _href="left_2.html">
+                        <i class="rhly-iconfont zuobiao"></i>
+                        <cite>左侧菜单二</cite>
+                    </li>
+
+                    <li class="layout-header-top-item" _href="left3.html">
+                        <i class="rhly-iconfont yunyingzhongxin"></i>
+                        <cite>左侧菜单三</cite>
+                    </li>
+                </ul>
+            </div>
+            <div class="layout-header-right clearfix">
+                <ul class="layout-header-top-admin clearfix">
+                    <li class="admin-image left">
+                        <img src="/static/admin/images/headimg.png"/>
+
+                    </li>
+                    <li class="admin-welcome left">
+                        <span class="welcome">
+                            <cite>欢迎您，admin</cite>
+                            <i class="rhly-iconfont jiantouarrow-down"></i>
+
+                            <ul class="admin-list">
+                                <li class="admin-list-item" onclick="openWindow('/admin/main/setUserInfo','修改个人资料','451px','400px')">
+                                    <i class="rhly-iconfont gerenziliao"></i>
+                                    <cite>个人资料</cite>
+                                </li>
+                                <li class="admin-list-item" onclick="openWindow('/admin/main/setPwd','修改密码','451px','330px')">
+                                    <i class="rhly-iconfont mima"></i>
+                                    <cite>修改密码</cite>
+                                </li>
+                                <li class="admin-list-item" onclick="loginOut()">
+                                    <i class="rhly-iconfont tuichu"></i>
+                                    <cite>退出</cite>
+                                </li>
+                            </ul>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!--页面头部-->
+
+        <!--页面选项卡-->
+        <div id="layout-pagetabs" class="layout-pagetabs">
+            <div class="layout-placeholder"></div>
+            <div id="prev" class="layout-pagetabs-left layout-pagetabs-tool-item">
+                <i class="rhly-iconfont before"></i>
+            </div>
+            <div id="pagetabs" class="layout-pagetabs-list clearfix">
+                <div class="layout-pagetabs-item layout-pagetabs-home" _href="">
+                    <i class="rhly-iconfont shouye"></i>
+                </div>
+            </div>
+            <div class="layout-pagetabs-right clearfix">
+                <div id="next" class="layout-pagetabs-tool-item">
+                    <i class="rhly-iconfont after"></i>
+                </div>
+                <div class="pagetabs-tool-delall layout-pagetabs-tool-item" onclick="closeAllTab()">
+                    <i class="rhly-iconfont cuowuguanbiquxiao-xianxingfangkuang"></i>
+                    <cite>关闭所有</cite>
+                </div>
+                <div class="pagetabs-tool-refresh layout-pagetabs-tool-item" onclick="tabPageRefresh()">
+                    <i class="rhly-iconfont icon-refresh"></i>
+                    <cite>刷新</cite>
+                </div>
+            </div>
+        </div>
+        <!--页面选项卡-->
+
+        <!--页面内容-->
+        <div class="layout-body">
+            <div class="layout-body-item layout-body-home" _href="">
+                <iframe frameborder="0" src="" class="layout-body-iframe" width="100%" height="100%"></iframe>
+            </div>
+        </div>
+        <!--页面内容-->
+    </div>
+</div>
+<script>
+    function loginOut() {
+        loading("正在退出...");
+        setTimeout(function () {
+            location.href = "/admin/main/quit";
+        }, 500);
+    }
+</script>
+</body>
+</html>

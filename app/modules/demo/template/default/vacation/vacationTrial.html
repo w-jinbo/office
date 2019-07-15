@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{$title}</title>
+    {res:css css/bootstrap.min.css}
+    {res:css css/common.css}
+</head>
+
+<body>
+{include demo.public.back_header}
+<main class='main clearfix max-w'>
+    {include demo.public.back_main_left}
+    <div class='right'>
+        <div class="basic_top r">假期申请审核</div>
+        <h3 style="text-align:center;">{$data.tip} </h3>
+        <table class="table-list table-outborder" style="table-layout: auto;">
+            <thead>
+            <tr>
+                <th width="30">
+                    <input class="checkbox-1" type="checkbox" v-if="list.length" v-model="checkAll" />
+                </th>
+                <th width="200">申请时间</th>
+                <th class="tl">请假类别</th>
+                <th width="200">开始时间</th>
+                <th width="200">结束时间</th>
+                <th width="130">审核状态</th>
+                <th width="150">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {loop $data['all'] $v }
+
+            <tr>
+                <td><input class="checkbox-1" type="checkbox" /></td>
+                <td >{$v.nowtime}</td>
+                <td class="tl">
+                    <?php  switch ( $v['type'] ) {
+                        case 1: echo    "事假";break;
+                        case 2: echo    "年休假";break;
+                        case 3: echo    "婚假";break;
+                        case 4: echo    "病假";break;
+                        }
+                    ?>
+                <td>{$v.starttime}</td>
+                <td>{$v.endtime}</td>
+                <td>
+                    <?php  switch ( $v['state'] ) {
+                        case 0: echo    "申请中";break;
+                        case 1: echo    "同意申请";break;
+                        case 2: echo    "拒绝申请";break;
+                        case 3: echo    "取消申请";break;
+                        }
+                    ?>
+                </td>
+                <td>
+                    <a href="/demo/vacation/trialOne?id={$v.id}&user={$v.userID}">详情</a>
+                </td>
+            </tr>
+            {/loop}
+            </tbody>
+        </table>
+        {$data.page}
+    </div>
+</main>
+
+</body>
+</html>
+
+

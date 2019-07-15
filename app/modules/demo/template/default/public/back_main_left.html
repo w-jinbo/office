@@ -1,0 +1,16 @@
+<div class='left'>
+    <nav class='left-nav'>
+        <!--<?php  if($data['menu']) $menu = $data['menu']; ?>-->
+        {loop $menu $k  $v }
+        <dl>
+        <dt class='i_usr'>{$k}</dt>
+        {loop $v $key $val}
+        <dd>
+        <a href="{$val['href']}">{$val['name']}</a>
+        </dd>
+        {/loop}
+        </dl>
+        {/loop}
+
+    </nav>
+</div>

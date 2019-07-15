@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{$title}</title>
+    {res:css css/bootstrap.min.css}
+    {res:css css/common.css}
+</head>
+
+<body>
+{include demo.public.back_header}
+<main class='main clearfix max-w'>
+    {include demo.public.back_main_left}
+    <div class='right'>
+        <div class="basic_top r">内部公示</div>
+        <table class="table-list table-outborder" style="table-layout: auto;">
+            <thead>
+            <tr>
+                <th width="30">
+                    <input class="checkbox-1" type="checkbox" v-if="list.length" v-model="checkAll" />
+                </th>
+                <th width="250">公示名称</th>
+                <th class="tl">公示内容</th>
+                <th width="200">发布时间</th>
+                <th width="100">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {loop $data['news'] $v}
+            <tr>
+                <td><input class="checkbox-1" type="checkbox" /></td>
+                <td>{$v.newtitle}</td>
+                <td class="tl">{cut $v['newcontent'] 25}</td>
+                <td>{$v.datetime}</td>
+                <td><a href="/demo/news/look?id={$v.id}">详细查看</a></td>
+            </tr>
+            {/loop}
+            </tbody>
+        </table>
+        {$data.page}
+
+    </div>
+    </div>
+</main>
+
+</body>
+</html>
+
+

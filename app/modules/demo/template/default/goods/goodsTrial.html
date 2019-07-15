@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{$title}</title>
+    {res:css css/bootstrap.min.css}
+    {res:css css/common.css}
+</head>
+
+<body>
+{include demo.public.back_header}
+<main class='main clearfix max-w'>
+    {include demo.public.back_main_left}
+    <div class='right'>
+        <div class="basic_top r">物品领用审核</div>
+        <h3 style="text-align:center;">{$data.tip} </h3>
+        <table class="table-list table-outborder" style="table-layout: auto;">
+            <thead>
+            <tr>
+                <th width="30">
+                    <input class="checkbox-1" type="checkbox" v-if="list.length" v-model="checkAll" />
+                </th>
+                <th width="250">申请时间</th>
+                <th class="tl"></th>
+                <th width="200">审核状态</th>
+                <th width="150">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {loop $data['all'] $v }
+            <tr>
+                <td><input class="checkbox-1" type="checkbox" /></td>
+                <td>{$v.datetime}</td>
+                <td class="tl"></td>
+                <td>
+                    <?php  switch ( $v['state'] ) {
+                        case 0: echo    "申请中";break;
+                        case 1: echo    "同意申请";break;
+                        case 2: echo    "拒绝申请";break;
+                        case 3: echo    "取消申请";break;
+                        }
+                    ?>
+                </td>
+                <td>
+                    <a href="/demo/goods/trialOne?id={$v.id}&user={$v.userID}">详情</a>
+                </td>
+            </tr>
+            {/loop}
+            </tbody>
+        </table>
+        {$data.page}
+    </div>
+</main>
+
+</body>
+</html>
+
+

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{$title}</title>
+    {res:css css/bootstrap.min.css}
+    {res:css css/common.css}
+</head>
+
+<body>
+{include demo.public.back_header}
+<main class='main clearfix max-w'>
+    {include demo.public.back_main_left}
+    <div class='right'>
+        <div class="basic_top r">办公室申请详情</div>
+        <div class="form_panel">
+
+            <ul class="clearfix">
+                <li>
+                    <label class="labelText">申请人</label>
+                    {$data.user.name}
+                </li>
+                <li>
+                    <label class="labelText">所属部门</label>
+                    {$data.user.department}
+                </li>
+                <li>
+                    <label class="labelText">职务</label>
+                    {$data.user.position}
+                </li>
+                <li>
+                    <label class="labelText">申请时间</label>
+                    {$data.room.datetime}
+                </li>
+                <li>
+                    <label class="labelText">申请办公室名称</label>
+                    <label >{$data.room.roomname}</label>
+                </li>
+                <li>
+                    <label class="labelText">申请使用日期时间</label>
+                    <label >{$data.room.roomdate} {$data.room.roomtime}</label>
+                </li>
+                <li>
+                    <label class="labelText">状态</label>
+                    <label >{$data.room.stateName}</label>
+                </li>
+                <li>
+                    <label class="labelText">申请理由</label>
+                    <label>
+                        {$data.room.reason}
+                    </label>
+                </li>
+            </ul>
+        </div>
+        {if $data['room']['state'] == '0'}
+            <form class="form_panel"  novalidate="novalidate" action="/demo/room/judge" method="post">
+                <input type="hidden" name="roomID" value="{$data.room.id}">
+                <div class="btn-group" style="text-align:center;margin: 20px auto">
+                <input type="submit" class="btn btn-orange subm" data-act="submit" name="state[]" value="同意">
+                </div>
+                <div class="btn-group" style="text-align:center;margin: 20px auto">
+                    <input type="submit" class="btn btn-orange subm" data-act="submit" name="state[]" value="拒绝">
+                </div>
+             </form>
+        {/if}
+</main>
+
+</body>
+</html>
+
+

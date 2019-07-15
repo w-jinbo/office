@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{$title}</title>
+    {res:css css/bootstrap.min.css}
+    {res:css css/common.css}
+</head>
+
+<body>
+{include demo.public.back_header}
+<main class='main clearfix max-w'>
+    {include demo.public.back_main_left}
+    <div class='right'>
+        <h3 style="text-align:center;">{$data.tip} </h3>
+        <div class="basic_top r">物品领用详情</div>
+        <h3 style="text-align:center;">{$data.tip} </h3>
+        <div class="form_panel">
+
+            <ul class="clearfix">
+                <li>
+                    <label class="labelText">申请人</label>
+                    {$data.user.name}
+                </li>
+                <li>
+                    <label class="labelText">所属部门</label>
+                    {$data.user.department}
+                </li>
+                <li>
+                    <label class="labelText">职务</label>
+                    {$data.user.position}
+                </li>
+                <li>
+                    <label class="labelText">申请物品领用时间</label>
+                    {$data.goods.datetime}
+                </li>
+                <li>
+                    <label class="labelText">状态</label>
+                    <label >{$data.goods.stateName}</label>
+                </li>
+                <li>
+                    <label class="labelText">该员工领取物品</label>
+                    <div class="txt">{$data.goods.goodsname}</div>
+                </li>
+            </ul>
+        </div>
+        {if $data['goods']['state'] == '0'}
+            <form class="form_panel"  novalidate="novalidate" action="/demo/goods/judge" method="post">
+                <input type="hidden" name="goodsID" value="{$data.goods.id}">
+                <div class="btn-group" style="text-align:center;margin: 20px auto">
+                <input type="submit" class="btn btn-orange subm" data-act="submit" name="state[]" value="同意">
+                </div>
+                <div class="btn-group" style="text-align:center;margin: 20px auto">
+                    <input type="submit" class="btn btn-orange subm" data-act="submit" name="state[]" value="拒绝">
+                </div>
+             </form>
+        {/if}
+</main>
+
+</body>
+</html>
+
+

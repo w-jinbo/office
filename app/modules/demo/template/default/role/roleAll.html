@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{$title}</title>
+    {res:css css/bootstrap.min.css}
+    {res:css css/common.css}
+</head>
+
+<body>
+{include demo.public.back_header}
+<main class='main clearfix max-w'>
+    {include demo.public.back_main_left}
+    <div class='right'>
+        <h3 style="text-align:center;">{$data.tip} </h3>
+        <div class="basic_top r">查看角色<a class='verify' href="/demo/role/addRole">添加角色</a></div>
+        <table class="table-list table-outborder" style="table-layout: auto;">
+            <thead>
+            <tr>
+                <th width="50">
+                    <input class="checkbox-1" type="checkbox" v-if="list.length" v-model="checkAll" />
+                </th>
+                <th width="120">角色ID</th>
+                <th width="250">角色名称</th>
+                <th width="tl">对应权限</th>
+                <th width="100">对应权限</th>
+            </tr>
+            </thead>
+            <tbody>
+            {loop $data['role'] $v}
+            <tr>
+                <td><input class="checkbox-1" type="checkbox" /></td>
+                <td >{$v.id}</td>
+                <td >{$v.roleName}</td>
+                {loop $data['rolename'] $kk $vv}
+                    {if $v['id']==$kk }
+                <td class="tl">{loop $vv $val}{$val}，{/loop}</td>
+                    {/if}
+                {/loop}
+                <td><a class='verify' href="/demo/role/updateRole?id={$v.id}">修改</a>
+                    <a class='verify' href="/demo/role/delRole?id={$v.id}">删除</a></td>
+            </tr>
+            {/loop}
+            </tbody>
+        </table>
+        {$data.page}
+    </div>
+</main>
+
+</body>
+</html>
+
+

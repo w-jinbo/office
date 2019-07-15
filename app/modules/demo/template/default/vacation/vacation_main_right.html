@@ -1,0 +1,40 @@
+<div class='right'>
+    {include demo.vacation.vacation_main_right_top}
+        <form class="form_panel"  novalidate="novalidate" action="/demo/vacation/putTo" method="post">
+            <input type="hidden" name="userID" value="{expr $_SESSION['userID']}">
+            <ul class="clearfix">
+                <li>
+                    <label class="labelText">请假类别</label>
+                    <div class="txt">
+                        <input type="radio" name="type" value="1" checked>事假
+                        <input type="radio" name="type" value="2">年休假
+                        <input type="radio" name="type" value="3">婚假
+                        <input type="radio" name="type" value="4">病假
+                    </div>
+                </li>
+                <li>
+                    <label class="labelText">请假时间</label>
+                    <div class="txt">
+                        <input type="date"  name="sdate" >
+                        <input type="time"  name="stime"> 至
+                        <!--<input type="text"  placeholder="{expr date('Y-m-d H:i:s')}" >至-->
+                        <!--<input type="text" name="endtime" placeholder="Y-m-d H:i:s" >-->
+                        <input type="date"  name="edate" >
+                        <input type="time"  name="etime">
+
+                    </div>
+                </li>
+                <li>
+                    <label class="labelText">请假理由</label>
+                    <div class="txt">
+                        <textarea name="reason" class="areaText"></textarea>
+                        <span class="limit-tip">(0/100个字)</span>
+                    </div>
+                </li>
+            </ul>
+            <div class="btn-group" style="text-align:center;margin: 20px 45%">
+                <input type="submit" class="btn btn-orange subm" data-act="submit" value="申请">
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {include admin.public.head}
+</head>
+<body>
+
+<div class="layui-fluid ">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label search-form-label">用户名</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="id" placeholder="请输入用户名" autocomplete="off"
+                                       class="layui-input">
+                            </div>
+                        </div>
+
+                        <div class="layui-inline">
+                            <button class="layui-btn layuiadmin-btn-list" lay-submit
+                                    lay-filter="LAY-app-contlist-search">
+                                <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <script type="text/html" id="table-content-list">
+                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i
+                            class="layui-icon layui-icon-edit"></i>编辑</a>
+                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
+                            class="layui-icon layui-icon-delete"></i>删除</a>
+                </script>
+
+
+                <div class="layui-card-body">
+                    <div class="pb10">
+                        <button class="layui-btn layui-btn-danger layuiadmin-btn-list" onclick="delMuti()">删除</button>
+                        <button class="layui-btn layuiadmin-btn-list" onclick="add()">添加</button>
+                    </div>
+                    <table class="layui-hide" id="test-table-page"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    var admin = layui.admin
+        , table = layui.table
+        , form = layui.form;
+    //监听搜索
+    form.render();
+
+
+    table.render({
+        elem: '#test-table-page'
+        , url: "/admin/user/getListData"
+        , cols: [[
+            {type: 'checkbox'}
+            , {field: 'id', width: 80, title: 'ID', sort: true}
+            , {field: 'username', width: 80, title: '用户名'}
+            , {field: 'sex', width: 80, title: '性别', sort: true}
+            , {field: 'city', width: 80, title: '城市'}
+            , {field: 'experience', width: 80, title: '积分', sort: true}
+            , {field: 'score', width: 80, title: '评分', sort: true}
+            , {field: 'classify', width: 80, title: '职业'}
+            , {field: 'wealth', width: 135, title: '财富', sort: true}
+            , {fixed: 'right', width: 178, align: 'center', toolbar: '#table-content-list'}
+        ]]
+        , page: true
+    });
+
+    function delMuti() {
+
+        var checkStatus = table.checkStatus('test-table-page')
+            , data = checkStatus.data;
+        var len = data.length;
+        if (len == 0) {
+            msgFaild("请先选择要删除的记录");
+            return;
+        }
+        var dot = "";
+        var query = new Object();
+        query.ids = "";
+        for (var i = 0; i < len; i++) {
+            query.ids += dot + data[i].id;
+            dot = ",";
+        }
+        layer.confirm('确定要删除选中记录吗？', {
+            btn: ['确定', '取消']
+        }, function (index, layero) {
+            // console.log(query);]
+            loading("删除中...");
+            setTimeout(function () {
+                closeAll();
+                msgOK("删除成功");
+            },1000);
+        }, function (index) {
+
+            //处理删除操作
+        });
+
+
+    }
+
+    function add() {
+        layer.open({
+            type: 2
+            , title: '添加文章'
+            , content: 'demo_2.html'
+            , maxmin: true
+            , area: ['550px', '550px']
+            , btn: ['确定', '取消']
+            , yes: function (index, layero) {
+                //点击确认触发 iframe 内容中的按钮提交
+                var submit = layero.find('iframe').contents().find("#layuiadmin-app-form-submit");
+                submit.click();
+            }
+        });
+    }
+
+
+</script>
+
+</body>
+</html>

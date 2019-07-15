@@ -1,0 +1,61 @@
+<div class='right'>
+    {include demo.room.room_main_right_top}
+        <table class="table-list table-outborder" style="table-layout: auto;">
+            <thead>
+            <tr>
+                <th width="30">
+                    <input class="checkbox-1" type="checkbox" v-if="list.length" v-model="checkAll" />
+                </th>
+                <th width="130">申请时间</th>
+                <th class="tl">办公室名称</th>
+                <th width="200">使用日期</th>
+                <th width="200">时间段</th>
+                <th width="130">审核状态</th>
+                <th width="100">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {loop $data['room']  $v }
+            <tr>
+                <td><input class="checkbox-1" type="checkbox" /></td>
+                <td >{$v.datetime}</td>
+                <td class="tl">
+                    <?php  switch ( $v['roomname'] ) {
+                        case 1: echo    "办公室1";break;
+                        case 2: echo    "办公室2";break;
+                        case 3: echo    "办公室3";break;
+                        }
+                    ?>
+                <td>{$v.roomdate}</td>
+                <td>
+                    <?php  switch ( $v['roomtime'] ) {
+                        case 1: echo    "8:30-9:30";break;
+                        case 2: echo    "9:40-10:40";break;
+                        case 3: echo    "9:50-11:50";break;
+                        case 4: echo    "13:40-14:40";break;
+                        case 5: echo    "14:50-15:50";break;
+                        case 6: echo    "16:00-17:00";break;
+                        case 7: echo    "17:10-17:3";break;
+                        }
+                    ?>
+                </td>
+                <td>
+                    <?php  switch ( $v['state'] ) {
+                        case 0: echo    "申请中";break;
+                        case 1: echo    "同意申请";break;
+                        case 2: echo    "拒绝申请";break;
+                        case 3: echo    "取消申请";break;
+                        }
+                    ?>
+                </td>
+                    <td>
+                        {if $v['state']=='0'}
+                        <a href="/demo/room/remove?id={$v.id}">取消申请</a>
+                        {/if}
+                    </td>
+            </tr>
+            {/loop}
+            </tbody>
+        </table>
+    {$data.page}
+</div>

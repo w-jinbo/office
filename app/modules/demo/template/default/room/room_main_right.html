@@ -1,0 +1,49 @@
+<div class='right'>
+    {include demo.room.room_main_right_top}
+        <form class="form_panel"  novalidate="novalidate" action="/demo/room/roomApply" method="post">
+            <input type="hidden" name="userID" value="{expr $_SESSION['userID']}">
+            <ul class="clearfix">
+                <li>
+                    <label class="labelText">办公室：</label>
+                        <select name="roomname"  class="inputText">
+                            <option value="1" selected>办公室1</option>
+                            <option value="2">办公室2</option>
+                            <option value="3">办公室3</option>
+                        </select>
+                </li>
+                <li>
+                    <label class="labelText">申请日期</label>
+                    <div class="txt">
+                        <input type="date" class="inputText" name="roomdate" >
+                    </div>
+                </li>
+                <li>
+                    <label class="labelText">申请时间段</label>
+                    <div class="txt">
+                        <select name="roomtime"  class="inputText">
+                            <option value="1" selected>8:30-9:30</option>
+                            <option value="2">9:40-10:40</option>
+                            <option value="3">9:50-11:50</option>
+                            <option value="4">13:40-14:40</option>
+                            <option value="5">14:50-15:50</option>
+                            <option value="6">16:00-17:00</option>
+                            <option value="7">17:10-17:30</option>
+                        </select>
+
+                    </div>
+                </li>
+
+                <li>
+                    <label class="labelText">申请理由</label>
+                    <div class="txt">
+                        <textarea name="reason" class="areaText"></textarea>
+                        <span class="limit-tip">(0/100个字)</span>
+                    </div>
+                </li>
+            </ul>
+            <div class="btn-group" style="text-align:center;margin: 20px 45%">
+                <input type="submit" class="btn btn-orange subm" data-act="submit" value="申请">
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{$title}</title>
+    {res:css css/bootstrap.min.css}
+    {res:css css/common.css}
+</head>
+
+<body>
+{include demo.public.back_header}
+<main class='main clearfix max-w'>
+    {include demo.public.back_main_left}
+    <div class='right'>
+        <div class="basic_top r">添加用户<a class='verify' href="/demo/index/allUser">查看所有用户</a></div>
+        <h3 style="text-align:center;">{$data.tip} </h3>
+        <table class="table-list table-outborder" style="table-layout: auto;">
+            <thead>
+            <tr>
+                <th width="30">
+                    <input class="checkbox-1" type="checkbox" v-if="list.length" v-model="checkAll" />
+                </th>
+                <th width="250">Email账号</th>
+                <th class="tl">真实姓名</th>
+                <th width="150">所属部门</th>
+                <th width="100">职务</th>
+                <th width="80">员工角色ID</th>
+                <th width="120">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {loop $data['allUser'] $v }
+            <tr>
+                <td><input class="checkbox-1" type="checkbox" /></td>
+                <td >{$v.username}</td>
+                <td class="tl">{$v.name}</td>
+                <td>{$v.department}</td>
+                <td>{$v.position}</td>
+                <td>{$v.roleID}
+
+                </td>
+                <td><a class='verify' href="/demo/index/updateUser?id={$v.id}">修改</a>
+                    <a class='verify' href="/demo/index/delUser?id={$v.id}">删除</a></td>
+            </tr>
+            {/loop}
+            </tbody>
+        </table>
+        {$data.page}
+    </div>
+</main>
+
+</body>
+</html>
+
+

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{$title}</title>
+    {res:css css/bootstrap.min.css}
+    {res:css css/common.css}
+</head>
+
+<body>
+{include demo.public.back_header}
+<main class='main clearfix max-w'>
+    {include demo.public.back_main_left}
+    <div class='right'>
+        <div class="basic_top r">内部公示</div>
+        <h2 style="text-align: center">{$data.news.newtitle}</h2>
+
+        <span style="margin-left: 50px;">{$data.news.datetime}</span>
+        <div style="margin: 20px 40px;">{$data.news.newcontent}</div>
+    </div>
+</main>
+
+</body>
+</html>
+
+

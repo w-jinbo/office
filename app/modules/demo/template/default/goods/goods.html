@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{$title}</title>
+    {res:css css/bootstrap.min.css}
+    {res:css css/common.css}
+</head>
+
+<body>
+{include demo.public.back_header}
+<main class='main clearfix max-w'>
+    {include demo.public.back_main_left}
+    <div class='right'>
+        <div class="basic_top r">物品领用 <a class='verify' href="/demo/goods/goodsAll">查看已领取的物品</a></div>
+        <h3 style="text-align:center;">{$data.tip} </h3>
+        <form class="form_panel"  novalidate="novalidate" action="/demo/goods/goodsApply" method="post">
+            <ul class="clearfix">
+                <li>
+                    <label class="labelText">可领用物品</label>
+                    <div class="txt">
+                        <input type="checkbox" name="check[]" value="1">普通笔记本
+                        <input type="checkbox" name="check[]" value="2">黑色签字笔
+                        <input type="checkbox" name="check[]" value="3">透明胶
+                        <input type="checkbox" name="check[]" value="4">订书机
+                        <input type="checkbox" name="check[]" value="5">资料夹
+                    </div>
+                </li>
+            </ul>
+
+            <div class="btn-group" style="text-align:center;margin: 20px 45%">
+                <input type="submit" class="btn btn-orange subm" data-act="submit" value="申请办公用品">
+            </div>
+        </form>
+    </div>
+    </div>
+</main>
+
+</body>
+</html>
+
+

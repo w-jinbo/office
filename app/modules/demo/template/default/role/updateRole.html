@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{$title}</title>
+    {res:css css/bootstrap.min.css}
+    {res:css css/common.css}
+</head>
+
+<body>
+{include demo.public.back_header}
+<main class='main clearfix max-w'>
+    {include demo.public.back_main_left}
+    <div class='right'>
+        <div class="basic_top r">修改角色<a class='verify' href="/demo/role/addRole">添加角色</a></div>
+        <div class="">
+            <form class="form_panel" method="post" action="/demo/role/update">
+                <input type="hidden" value="{$data.roleDate.id}" name="roleID">
+                <ul class="clearfix">
+                    <li>
+                        <label class="labelText">角色名称</label>
+                        <div class="txt">
+                            <input type="text" class="inputText" name="roleName" value="{$data.roleDate.roleName}" readonly>
+                        </div>
+                    </li>
+                    <li>
+                        <label class="labelText">对应权限</label>
+                        {loop $data['role'] $k $v}
+                        <div class="txt" style="width: 25%;margin: 0 30%">
+
+                            <input type="checkbox" name="authority[]" value="{$k}"  {loop $data['authority'] $val}{if $val == $k} checked  {/if}{/loop}>{$v}
+                        </div>
+                        {/loop}
+                        <!--<option value="{$v.id}" {if $data['user']['roleID'] == $v['id']} selected {/if}>-->
+                        <!--{$v.roleName}</option>-->
+
+                    </li>
+                </ul>
+                <div class="btn-group" style="text-align:center;margin: 20px 45%">
+                    <input type="submit" class="btn btn-orange subm" value="提交">
+
+                </div>
+            </form>
+        </div>
+
+</main>
+
+</body>
+</html>
+</div>

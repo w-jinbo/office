@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+{include demo.login.login_header}
+<body>
+<div class="header-m">
+    <div class="max-w clearfix">
+        <div class="fl logo">
+            <a href="#"><img src="{url images/logo_2.png}"></a>
+            <em>欢迎登录</em>
+        </div>
+        <div class="fr" style="font-size:18px;">服务热线：<em class="blue">400-115-2868</em></div>
+    </div>
+</div>
+<div class="login_layout">
+    <div class="max-w relative">
+        <div class="login-box">
+            <div class="tit">账户登录</div>
+            <form id="formLogin" novalidate="novalidate" action="/demo/login/login" method="post">
+                <ul class="login-form">
+                    <li id="errorBox"></li>
+                    <li class="row">
+                        <label class="input-wrap">
+                            <span class="icon-u icon-user"></span>
+                            <input type="email" name="username" id="username" placeholder="请输入Email" value="">
+                        </label>
+                    </li>
+                    <li class="row">
+                        <label class="input-wrap">
+                            <span class="icon-u icon-pwd"></span>
+                            <input type="password" name="password" id="password" placeholder="请输入密码" aria-required="true" aria-invalid="false">
+                        </label>
+                    </li>
+                    <li class="row">
+                        <label class="input-wrap">
+                            <img class="fr" style="height:38px;border:solid 1px #f0f0f0;" src="/demo/login/verify" onclick="this.src='/demo/index/verify?'+Math.random();">
+                            <span class="icon-u icon-vcode"></span>
+                            <input type="text" name="scode" style="width: 150px;" placeholder="请输入验证码">
+                        </label>
+                    <!--</li>-->
+                    <!--<li style="padding:30px 0 0 0;"><label><input type="checkbox" id="remember" value="1" class="checkbox-1"> 记住我</label></li>-->
+                    <!--<li>-->
+                        <input type="hidden" id="goto" value="http://mgr.pvc123.my:9100/#/home">
+                        <input type="submit" class="btn" data-act="submit" value="登录">
+                    </li>
+                    <li class="bot clearfix">
+                        <span class="fr" style="color: red">{$tip}</span>
+                    </li>
+                    <!--<li class="bot clearfix">
+                        <a class="fl" href="#">忘记密码?</a>
+                        <span class="fr">没有账户？<a class="blue" href="./reg">立即注册</a></span>
+                    </li>-->
+                </ul>
+            </form>
+        </div>
+    </div>
+</div>
+{include demo.login.login_footer}
+
+</body>
+</html>

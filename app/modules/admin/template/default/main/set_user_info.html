@@ -1,0 +1,81 @@
+<html class="bg_ff">
+<head>
+    {include admin.public.head}
+
+</head>
+<body class="bg_ff">
+<div class="x-body bg_ff ">
+    <form class="layui-form mainform" method="post" action="/admin/main/doSetUserInfo">
+        <div class="layui-form p10">
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">账号</label>
+                <div class="layui-input-inline ">
+                    <label class="layui-form-label" style="text-align: left">{$user.username}</label>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="red">* </span>姓名</label>
+                <div class="layui-input-inline ">
+                    <input type="text" name="realname" datatype="*" nullmsg="请输入您的姓名" placeholder="输入您的姓名" autocomplete="off"
+                           class="layui-input" value="{$user.realname}">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="red">* </span>手机号码</label>
+                <div class="layui-input-inline ">
+                    <input type="text" name="tel" datatype="m" nullmsg="请输入您的手机号码" errormsg="手机号码格式不正确" placeholder="输入手机号码"
+                           autocomplete="off" class="layui-input" value="{$user.tel}">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="red">* </span>部门</label>
+                <div class="layui-input-inline ">
+                    <input type="text" name="department" datatype="*" nullmsg="请输入您所属的部门" placeholder="输入您所属的部门" autocomplete="off"
+                           class="layui-input" value="{$user.department}">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"></label>
+                <button value="提交" class="layui-btn" lay-submit lay-filter="submit_btn">提交</button>
+                <a href="javascript:parent.closeAll()" class="layui-btn layui-btn-primary">取消</a>
+            </div>
+
+        </div>
+    </form>
+
+    <script>
+        layui.form.render();
+
+        $(function () {
+            $(".mainform").Validform({
+                datatype: {
+                    "nz": /^[1-9]\d*$/,
+                    "zs": /^([1-9]\d*\.\d*|0\.\d+|[1-9]\d*|0)$/, //正数
+                    "wz": /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?/,
+                    "ip": /((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)/,  //ip
+
+                },
+                tiptype: 4,
+                ajaxPost: true,
+                callback: function (data) {
+                    console.log(data);
+                    if (data.code == 1) {
+                        layer.alert(data.msg, {icon: 6}, function () {
+                            parent.closeAll();
+                        });
+                    } else {
+                        msgFaild(data.msg);
+                    }
+                }
+            });
+        });
+
+    </script>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,56 @@
+<div class='right'>
+     <div class="basic_top r">添加用户<a class='verify' href="/demo/index/allUser">查看所有用户</a></div>
+    <div class="">
+        <h3 style="text-align:center;">{$data.tip} </h3>
+        <form class="form_panel" method="post" action="/demo/index/userAdd">
+            <ul class="clearfix">
+                <li>
+                    <label class="labelText">账号(Email)</label>
+                    <div class="txt">
+                        <input type="email" class="inputText" name="username" >
+                    </div>
+                </li>
+                <li>
+                    <label class="labelText">密码</label>
+                    <div class="txt">
+                        <input type="password" class="inputText" name="password">
+                    </div>
+                </li>
+                <li>
+                    <label class="labelText">真实姓名</label>
+                    <div class="txt">
+                        <input class="inputText" type="text" name="name" >
+                    </div>
+                </li>
+                <li>
+                    <label class="labelText">所属部门</label>
+                    <div class="txt">
+                        <input class="inputText"  name="department" />
+
+                    </div>
+                </li>
+                <li>
+                    <label class="labelText">职务</label>
+                    <div class="txt">
+                        <input type="text" class="inputText" name="position" >
+
+                    </div>
+                </li>
+                <li>
+                    <label class="labelText">角色</label>
+                    <div class="txt">
+                        <select name="roleID" class="inputText">
+                            {loop $data['role'] $v}
+                            <option value="{$v.id}" >{$v.roleName}</option>
+                            {/loop}
+                        </select>
+                    </div>
+                </li>
+            </ul>
+            <div class="btn-group" style="text-align:center;margin: 20px 45%">
+                <input type="submit" class="btn btn-orange subm" value="提交">
+
+            </div>
+        </form>
+    </div>
+</div>

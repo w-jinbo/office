@@ -1,0 +1,49 @@
+<!doctype html>
+<html  class="x-admin-sm">
+<head>
+    <meta charset="UTF-8">
+    <title>后台登录</title>
+    {res:css admin/css/login.css}
+    {res:css lib/validform/css/validform.css}
+
+    {res:js admin/js/jquery-1.9.1.min.js}
+    {res:js admin/js/common.js}
+    {res:js lib/layui/layui.all.js}
+    {res:js lib/validform/js/Validform_v5.3.2_min.js}
+</head>
+<body class="login-bg">
+
+<div class="login layui-anim layui-anim-up">
+    <div class="message">后台管理登录</div>
+    <div id="darkbannerwrap"></div>
+
+    <form method="post" class="layui-form" action="/admin/login/doLogin">
+        <input name="username" placeholder="用户名" type="text" lay-verify="required" class="layui-input" >
+        <hr class="hr15">
+        <input name="password" placeholder="密码" type="password" lay-verify="required" class="layui-input">
+        <hr class="hr15">
+        <input value="登录" style="width:100%;" type="submit">
+
+        <input value="注册" style="width:100%;margin-top:20px" type="button">
+        <hr class="hr20" >
+    </form>
+</div>
+</body>
+<script>
+    $(".layui-form").Validform({
+        tiptype:4,
+        ajaxPost:true,
+        beforeSubmit:function(curform){
+            loading('加载中...')
+        },
+        callback:function(data){
+            if(data.code==="001"){
+                msgFaild(data.message);
+            }else{
+                msgOK(data.message);
+                hrefTo(data.data.url,500);
+            }
+        }
+    });
+</script>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{$title}</title>
+    {res:css css/bootstrap.min.css}
+    {res:css css/common.css}
+</head>
+
+<body>
+{include demo.public.back_header}
+<main class='main clearfix max-w'>
+    {include demo.public.back_main_left}
+    <div class='right'>
+        <div class="basic_top r">修改用户<a class='verify' href="/demo/index/allUser">查看所有用户</a></div>
+        <div class="">
+            <h3 style="text-align:center;">{$data.tip} </h3>
+            <form class="form_panel" method="post" action="/demo/index/update">
+                <ul class="clearfix">
+                    <li>
+                        <label class="labelText">账号(Email)</label>
+                        <div class="txt">
+                            <input type="email" class="inputText" name="username" value="{$data.user.username}" readonly>
+                        </div>
+                    </li>
+                    <li>
+                        <label class="labelText">密码</label>
+                        <div class="txt">
+                            <input type="password" class="inputText" name="password">
+                        </div>
+                    </li>
+                    <li>
+                        <label class="labelText">真实姓名</label>
+                        <div class="txt">
+                            <input class="inputText" type="text" name="name" value="{$data.user.name}">
+                        </div>
+                    </li>
+                    <li>
+                        <label class="labelText">所属部门</label>
+                        <div class="txt">
+                            <input class="inputText"  name="department" value="{$data.user.department}"/>
+
+                        </div>
+                    </li>
+                    <li>
+                        <label class="labelText">职务</label>
+                        <div class="txt">
+                            <input type="text" class="inputText" name="position" value="{$data.user.position}">
+
+                        </div>
+                    </li>
+                    <li>
+                        <label class="labelText">角色</label>
+                        <div class="txt">
+                            <select name="roleID" class="inputText">
+                                {loop $data['role'] $v}
+
+                                <option value="{$v.id}" {if $data['user']['roleID'] == $v['id']} selected {/if}>
+                                {$v.roleName}</option>
+
+                                {/loop}
+                            </select>
+                        </div>
+                    </li>
+                </ul>
+                <div class="btn-group" style="text-align:center;margin: 20px 45%">
+                    <input type="submit" class="btn btn-orange subm" value="提交">
+
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>
