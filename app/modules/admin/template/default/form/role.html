@@ -1,0 +1,125 @@
+<div class="layui-form p10">
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>角色信息</legend>
+    </fieldset>
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="red">* </span>角色名称</label>
+        <div class="layui-input-inline">
+            <input type="text" name="name" datatype="*" placeholder="输入角色名称" value="{$role.name}"
+                   autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="Validform_checktip m0">请输入角色名称</span>
+        </div>
+    </div>
+
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">角色描述</label>
+        <div class="layui-input-block" style="width: 500px;">
+            <textarea name="summary" placeholder="请输入角色描述" class="layui-textarea">{$role.summary}</textarea>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="red">* </span>状态</label>
+        <div class="layui-input-inline">
+            <input type="checkbox" name="is_valid" lay-skin="switch" lay-text="启用|禁用" value="1"
+            <?php echo $role['is_valid'] == '1' ? 'checked' : '' ?>>
+        </div>
+    </div>
+
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>权限配置</legend>
+    </fieldset>
+    <div class="layui-form-item pl45">
+        <table class="layui-table layui-input-block">
+            <tbody>
+            {loop $powerArray['sub'] $pkey $pitem}
+            <?php $pcount = count($pitem['sub']); ?>
+            <tr>
+                <td rowspan="{$pcount}" class="w160">
+                    <input type="checkbox" name="ap_codes[]" lay-skin="primary" title="{$pitem.name}"
+                           id="{$pitem.id}" pid="{$pitem.pId}" lay-filter="ap_code"
+                           value="{$pitem.id}" <?php echo in_array($pitem['id'],$role['power_array'])?' checked':''?>>
+                </td>
+                {loop $pitem['sub'] $fkey $fitem}
+                <?php echo $fkey>$pcount?'</tr>':'';?>
+
+                <td width="180">
+                    <input type="checkbox" name="ap_codes[]" lay-skin="primary" title="{$fitem.name}"
+                           value="{$fitem.id}"
+                           id="{$fitem.id}" pid="{$fitem.pId}" lay-filter="ap_code"
+                            <?php echo in_array($fitem['id'],$role['power_array'])?' checked':''?>>
+                </td>
+                <td>
+                    <div class="layui-input-block" style="margin-left: 10px;">
+                        {loop $fitem['sub'] $item}
+                        <input name="ap_codes[]" lay-skin="primary" type="checkbox" title="{$item.name}"
+                               id="{$item.id}" pid="{$item.pId}" ppid="{$fitem.pId}" value="{$item.id}" lay-filter="ap_code"
+                                <?php echo in_array($item['id'],$role['power_array'])?' checked':''?>>
+                        {/loop}
+                    </div>
+                </td>
+                <?php echo $fkey<($pcount-1)?'</tr>':'';?>
+            {/loop}
+            </tr>
+            {/loop}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <button value="提交" class="layui-btn" lay-submit lay-filter="submit_btn">提交</button>
+        <a href="javascript:parent.closeAll()" class="layui-btn layui-btn-primary">取消</a>
+    </div>
+
+    <div>&nbsp;</div>
+</div>
+<script>
+    layui.use(['form', 'layer'], function () {
+        $ = layui.jquery;
+        var form = layui.form
+            , layer = layui.layer;
+
+        form.on('checkbox(ap_code)', function (data) {
+            var id = $(data.elem).attr('id');
+            var select;
+            if ($(data.elem).is(":checked")) {
+                //如果选中
+                //父级全选中
+                select = "input[id='" + $(data.elem).attr('pid') + "']";
+                $(select).prop('checked', true);
+                //爷爷级全选中
+                select = "input[id='" + $(data.elem).attr('ppid') + "']";
+                $(select).prop('checked', true);
+                //儿子全选中
+                select = "input[pid='" + $(data.elem).attr('id') + "']";
+                $(select).prop('checked', true);
+                //孙子全选中
+                select = "input[ppid='" + $(data.elem).attr('id') + "']";
+                $(select).prop('checked', true);
+            } else {
+                //儿子全取消
+                select = "input[pid='" + $(data.elem).attr('id') + "']";
+                $(select).prop('checked', false);
+                //孙子全取消
+                select = "input[ppid='" + $(data.elem).attr('id') + "']";
+                $(select).prop('checked', false);
+                //父亲取消
+                select = "input[pid='" + $(data.elem).attr('pid') + "']:checked";
+                if ($(select).length == 0) {
+                    $("input[id='" + $(data.elem).attr('pid') + "']").prop('checked', false);
+                }
+                select = "input[ppid='" + $(data.elem).attr('ppid') + "']:checked";
+                //爷爷取消
+                if ($(select).length == 0) {
+                    $("input[id='" + $(data.elem).attr('ppid') + "']").prop('checked', false);
+                }
+            }
+            form.render('checkbox');
+        });
+
+    });
+</script>
+{include admin.public.validFormScript}

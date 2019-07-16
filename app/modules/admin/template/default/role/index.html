@@ -13,7 +13,7 @@
                         <div class="layui-inline">
                             <label class="layui-form-label search-form-label">关键词</label>
                             <div class="layui-input-inline" style="width: 300px;">
-                                <input type="text" name="keyword" placeholder="登录账号|姓名|联系电话|部门" autocomplete="off" value="{$keyword}"
+                                <input type="text" name="keyword" placeholder="角色名称" autocomplete="off" value="{$keyword}"
                                        class="layui-input">
                             </div>
                         </div>
@@ -30,9 +30,6 @@
                 <script type="text/html" id="table-content-list">
                     <a title="修改信息" class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit">
                         <i class="layui-icon ml0">&#xe642;</i>
-                    </a>
-                    <a title="重置密码" class="layui-btn layui-btn-xs" lay-event="pwd">
-                        <i class="layui-icon ml0 mr0">&#xe673;</i>
                     </a>
                     <a title="删除" class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">
                         <i class="layui-icon ml0 mr0"> &#xe640;</i>
@@ -75,7 +72,6 @@
             , url: "{$dataUrl}"
             ,autoSort: false
             ,parseData: function(res){ //res 即为原始返回的数据
-                console.log(res);
                 return {
                     "code": res.code, //解析接口状态
                     "msg": res.message, //解析提示文本
@@ -86,13 +82,10 @@
             , cols: [[
                 {type: 'checkbox', width: 50,fixed:'left'}
                 ,{field: 'id', title: 'ID', width:80,fixed:'left'}
-                ,{field: 'username', title: '登录账号',minWidth:200,fixed:'left'}
-                ,{field: 'realname', title: '姓名',width:200}
-                ,{field: 'tel', title: '联系电话', width:200}
-                ,{field: 'department', title: '部门', width: 200}
-                ,{field: 'last_login_time', title: '上次登录时间', width: 200}
+                ,{field: 'name', title: '角色名称',width:250,fixed:'left'}
+                ,{field: 'summary', title: '角色描述',minWidth:200}
                 ,{field: 'is_valid', title: '状态', width: 200, templet:"#tableValid"}
-                , {title: '操作', width: 180, toolbar: '#table-content-list',fixed:'right'}
+                ,{title: '操作', width: 180, toolbar: '#table-content-list',fixed:'right'}
             ]]
             , page: true
         });
@@ -104,7 +97,7 @@
                     layer.confirm('真的删除行么', function (index) {
                         var query=new Object();
                         query.ids=obj.data.id;
-                        var url = "/admin/user/doDel";
+                        var url = "/admin/role/doDel";
                         loading("处理中...");
                         layui.$.post(url, query, function (res) {
                             closeAll();
@@ -117,14 +110,9 @@
                     });
                     break;
                 case "edit":
-                    var url = '/admin/user/edit';
+                    var url = '/admin/role/edit';
                     url += '?id='+data.id;
-                    openWindow(url,'修改员工信息','420px','90%');
-                    break;
-                case "pwd":
-                    var url = '/admin/user/resetPwd';
-                    url += '?id='+data.id;
-                    openWindow(url,'重置密码','420px','360px');
+                    openWindow(url,'修改员工信息','100%','100%');
                     break;
                 default:
             }
@@ -133,7 +121,7 @@
 
         form.on('switch(is_valid)', function(obj) {
 
-            var url = "/admin/user/doChangeValid";
+            var url = "/admin/role/doChangeValid";
             var query = new Object();
             query.id = $(obj.elem).attr('id');
             query.valid = obj.elem.checked === true?1:0;
@@ -168,20 +156,20 @@
         var query = new Object();
         query.ids = "";
         for (var i = 0; i < len; i++) {
-            query.ids += dot + data[i].ar_id;
+            query.ids += dot + data[i].id;
             dot = ",";
         }
         layer.confirm('确定要删除选中记录吗？', {
             btn: ['确定', '取消']
         }, function (index, layero) {
-            var url = "/admin/user/doDel";
+            var url = "/admin/role/doDel";
             loading("处理中...");
             layui.$.post(url, query, function (res) {
                 closeAll();
                 if (res.code === '000') {
                     tableReload();
                 } else {
-                    msgFaild(res.msg);
+                    msgFaild(res.message);
                 }
             }, "json");
         }, function (index) {
@@ -190,7 +178,7 @@
     }
 
     function add() {
-        openWindow('/admin/user/add','新增员工','440px','90%');
+        openWindow('/admin/role/add','新增角色','100%','100%');
     }
 </script>
 </body>

@@ -1,0 +1,48 @@
+<div class="layui-form p10">
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>用户信息</legend>
+    </fieldset>
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="red">* </span>登录账号</label>
+        <div class="layui-input-inline">
+            <input type="text" name="username" datatype="e" placeholder="输入登录账号，使用电子邮箱" value="{$user.username}"
+                   autocomplete="off" class="layui-input" nullmsg="请输入登录账号" errormsg="请输入正确的电子邮箱">
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="Validform_checktip m0">请输入登录账号</span>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="red">* </span>密码</label>
+        <div class="layui-input-inline ">
+            <input type="password" name="password" datatype="*6-18" nullmsg="请输入您的密码" placeholder="输入您的密码"
+                   autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="red">* </span>确认密码</label>
+        <div class="layui-input-inline ">
+            <input type="password" datatype="*6-18" recheck="password" nullmsg="请输入确认密码" placeholder="输入确认密码" autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="red">* </span>状态</label>
+        <div class="layui-input-inline">
+            <input type="checkbox" name="is_valid" lay-skin="switch" lay-text="启用|禁用" value="1"
+            <?php echo $role['is_valid'] == '1' ? 'checked' : '' ?>>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <button value="提交" class="layui-btn" lay-submit lay-filter="submit_btn">提交</button>
+        <a href="javascript:parent.closeAll()" class="layui-btn layui-btn-primary">取消</a>
+    </div>
+
+    <div>&nbsp;</div>
+</div>
+{include admin.public.validFormScript}

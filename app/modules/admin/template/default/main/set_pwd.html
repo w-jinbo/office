@@ -1,11 +1,10 @@
 <html class="bg_ff">
 <head>
     {include admin.public.head}
-
 </head>
 <body class="bg_ff">
 <div class="x-body bg_ff ">
-    <form class="layui-form mainform" method="post" action="/admin/main/doSetUserInfo">
+    <form class="layui-form mainform" method="post" action="/admin/main/doSetPwd">
         <div class="layui-form p10">
 
             <div class="layui-form-item">
@@ -16,26 +15,26 @@
             </div>
 
             <div class="layui-form-item">
-                <label class="layui-form-label"><span class="red">* </span>姓名</label>
+                <label class="layui-form-label"><span class="red">* </span>旧密码</label>
                 <div class="layui-input-inline ">
-                    <input type="text" name="realname" datatype="*" nullmsg="请输入您的姓名" placeholder="输入您的姓名" autocomplete="off"
-                           class="layui-input" value="{$admin.realname}">
+                    <input type="password" name="old_pwd" datatype="*6-18" nullmsg="请输入您的久密码" placeholder="输入您的旧密码" autocomplete="off"
+                           class="layui-input">
                 </div>
             </div>
 
             <div class="layui-form-item">
-                <label class="layui-form-label"><span class="red">* </span>手机号码</label>
+                <label class="layui-form-label"><span class="red">* </span>新密码</label>
                 <div class="layui-input-inline ">
-                    <input type="text" name="tel" datatype="m" nullmsg="请输入您的手机号码" errormsg="手机号码格式不正确" placeholder="输入手机号码"
-                           autocomplete="off" class="layui-input" value="{$admin.tel}">
+                    <input type="password" name="new_pwd" datatype="*6-18" nullmsg="请输入您的新密码" placeholder="输入您的新密码"
+                           autocomplete="off" class="layui-input">
                 </div>
             </div>
 
             <div class="layui-form-item">
-                <label class="layui-form-label"><span class="red">* </span>部门</label>
+                <label class="layui-form-label"><span class="red">* </span>确认密码</label>
                 <div class="layui-input-inline ">
-                    <input type="text" name="department" datatype="*" nullmsg="请输入您所属的部门" placeholder="输入您所属的部门" autocomplete="off"
-                           class="layui-input" value="{$admin.department}">
+                    <input type="password" datatype="*6-18" recheck="new_pwd" nullmsg="请输入确认密码" placeholder="输入确认密码" autocomplete="off"
+                           class="layui-input">
                 </div>
             </div>
             <div class="layui-form-item">
@@ -56,7 +55,7 @@
                 callback: function (data) {
                     if (data.code === '000') {
                         layer.alert(data.message, {icon: 6}, function () {
-                            parent.closeAll();
+                            parent.location = data.data.url;
                         });
                     } else {
                         msgFaild(data.message);
