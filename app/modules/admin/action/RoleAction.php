@@ -20,6 +20,8 @@ class RoleAction extends BaseAction {
     public function index(HttpRequest $request) {
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $this->assign('keyword', $keyword);
+
+        //设置数据接口
         $this->assign('dataUrl', url('/admin/role/getDataList'));
         $this->setView('role/index');
     }

@@ -15,7 +15,7 @@
 
     <div class="layui-form-item layui-form-text">
         <label class="layui-form-label">角色描述</label>
-        <div class="layui-input-block" style="width: 500px;">
+        <div class="layui-input-block w500">
             <textarea name="summary" placeholder="请输入角色描述" class="layui-textarea">{$role.summary}</textarea>
         </div>
     </div>
@@ -52,7 +52,7 @@
                             <?php echo in_array($fitem['id'],$role['power_array'])?' checked':''?>>
                 </td>
                 <td>
-                    <div class="layui-input-block" style="margin-left: 10px;">
+                    <div class="layui-input-block ml10">
                         {loop $fitem['sub'] $item}
                         <input name="ap_codes[]" lay-skin="primary" type="checkbox" title="{$item.name}"
                                id="{$item.id}" pid="{$item.pId}" ppid="{$fitem.pId}" value="{$item.id}" lay-filter="ap_code"

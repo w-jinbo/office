@@ -4,28 +4,55 @@
     </fieldset>
     <div class="layui-form-item">
         <label class="layui-form-label"><span class="red">* </span>登录账号</label>
-        <div class="layui-input-inline">
+        <div class="layui-input-inline w220">
             <input type="text" name="username" datatype="e" placeholder="输入登录账号，使用电子邮箱" value="{$user.username}"
                    autocomplete="off" class="layui-input" nullmsg="请输入登录账号" errormsg="请输入正确的电子邮箱">
-        </div>
-        <div class="layui-form-mid layui-word-aux">
-            <span class="Validform_checktip m0">请输入登录账号</span>
+            <span class="Validform_checktip">请输入登录账号</span>
         </div>
     </div>
 
     <div class="layui-form-item">
         <label class="layui-form-label"><span class="red">* </span>密码</label>
-        <div class="layui-input-inline ">
+        <div class="layui-input-inline w220">
             <input type="password" name="password" datatype="*6-18" nullmsg="请输入您的密码" placeholder="输入您的密码"
                    autocomplete="off" class="layui-input">
+            <span class="Validform_checktip">请输入登录密码</span>
         </div>
     </div>
 
     <div class="layui-form-item">
         <label class="layui-form-label"><span class="red">* </span>确认密码</label>
-        <div class="layui-input-inline ">
+        <div class="layui-input-inline w220">
             <input type="password" datatype="*6-18" recheck="password" nullmsg="请输入确认密码" placeholder="输入确认密码" autocomplete="off"
                    class="layui-input">
+            <span class="Validform_checktip">请输入确认密码</span>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="red">* </span>姓名</label>
+        <div class="layui-input-inline w220">
+            <input type="text" name="realname" datatype="*" placeholder="输入您的姓名" value="{$user.realname}"
+                   autocomplete="off" class="layui-input" nullmsg="请输入您的姓名">
+            <span class="Validform_checktip">请输入您的姓名</span>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="red">* </span>手机号码</label>
+        <div class="layui-input-inline w220">
+            <input type="text" name="tel" datatype="m" placeholder="输入您的手机号码" value="{$user.tel}"
+                   autocomplete="off" class="layui-input" nullmsg="请输入您的手机号码" errormsg="请输入正确的手机号码">
+            <span class="Validform_checktip">请输入您的手机号码</span>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="red">* </span>所属部门</label>
+        <div class="layui-input-inline w220">
+            <input type="text" name="department" datatype="*" placeholder="输入您所属的部门" value="{$user.department}"
+                   autocomplete="off" class="layui-input" nullmsg="请输入您所属的部门" >
+            <span class="Validform_checktip">请输入您所属的部门</span>
         </div>
     </div>
 
@@ -38,6 +65,17 @@
     </div>
 
     <div class="layui-form-item">
+        <label class="layui-form-label"><span class="red">* </span>角色</label>
+        <div class="layui-input-block">
+            <input type="hidden" name="role_ids" value="{$user.role_ids}">
+            {loop $roleList $key $value}
+            <input lay-filter="roleIds" type="checkbox" title="{$value.name}" role_id="{$value.id}" lay-skin="primary"
+            <?php echo in_array($value['id'], $user['role_ids_arr']) ? 'checked' : '' ?>>
+            {/loop}
+        </div>
+    </div>
+
+    <div class="layui-form-item">
         <label class="layui-form-label"></label>
         <button value="提交" class="layui-btn" lay-submit lay-filter="submit_btn">提交</button>
         <a href="javascript:parent.closeAll()" class="layui-btn layui-btn-primary">取消</a>
@@ -45,4 +83,19 @@
 
     <div>&nbsp;</div>
 </div>
+<script>
+    layui.form.on('checkbox(roleIds)', function(data){
+        getRoleValue();
+    });
+
+    function getRoleValue() {
+        var list = $('.layui-form-checked');
+        var idsArr = new Array();
+        $.each(list, function (i){
+            console.log(list[i]);
+            idsArr.push($(list[i]).prev().attr('role_ids'));
+        });
+        console.log(idsArr.join(','));
+    }
+</script>
 {include admin.public.validFormScript}
