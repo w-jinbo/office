@@ -92,10 +92,9 @@
         var list = $('.layui-form-checked');
         var idsArr = new Array();
         $.each(list, function (i){
-            console.log(list[i]);
-            idsArr.push($(list[i]).prev().attr('role_ids'));
+            idsArr.push($(list[i]).prev('input').attr('role_id'));
         });
-        console.log(idsArr.join(','));
+        $('input[name="role_ids"]').val(idsArr.join(','));
     }
 </script>
 {include admin.public.validFormScript}

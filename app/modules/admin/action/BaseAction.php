@@ -19,6 +19,9 @@ class BaseAction extends Controller {
         $this->isLogin();
     }
 
+    /**
+     * 判断用户是否已经登录
+     */
     public function isLogin() {
         $userId=Session::get('user_id');
         if (!$userId) {
@@ -27,6 +30,12 @@ class BaseAction extends Controller {
         }
     }
 
+    /**
+     * 获取列表数据
+     * @param $service
+     * @param $request
+     * @return JsonResult
+     */
     public function getDataList($service, $request) {
         $result = new JsonResult(JsonResult::CODE_SUCCESS);
         $page = $request->getIntParam('page');
@@ -41,6 +50,13 @@ class BaseAction extends Controller {
         return $result;
     }
 
+    /**
+     * 修改记录的是否有效属性
+     * @param $id
+     * @param $valid
+     * @param $service
+     * @return int
+     */
     protected function changeValid($id, $valid, $service) {
         $res = 0;
         if ($valid == 1) {
