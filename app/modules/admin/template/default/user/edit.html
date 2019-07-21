@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html class="bg_ff">
+<head>
+    {include admin.public.head}
+</head>
+<body class="bg_ff">
+<div class="x-body bg_ff">
+    <form class="layui-form mainform" method="post" action="/admin/user/doEdit">
+        <input type="hidden" name="id" value="{$user.id}"/>
+        {include admin.form.user}
+    </form>
+</div>
+
+</body>
+</html>

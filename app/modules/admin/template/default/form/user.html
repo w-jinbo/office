@@ -2,10 +2,11 @@
     <fieldset class="layui-elem-field layui-field-title">
         <legend>用户信息</legend>
     </fieldset>
+    {if !$isEdit }
     <div class="layui-form-item">
         <label class="layui-form-label"><span class="red">* </span>登录账号</label>
         <div class="layui-input-inline w220">
-            <input type="text" name="username" datatype="e" placeholder="输入登录账号，使用电子邮箱" value="{$user.username}"
+            <input type="text" name="username" datatype="e,chkFirst" placeholder="输入登录账号，使用电子邮箱" value="{$user.username}"
                    autocomplete="off" class="layui-input" nullmsg="请输入登录账号" errormsg="请输入正确的电子邮箱">
             <span class="Validform_checktip">请输入登录账号</span>
         </div>
@@ -28,6 +29,14 @@
             <span class="Validform_checktip">请输入确认密码</span>
         </div>
     </div>
+    {else}
+    <div class="layui-form-item">
+        <label class="layui-form-label">账号</label>
+        <div class="layui-input-inline">
+            <label class="layui-form-label tl w200">{$user.username}</label>
+        </div>
+    </div>
+    {/if}
 
     <div class="layui-form-item">
         <label class="layui-form-label"><span class="red">* </span>姓名</label>
@@ -60,7 +69,7 @@
         <label class="layui-form-label"><span class="red">* </span>状态</label>
         <div class="layui-input-inline">
             <input type="checkbox" name="is_valid" lay-skin="switch" lay-text="启用|禁用" value="1"
-            <?php echo $role['is_valid'] == '1' ? 'checked' : '' ?>>
+            <?php echo $user['is_valid'] == '1' ? 'checked' : '' ?>>
         </div>
     </div>
 

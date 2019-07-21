@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html class="bg_ff">
+<head>
+    {include admin.public.head}
+</head>
+<body class="bg_ff">
+<div class="x-body bg_ff">
+    <form class="layui-form mainform" method="post" action="/admin/user/doResetPwd">
+        <input type="hidden" name="id" value="{$user.id}"/>
+        <div class="layui-form p10">
+            <div class="layui-form-item">
+                <label class="layui-form-label">账号</label>
+                <div class="layui-input-inline ">
+                    <label class="layui-form-label tl w200">{$user.username}</label>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="red">* </span>新密码</label>
+                <div class="layui-input-inline w220">
+                    <input type="password" name="new_pwd" datatype="*6-18" nullmsg="请输入您的新密码" placeholder="输入您的新密码"
+                           autocomplete="off" class="layui-input">
+                    <span class="Validform_checktip"></span>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="red">* </span>确认密码</label>
+                <div class="layui-input-inline w220">
+                    <input type="password" datatype="*6-18" recheck="new_pwd" nullmsg="请输入确认密码" placeholder="输入确认密码" autocomplete="off"
+                           class="layui-input">
+                    <span class="Validform_checktip"></span>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"></label>
+                <button value="提交" class="layui-btn" lay-submit lay-filter="submit_btn">提交</button>
+                <a href="javascript:parent.closeAll()" class="layui-btn layui-btn-primary">取消</a>
+            </div>
+
+        </div>
+        {include admin.public.validFormScript}
+    </form>
+</div>
+</body>
+</html>

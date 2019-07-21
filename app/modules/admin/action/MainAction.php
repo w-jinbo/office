@@ -23,6 +23,10 @@ class MainAction extends BaseAction {
         $this->setView('main/index');
     }
 
+    public function main() {
+        
+    }
+
     /**
      *　左侧菜单栏
      */

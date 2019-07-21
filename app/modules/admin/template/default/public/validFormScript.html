@@ -7,6 +7,26 @@
                 "zs": /^([1-9]\d*\.\d*|0\.\d+|[1-9]\d*|0)$/, //正数
                 "wz": /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?/,
                 "ip": /((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)/,  //ip
+                "chkFirst":function(gets,obj,curform){
+                    var username = gets;
+                    var url_check = "/admin/user/chkFirst";
+                    var flag=false;
+                    $.ajax({
+                        data:{'username':username},
+                        type:"POST",
+                        url:url_check,
+                        async:false,
+                        datatype:'json',
+                        success:function(data){
+                            if(data.code === '000'){
+                                flag = true;
+                            }else{
+                                flag = '该账号已被占用';
+                            }
+                        }
+                    });
+                    return flag;
+                },
             },
             tiptype: function (msg, o, cssctl) {
                 //msg：提示信息;

@@ -49,6 +49,36 @@ class UserService extends CommonService {
         return $result;
     }
 
+    public function addUser($params) {
+        $result = new JsonResult(JsonResult::CODE_FAIL);
+        $data = $this->dataFilter($params);
+        if (!is_array($data)) {
+            $result->setMessage($data);
+            return $result;
+        }
+        $user = $this->isUser($data['username']);
+        if ($user) {
+            $result->setMessage('该电子邮箱已被注册');
+            return $result;
+        }
+
+        $data['salt'] = rand(1000, 9999);
+        $data['password'] = md5(md5($data['password']) . $data['salt']);
+        $date = date('Y-m-d H:i:s');
+        //是否有效
+        $data['is_valid'] = isset($params['is_valid']) ? 1 : 0;
+        $data['create_time'] = $date;
+        $data['update_time'] = $date;
+        $res = $this->modelDao->add($data);
+        if ($res <= 0) {
+            $result->setMessage('添加失败，请稍后重试');
+            return $result;
+        }
+        $result->setCode(JsonResult::CODE_SUCCESS);
+        $result->setMessage('添加成功');
+        return $result;
+    }
+
     public function updateUser($params, $userId = '') {
         $result = new JsonResult(JsonResult::CODE_FAIL);
         $data = $this->dataFilter($params);
@@ -60,6 +90,7 @@ class UserService extends CommonService {
             $userId = Session::get('user_id');
         }
         //数据验证通过，更新用户数据
+        $data['is_valid'] = isset($params['is_valid']) ? 1 : 0;
         $data['update_time'] = date('Y-m-d H:i:s');
         $res = $this->modelDao->update($data, $userId);
         if(!$res){
@@ -145,9 +176,22 @@ class UserService extends CommonService {
      * @param $userName
      * @return array|bool
      */
-    private function isUser ($userName) {
+    public function isUser ($userName) {
         $user = $this->modelDao->where('username',$userName)->findOne();
         return empty($user) ? false :$user;
+    }
+
+    public function delUsers($ids) {
+        $result = new JsonResult(JsonResult::CODE_FAIL);
+        $idsArr = explode(',', $ids);
+        $res = $this->modelDao->where('id', 'in', $idsArr)->deletes();
+        if ($res <= 0) {
+            $result->setMessage('删除失败，请稍后重试');
+            return $result;
+        }
+        $result->setCode(JsonResult::CODE_SUCCESS);
+        $result->setMessage('删除成功');
+        return $result;
     }
 
     private function dataFilter($params) {
@@ -156,8 +200,8 @@ class UserService extends CommonService {
                 array('require' => '用户名不能为空', 'length' => '用户名长度必须在6~20之间', 'type' => '请输入正确的电子邮箱')),
             'password' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
                 array('require' => '密码不能为空')),
-            'salt' => array(Filter::DFILTER_STRING, array(4, 4), Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '密码盐不能为空', 'length' => '密码盐长度必须是4个字符')),
+            // 'salt' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
+            //     array('require' => '密码盐不能为空', 'length' => '密码盐长度必须是4个字符')),
             'role_ids' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
                 array('require' => '角色集合不能为空')),
             'realname' => array(Filter::DFILTER_STRING, array(2, 20), Filter::DFILTER_SANITIZE_TRIM,
