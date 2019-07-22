@@ -11,4 +11,8 @@ class VacationApplyDao extends MysqlModel {
         parent::__construct('vacation_apply');
         $this->primaryKey = 'id';
     }
+
+    public function __clone() {
+        $this->sqlBuilder = clone $this->sqlBuilder;
+    }
 }

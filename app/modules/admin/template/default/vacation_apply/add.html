@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html class="bg_ff">
+<head>
+    {include admin.public.head}
+</head>
+<body class="bg_ff">
+<div class="x-body bg_ff">
+    <form class="layui-form mainform" method="post" action="/admin/vacationApply/doAdd">
+        <div class="layui-form p10">
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>假期申请</legend>
+            </fieldset>
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="red">* </span>假期类型</label>
+                <div class="layui-input-inline">
+                    <input type="hidden" name="vacation_name"/>
+                    <select name="vacation_id" datatype="*" nullmsg="请选择假期类型" lay-filter="vacation_id" lay-search>
+                        <option value="">请选择假期类型</option>
+                        {loop $vacationList $v}
+                        <option value="{$v.id}">{$v.name}</option>
+                        {/loop}
+                    </select>    
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    <span class="Validform_checktip m0"></span>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="red">* </span>申请时间</label>
+                    <div class="layui-input-inline">
+                    <input type="text" datatype="*" nullmsg="请选择开始时间" class="layui-input" name="apply_begin_time" 
+                        readonly id="apply_begin_time" placeholder="开始时间">
+                    </div>
+                    <div class="layui-form-mid">
+                    -
+                    </div>
+                    <div class="layui-input-inline">
+                    <input type="text" datatype="*" nullmsg="请选择结束时间" class="layui-input" name="apply_end_time" 
+                        readonly id="apply_end_time" placeholder="结束时间">
+                    </div>
+
+                    <div class="layui-form-mid layui-word-aux">
+                        <span class="Validform_checktip m0"></span>
+                    </div>
+            </div>
+                
+        
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label"><span class="red">* </span>申请原因</label>
+                <div class="layui-input-block w500">
+                    <textarea name="apply_reason" placeholder="请输入申请原因" datatype="*" nullmsg="请输入申请原因" class="layui-textarea"></textarea>
+                    <span class="Validform_checktip"></span>
+                </div>
+            </div>
+        
+            <div class="layui-form-item">
+                <label class="layui-form-label"></label>
+                <button value="提交" class="layui-btn" lay-submit lay-filter="submit_btn">提交</button>
+                <a href="javascript:parent.closeAll()" class="layui-btn layui-btn-primary">取消</a>
+            </div>
+        
+            <div>&nbsp;</div>
+        </div>
+    </form>
+</div>
+<script>
+    var laydate = layui.laydate;
+    var insStart = laydate.render({
+      elem: '#apply_begin_time'
+      ,type: 'datetime'
+      ,min: 0
+      ,done: function(value, date){
+        //更新结束日期的最小日期
+        insEnd.config.min = lay.extend({}, date, {
+          month: date.month - 1
+        });
+        
+        //自动弹出结束日期的选择器
+       insEnd.config.elem[0].focus();
+      }
+    });
+    
+    //结束日期
+    var insEnd = laydate.render({
+      elem: '#apply_end_time'
+      ,type: 'datetime'
+      ,min: 0
+      ,done: function(value, date){
+        //更新开始日期的最大日期
+        insStart.config.max = lay.extend({}, date, {
+          month: date.month - 1
+        });
+      }
+    });
+
+    layui.form.on('select(vacation_id)', function(data){
+        var vacationName=$(data.elem).find('option[value="'+data.value+'"]').html();
+        $('input[name="vacation_name"]').val(vacationName);
+    });        
+</script>
+{include admin.public.validFormScript}
+</body>
+</html>

@@ -7,13 +7,10 @@ use herosphp\http\HttpRequest;
 use herosphp\session\Session;
 
 class MainAction extends BaseAction {
-    private $admin ;
     public function __construct() {
         parent::__construct();
         $userId = Session::get('user_id');
-        $admin = $this->userService->findById($userId);
-        $this->admin = $admin;
-        $this->assign('admin', $admin);
+        $this->assign('admin', $this->admin);
     }
 
     /**
@@ -56,12 +53,24 @@ class MainAction extends BaseAction {
         die();
     }
 
+    /**
+     * 修改用户信息操作
+     *
+     * @param HttpRequest $request
+     * @return void
+     */
     public function doSetUserInfo(HttpRequest $request) {
         $parameters = $request->getParameters();
         $result = $this->userService->updateUser($parameters);
         $result->output();
     }
 
+    /**
+     * 修改用户密码操作
+     *
+     * @param HttpRequest $request
+     * @return void
+     */
     public function doSetPwd(HttpRequest $request) {
         $newPwd = $request->getStrParam('new_pwd');
         $oldPwd = $request->getStrParam('old_pwd');

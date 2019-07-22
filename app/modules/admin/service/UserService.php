@@ -8,19 +8,21 @@ use herosphp\filter\Filter;
 use herosphp\model\CommonService;
 use herosphp\session\Session;
 use herosphp\utils\JsonResult;
+use herosphp\http\HttpRequest;
 
 class UserService extends CommonService {
 
     protected $modelClassName = 'app\admin\dao\UserDao';
 
     /**
-     * 用户登录操作
-     * @param $userName
-     * @param $passWord
-     * @return JsonResult
+     * 用户登录
+     *
+     * @param string $userName 用户名
+     * @param string $passWord 密码
+     * @return JsonResult $result
      */
-    public function login ($userName, $passWord) {
-        $result = new JsonResult(JsonResult::CODE_FAIL);
+    public function login(string $userName, string $passWord) {
+        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
         //查询账号是否存在
         $user = $this->isUser($userName);
         if (!$user) {
@@ -49,8 +51,51 @@ class UserService extends CommonService {
         return $result;
     }
 
-    public function addUser($params) {
-        $result = new JsonResult(JsonResult::CODE_FAIL);
+    /**
+     * 获取用户列表数据
+     *
+     * @param HttpRequest $request 请求数组，包含分页，分页大小，条件
+     * @return array $return
+     */
+    public function getListData(HttpRequest $request) {
+        $query = $this->modelDao;
+        $page = $request->getIntParam('page');
+        $pageSize = $request->getIntParam('limit');
+        $keyword = $request->getParameter('keyword', 'trim|urldecode');
+        if (!empty($keyword)) {
+            $query->whereOr('username', 'like', '%' . $keyword . '%')
+                ->whereOr('realname', 'like', '%' . $keyword . '%')
+                ->whereOr('department', 'like', '%' . $keyword . '%');
+        }
+
+        $return = array(
+            'page' => $page,
+            'pageSize' => $pageSize,
+            'total' => 0,
+            'list' => array()
+        );
+
+        //克隆查询对象，防止查询条件丢失
+        $countQuery = clone $query;
+        $total = $countQuery->count();
+        if ($total <= 0) {
+            return $return;
+        }
+
+        $data = $query->page($page, $pageSize)->order('id desc')->find();
+        $return['total'] = $total;
+        $return['list'] = $data;
+        return $return;
+    }
+
+    /**
+     * 增加用户操作
+     * 
+     * @param array $params 表单数据
+     * @return JsonResult $result
+     */
+    public function addUser(array $params) {
+        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
         $data = $this->dataFilter($params);
         if (!is_array($data)) {
             $result->setMessage($data);
@@ -79,8 +124,14 @@ class UserService extends CommonService {
         return $result;
     }
 
-    public function updateUser($params, $userId = '') {
-        $result = new JsonResult(JsonResult::CODE_FAIL);
+    /**
+     * 更新用户信息
+     * @param array $params 表单数据
+     * @param string $userId 更新用户记录id
+     * @return JsonResult $result
+     */
+    public function updateUser(array $params, string $userId = '') {
+        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
         $data = $this->dataFilter($params);
         if (!is_array($data)) {
             $result->setMessage($data);
@@ -104,8 +155,15 @@ class UserService extends CommonService {
         return $result;
     }
 
-    public function setPwd($newPwd, $oldPwd) {
-        $result = new JsonResult(JsonResult::CODE_FAIL);
+    /**
+     * 修改密码操作
+     * 
+     * @param string $newPwd 新密码
+     * @param string $oldPwd 旧密码
+     * @return JsonResult $result
+     */
+    public function setPwd(string $newPwd, string $oldPwd) {
+        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
         $userId = Session::get('user_id');
         $user = $this->modelDao->findById($userId);
         if (!$user) {
@@ -173,16 +231,23 @@ class UserService extends CommonService {
 
     /**
      * 判断用户是否存在
-     * @param $userName
+     * 
+     * @param string $userName
      * @return array|bool
      */
-    public function isUser ($userName) {
+    public function isUser (string $userName) {
         $user = $this->modelDao->where('username',$userName)->findOne();
         return empty($user) ? false :$user;
     }
 
-    public function delUsers($ids) {
-        $result = new JsonResult(JsonResult::CODE_FAIL);
+    /**
+     * 删除用户操作
+     * 
+     * @param string $ids 要删除的用户记录id集合
+     * @return JsonResult $result
+     */
+    public function delUsers(string $ids) {
+        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
         $idsArr = explode(',', $ids);
         $res = $this->modelDao->where('id', 'in', $idsArr)->deletes();
         if ($res <= 0) {
@@ -194,7 +259,13 @@ class UserService extends CommonService {
         return $result;
     }
 
-    private function dataFilter($params) {
+    /**
+     * 数据过滤
+     * 
+     * @param array $params 表单数据
+     * @return array|string
+     */
+    private function dataFilter(array $params) {
         $filterMap = array(
             'username' => array(Filter::DFILTER_EMAIL, array(1, 20), Filter::DFILTER_SANITIZE_TRIM,
                 array('require' => '用户名不能为空', 'length' => '用户名长度必须在6~20之间', 'type' => '请输入正确的电子邮箱')),

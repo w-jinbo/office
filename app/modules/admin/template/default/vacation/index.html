@@ -13,7 +13,7 @@
                         <div class="layui-inline">
                             <label class="layui-form-label search-form-label">关键词</label>
                             <div class="layui-input-inline w300">
-                                <input type="text" name="keyword" placeholder="角色名称" autocomplete="off" value="{$keyword}"
+                                <input type="text" name="keyword" placeholder="假期名称" autocomplete="off" value="{$keyword}"
                                        class="layui-input">
                             </div>
                         </div>
@@ -82,8 +82,8 @@
             , cols: [[
                 {type: 'checkbox', width: 50,fixed:'left'}
                 ,{field: 'id', title: 'ID', width:80,fixed:'left'}
-                ,{field: 'name', title: '角色名称',width:250,fixed:'left'}
-                ,{field: 'summary', title: '角色描述',minWidth:200}
+                ,{field: 'name', title: '假期名称',width:250,fixed:'left'}
+                ,{field: 'summary', title: '假期描述',minWidth:200}
                 ,{field: 'is_valid', title: '状态', width: 200, templet:"#tableValid"}
                 ,{title: '操作', width: 180, toolbar: '#table-content-list',fixed:'right'}
             ]]
@@ -97,7 +97,7 @@
                     layer.confirm('真的删除行么', function (index) {
                         var query=new Object();
                         query.ids=obj.data.id;
-                        var url = "/admin/role/doDel";
+                        var url = "/admin/vacation/doDel";
                         loading("处理中...");
                         layui.$.post(url, query, function (res) {
                             closeAll();
@@ -110,9 +110,9 @@
                     });
                     break;
                 case "edit":
-                    var url = '/admin/role/edit';
+                    var url = '/admin/vacation/edit';
                     url += '?id='+data.id;
-                    openWindow(url,'修改角色信息','100%','100%');
+                    openWindow(url,'修改假期信息','40%','60%');
                     break;
                 default:
             }
@@ -121,7 +121,7 @@
 
         form.on('switch(is_valid)', function(obj) {
 
-            var url = "/admin/role/doChangeValid";
+            var url = "/admin/vacation/doChangeValid";
             var query = new Object();
             query.id = $(obj.elem).attr('id');
             query.valid = obj.elem.checked === true?1:0;
@@ -162,7 +162,7 @@
         layer.confirm('确定要删除选中记录吗？', {
             btn: ['确定', '取消']
         }, function (index, layero) {
-            var url = "/admin/role/doDel";
+            var url = "/admin/vacation/doDel";
             loading("处理中...");
             layui.$.post(url, query, function (res) {
                 closeAll();
@@ -178,7 +178,7 @@
     }
 
     function add() {
-        openWindow('/admin/role/add','新增角色','100%','100%');
+        openWindow('/admin/vacation/add','新增假期类型','40%','60%');
     }
 </script>
 </body>

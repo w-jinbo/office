@@ -1,0 +1,46 @@
+<div class="layui-form p10">
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>假期信息</legend>
+    </fieldset>
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="red">* </span>假期名称</label>
+        <div class="layui-input-inline">
+            <input type="text" name="name" datatype="*" placeholder="输入假期名称" value="{$vacation.name}"
+                   autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="Validform_checktip m0">请输入假期名称</span>
+        </div>
+    </div>
+
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">假期描述</label>
+        <div class="layui-input-block w500">
+            <textarea name="summary" placeholder="请输入假期描述" class="layui-textarea">{$vacation.summary}</textarea>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="red">* </span>状态</label>
+        <div class="layui-input-inline">
+            <input type="checkbox" name="is_valid" lay-skin="switch" lay-text="启用|禁用" value="1"
+            <?php echo $vacation['is_valid'] == '1' ? 'checked' : '' ?>>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <button value="提交" class="layui-btn" lay-submit lay-filter="submit_btn">提交</button>
+        <a href="javascript:parent.closeAll()" class="layui-btn layui-btn-primary">取消</a>
+    </div>
+
+    <div>&nbsp;</div>
+</div>
+<script>
+    layui.use(['form', 'layer'], function () {
+        $ = layui.jquery;
+        var form = layui.form
+            , layer = layui.layer;
+    });
+</script>
+{include admin.public.validFormScript}

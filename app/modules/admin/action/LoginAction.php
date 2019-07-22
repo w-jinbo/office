@@ -30,6 +30,7 @@ class LoginAction extends Controller {
 
     /**
      * 登录操作
+     * 
      * @param HttpRequest $request
      */
     public function doLogin(HttpRequest $request) {

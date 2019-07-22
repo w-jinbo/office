@@ -11,26 +11,46 @@ use herosphp\http\HttpRequest;
 use herosphp\utils\JsonResult;
 
 class RoleAction extends BaseAction {
-    private $roleService ;
+    protected $roleService ;
     public function __construct() {
         parent::__construct();
         $this->roleService = Loader::service(RoleService::class);
     }
 
+    /**
+     * 角色列表页
+     */
     public function index(HttpRequest $request) {
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $this->assign('keyword', $keyword);
 
         //设置数据接口
-        $this->assign('dataUrl', url('/admin/role/getDataList'));
+        $this->assign('dataUrl', url('/admin/role/getDataList?keyword=' . urlencode($keyword)));
         $this->setView('role/index');
     }
 
+    /**
+     * 获取角色列表数据接口
+     *
+     * @param HttpRequest $request
+     * @return Json
+     */
     public function getDataList(HttpRequest $request) {
-        $result = parent::getDataList($this->roleService, $request);
+        $data = $this->roleService->getListData($request);
+
+        $result = new JsonResult(JsonResult::CODE_SUCCESS, '获取数据成功');
+        $result->setData($data['list']);
+        $result->setCount($data['total']);
+        $result->setPage($data['page']);
+        $result->setPagesize($data['pageSize']);
         $result->output();
     }
 
+    /**
+     * 增加角色页面
+     *
+     * @param HttpRequest $request
+     */
     public function add(HttpRequest $request) {
         $powerArray = AdminPower::getPowerArray();
         $power = $this->getPowerList('', $powerArray);
@@ -39,6 +59,11 @@ class RoleAction extends BaseAction {
         $this->setView('role/add');
     }
 
+    /**
+     * 修改角色信息页面
+     *
+     * @param HttpRequest $request
+     */
     public function edit(HttpRequest $request) {
         $id = $request->getStrParam('id');
         $role = $this->roleService->findById($id);
@@ -52,19 +77,43 @@ class RoleAction extends BaseAction {
         $this->setView('role/edit');
     }
 
+    /**
+     * 增加角色操作
+     *
+     * @param HttpRequest $request
+     */
     public function doAdd(HttpRequest $request) {
+        if (!$this->chkPermission('role_list_add')) {
+            JsonResult::fail('您没有权限进行此操作');
+        }
         $params = $request->getParameters();
         $result = $this->roleService->addRole($params);
         $result->output();
     }
 
+    /**
+     * 修改角色信息操作
+     *
+     * @param HttpRequest $request
+     */
     public function doEdit(HttpRequest $request) {
+        if (!$this->chkPermission('role_list_edit')) {
+            JsonResult::fail('您没有权限进行此操作');
+        }
         $params = $request->getParameters();
         $result = $this->roleService->updateRole($params);
         $result->output();
     }
 
+    /**
+     * 删除角色操作
+     *
+     * @param HttpRequest $request
+     */
     public function doDel(HttpRequest $request){
+        if (!$this->chkPermission('role_list_del')) {
+            JsonResult::fail('您没有权限进行此操作');
+        }
         $params = $request->getStrParam('ids');
         if (empty($params)) {
             JsonResult::fail('请选择要删除的记录');
@@ -73,9 +122,18 @@ class RoleAction extends BaseAction {
         $result->output();
     }
 
+    /**
+     * 修改角色状态接口
+     *
+     * @param HttpRequest $request
+     * @return JsonResult
+     */
     public function doChangeValid(HttpRequest $request) {
+        if (!$this->chkPermission('role_list_edit')) {
+            JsonResult::fail('您没有权限进行此操作');
+        }
         $params = $request->getParameters();
-        $res = $this->changeValid($params['id'], $params['valid'], $this->roleService);
+        $res = parent::changeValid($params['id'], $params['valid'], $this->roleService);
         if ($res <= 0) {
             JsonResult::fail('修改状态失败，请稍后重试');
         } else {
@@ -83,7 +141,14 @@ class RoleAction extends BaseAction {
         }
     }
 
-    private function getPowerList($pkey, &$power) {
+    /**
+     * 递归处理权限集合，构成成树状结构
+     *
+     * @param string $pkey
+     * @param array $power
+     * @return array $resData
+     */
+    private function getPowerList(string $pkey, array &$power) {
         $resData = array();
         foreach ($power as $k => $v) {
             if ($pkey === $v['pId']) {
