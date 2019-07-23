@@ -11,7 +11,7 @@
  Target Server Version : 50726
  File Encoding         : 65001
 
- Date: 17/07/2019 08:25:18
+ Date: 23/07/2019 17:55:13
 */
 
 SET NAMES utf8mb4;
@@ -139,7 +139,7 @@ CREATE TABLE `role`  (
 -- ----------------------------
 INSERT INTO `role` VALUES (2, '21321321', 1, 'user_manage,user_list,user_list_view,user_list_add,user_list_edit,user_list_del,user_list_reset_pwd,role_list,role_list_view,role_list_add,role_list_edit,role_list_del', '321312', 0, '2019-07-16 15:52:31', '2019-07-16 15:52:31');
 INSERT INTO `role` VALUES (3, 'ceshi', 1, 'user_manage,user_list,user_list_view,user_list_add,user_list_edit,user_list_del,user_list_reset_pwd,role_list,role_list_view,role_list_add,role_list_edit,role_list_del,vacation_manage,vacation_list,vacation_list_view,vacation_list_add,vacation_list_edit,vacation_list_del,vacation_apply,vacation_apply_view,vacation_apply_add,vacation_apply_edit,vacation_apply_audit', 'cehsi', 0, '2019-07-16 15:54:47', '2019-07-16 15:54:47');
-INSERT INTO `role` VALUES (4, '员工', 0, 'vacation_manage,vacation_apply,vacation_apply_view,vacation_apply_add,vacation_apply_edit', '普通员工1', 0, '2019-07-16 15:56:57', '2019-07-16 16:34:26');
+INSERT INTO `role` VALUES (4, '员工', 1, 'vacation_manage,vacation_apply,vacation_apply_view,vacation_apply_add,vacation_apply_edit', '普通员工1', 0, '2019-07-16 15:56:57', '2019-07-16 16:34:26');
 
 -- ----------------------------
 -- Table structure for user
@@ -167,9 +167,9 @@ CREATE TABLE `user`  (
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES (1, 'admin', 'c022b1471357c2458559a33e29f19003', '4849', NULL, 'admin', '13113113111', 0, 0, 1, '１研发部２６', NULL, '2019-07-15 10:46:22', '2019-07-15 10:46:15', '2019-07-16 09:53:15');
-INSERT INTO `user` VALUES (2, 'admin2', 'b605e86d02eef8bfd0646f6a704c17c9', '1234', NULL, 'admin', '13113113111', 0, 0, 1, '１研发部２６', NULL, '2019-07-15 10:46:22', '2019-07-15 10:46:15', '2019-07-16 09:16:04');
-INSERT INTO `user` VALUES (3, 'admin3', 'b605e86d02eef8bfd0646f6a704c17c9', '1234', NULL, 'admin', '13113113111', 0, 0, 1, '１研发部２６', NULL, '2019-07-15 10:46:22', '2019-07-15 10:46:15', '2019-07-16 09:16:04');
+INSERT INTO `user` VALUES (1, 'admin', 'c022b1471357c2458559a33e29f19003', '4849', '2,3,4', 'admin1', '13113113111', 0, 1, 1, '１研发部２６', NULL, '2019-07-15 10:46:22', '2019-07-15 10:46:15', '2019-07-22 11:17:10');
+INSERT INTO `user` VALUES (2, 'admin2', 'b605e86d02eef8bfd0646f6a704c17c9', '1234', NULL, '2', '13113113111', 0, 0, 1, '１研发部２６', NULL, '2019-07-15 10:46:22', '2019-07-15 10:46:15', '2019-07-16 09:16:04');
+INSERT INTO `user` VALUES (3, 'admin3', 'b605e86d02eef8bfd0646f6a704c17c9', '1234', NULL, 'admin3', '13113113111', 0, 0, 1, '１研发部２６', NULL, '2019-07-15 10:46:22', '2019-07-15 10:46:15', '2019-07-16 09:16:04');
 INSERT INTO `user` VALUES (4, 'admin4', 'b605e86d02eef8bfd0646f6a704c17c9', '1234', NULL, 'admin', '13113113111', 0, 0, 1, '１研发部２６', NULL, '2019-07-15 10:46:22', '2019-07-15 10:46:15', '2019-07-16 09:16:04');
 INSERT INTO `user` VALUES (5, 'admin5', 'b605e86d02eef8bfd0646f6a704c17c9', '1234', NULL, 'admin', '13113113111', 0, 0, 1, '１研发部２６', NULL, '2019-07-15 10:46:22', '2019-07-15 10:46:15', '2019-07-16 09:16:04');
 INSERT INTO `user` VALUES (6, 'admin6', 'b605e86d02eef8bfd0646f6a704c17c9', '1234', NULL, 'admin', '13113113111', 0, 0, 1, '１研发部２６', NULL, '2019-07-15 10:46:22', '2019-07-15 10:46:15', '2019-07-16 09:16:04');
@@ -197,7 +197,7 @@ INSERT INTO `user` VALUES (27, 'admin27', 'b605e86d02eef8bfd0646f6a704c17c9', '1
 INSERT INTO `user` VALUES (28, 'admin28', 'b605e86d02eef8bfd0646f6a704c17c9', '1234', NULL, 'admin', '13113113111', 0, 0, 0, '１研发部２６', NULL, '2019-07-15 10:46:22', '2019-07-15 10:46:15', '2019-07-16 09:16:04');
 INSERT INTO `user` VALUES (29, 'admin29', 'b605e86d02eef8bfd0646f6a704c17c9', '1234', NULL, 'admin', '13113113111', 0, 0, 0, '１研发部２６', NULL, '2019-07-15 10:46:22', '2019-07-15 10:46:15', '2019-07-16 09:16:04');
 INSERT INTO `user` VALUES (30, 'admin30', 'b605e86d02eef8bfd0646f6a704c17c9', '1234', NULL, 'admin', '13113113111', 0, 0, 0, '１研发部２６', NULL, '2019-07-15 10:46:22', '2019-07-15 10:46:15', '2019-07-16 09:16:04');
-INSERT INTO `user` VALUES (31, 'admin', 'b605e86d02eef8bfd0646f6a704c17c9', '1234', NULL, 'admin', '13113113111', 0, 0, 0, '１研发部２６', NULL, '2019-07-15 10:46:22', '2019-07-15 10:46:15', '2019-07-16 09:16:04');
+INSERT INTO `user` VALUES (31, 'admin31', 'b605e86d02eef8bfd0646f6a704c17c9', '1234', '2,3,4', 'admin', '13113113111', 0, 0, 0, '１研发部２６', NULL, '2019-07-15 10:46:22', '2019-07-15 10:46:15', '2019-07-22 11:16:29');
 
 -- ----------------------------
 -- Table structure for vacation
@@ -211,21 +211,29 @@ CREATE TABLE `vacation`  (
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '添加时间',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '假期类型表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '假期类型表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of vacation
+-- ----------------------------
+INSERT INTO `vacation` VALUES (3, '心情假', '心情假', 1, '2019-07-22 15:01:17', '2019-07-22 15:01:17');
+INSERT INTO `vacation` VALUES (4, '健康假', '健康假', 1, '2019-07-22 15:01:33', '2019-07-22 15:01:33');
 
 -- ----------------------------
 -- Table structure for vacation_apply
 -- ----------------------------
 DROP TABLE IF EXISTS `vacation_apply`;
 CREATE TABLE `vacation_apply`  (
-  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `user_id` int(11) UNSIGNED NOT NULL COMMENT '申请用户id',
-  `vocation_id` int(11) UNSIGNED NOT NULL COMMENT '假期id',
-  `vocation_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '假期名称',
+  `vacation_id` int(11) UNSIGNED NOT NULL COMMENT '假期id',
+  `vacation_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '假期名称',
   `apply_reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '申请理由',
-  `apply_begin_time` datetime(0) NOT NULL COMMENT '申请开始时间',
-  `apply_end_time` datetime(0) NOT NULL COMMENT '申请结束时间',
-  `status` tinyint(2) UNSIGNED NOT NULL DEFAULT 0 COMMENT '申请状态，0：申请中，1：同意申请，-1：拒绝申请，-2：取消申请',
+  `apply_begin_date` date NOT NULL COMMENT '申请开始日期',
+  `apply_begin_period` tinyint(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT '申请开始时间段，1：上午，2：下午',
+  `apply_end_date` date NOT NULL COMMENT '申请结束日期',
+  `apply_end_period` tinyint(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT '申请结束时间段，1：上午，2：下午',
+  `status` tinyint(2) NOT NULL DEFAULT 0 COMMENT '申请状态，0：申请中，1：同意申请，2：拒绝申请，3：取消申请',
   `audit_user_id` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '审批人账号id',
   `audit_user_username` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '审批人账号',
   `audit_opinion` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '审批意见',
@@ -233,6 +241,14 @@ CREATE TABLE `vacation_apply`  (
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '添加时间',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`, `user_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '假期申请记录表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '假期申请记录表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of vacation_apply
+-- ----------------------------
+INSERT INTO `vacation_apply` VALUES (1, 1, 3, '心情假', 'test', '2019-07-24', 1, '2019-07-24', 1, 1, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `vacation_apply` VALUES (2, 1, 3, '心情假', 'test', '2019-07-25', 1, '2019-07-25', 2, 2, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `vacation_apply` VALUES (3, 3, 3, '心情假', 'test', '2019-07-26', 2, '2019-07-28', 1, 3, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `vacation_apply` VALUES (4, 1, 3, '心情假', '12312321', '2019-07-23', 1, '2019-07-23', 1, 4, NULL, NULL, NULL, NULL, '2019-07-23 16:23:36', '2019-07-23 16:23:36');
 
 SET FOREIGN_KEY_CHECKS = 1;

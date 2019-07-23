@@ -27,17 +27,30 @@
             </div>
 
             <div class="layui-form-item">
-                <label class="layui-form-label"><span class="red">* </span>申请时间</label>
+                <label class="layui-form-label"><span class="red">* </span>开始时间</label>
                     <div class="layui-input-inline">
-                    <input type="text" datatype="*" nullmsg="请选择开始时间" class="layui-input" name="apply_begin_time" 
-                        readonly id="apply_begin_time" placeholder="开始时间">
-                    </div>
-                    <div class="layui-form-mid">
-                    -
+                    <input type="text" datatype="*" nullmsg="请选择开始时间" class="layui-input" name="apply_begin_date" 
+                        readonly id="apply_begin_date" placeholder="开始时间">
                     </div>
                     <div class="layui-input-inline">
-                    <input type="text" datatype="*" nullmsg="请选择结束时间" class="layui-input" name="apply_end_time" 
-                        readonly id="apply_end_time" placeholder="结束时间">
+                        <input type="radio" datatype="chkDate" name="apply_begin_period" value="1" title="上午" checked>
+                        <input type="radio" datatype="chkDate" name="apply_begin_period" value="2" title="下午">
+                    </div>
+
+                    <div class="layui-form-mid layui-word-aux">
+                        <span class="Validform_checktip m0"></span>
+                    </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="red">* </span>结束时间</label>
+                    <div class="layui-input-inline">
+                        <input type="text" datatype="*" nullmsg="请选择结束时间" class="layui-input" name="apply_end_date" 
+                            readonly id="apply_end_date" placeholder="结束时间">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="radio" datatype="chkDate" name="apply_end_period" value="1" title="上午" checked>
+                        <input type="radio" datatype="chkDate" name="apply_end_period" value="2" title="下午">
                     </div>
 
                     <div class="layui-form-mid layui-word-aux">
@@ -67,8 +80,7 @@
 <script>
     var laydate = layui.laydate;
     var insStart = laydate.render({
-      elem: '#apply_begin_time'
-      ,type: 'datetime'
+      elem: '#apply_begin_date'
       ,min: 0
       ,done: function(value, date){
         //更新结束日期的最小日期
@@ -78,26 +90,35 @@
         
         //自动弹出结束日期的选择器
        insEnd.config.elem[0].focus();
+       //清除validform错误提示
+       removeDateErrorTip(this.elem);
       }
     });
     
     //结束日期
     var insEnd = laydate.render({
-      elem: '#apply_end_time'
-      ,type: 'datetime'
+      elem: '#apply_end_date'
       ,min: 0
       ,done: function(value, date){
         //更新开始日期的最大日期
         insStart.config.max = lay.extend({}, date, {
           month: date.month - 1
         });
+
+       //清除validform错误提示
+       removeDateErrorTip(this.elem);
       }
     });
 
     layui.form.on('select(vacation_id)', function(data){
         var vacationName=$(data.elem).find('option[value="'+data.value+'"]').html();
         $('input[name="vacation_name"]').val(vacationName);
-    });        
+    });  
+
+    function removeDateErrorTip(elem) {
+        $(elem).removeClass('Validform_error').parents('.layui-form-item')
+            .find('.Validform_checktip').removeClass('Validform_wrong');
+    }      
 </script>
 {include admin.public.validFormScript}
 </body>

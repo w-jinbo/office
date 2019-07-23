@@ -27,6 +27,19 @@
                     });
                     return flag;
                 },
+                "chkDate":function(gets,obj,curform){
+                    var beginDate = $('#apply_begin_date').val();
+                    var endDate = $('#apply_end_date').val();
+                    var beginPeriod = $('input[name="apply_begin_period"]:checked').val();
+                    var endPeriod = $('input[name="apply_end_period"]:checked').val();
+                    if(beginDate === '' || endDate === ''){
+                        return true;
+                    }
+                    if(beginDate == endDate && endPeriod < beginPeriod) {
+                        return '时间段选择错误，请重新选择';
+                    }
+                    return true;
+                },
             },
             tiptype: function (msg, o, cssctl) {
                 //msg：提示信息;
