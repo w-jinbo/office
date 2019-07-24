@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html class="bg_ff">
+
+<head>
+    {include admin.public.head}
+</head>
+
+<body class="bg_ff">
+    <div class="x-body bg_ff">
+        <form class="layui-form mainform" method="post" action="/admin/officeApply/doAdd">
+            <div class="layui-form p10">
+                <fieldset class="layui-elem-field layui-field-title">
+                    <legend>办公室申请</legend>
+                </fieldset>
+                <div class="layui-tab" lay-filter="office">
+                    <ul class="layui-tab-title">
+                        <li class="layui-this">按办公室</li>
+                        <li>按时间</li>
+                    </ul>
+                    <div class="layui-tab-content">
+                        <div class="layui-tab-item layui-show">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label"><span class="red">* </span>办公室</label>
+                                <div class="layui-input-inline">
+                                    <select datatype="*" nullmsg="请选择办公室" lay-filter="office_id" lay-search>
+                                        <option value="">请选择办公室</option>
+                                        {loop $officeList $v}
+                                        <option value="{$v.id}">{$v.name}</option>
+                                        {/loop}
+                                    </select>
+                                </div>
+                                <div class="layui-form-mid layui-word-aux">
+                                    <a title="预约情况" class="layui-btn layui-btn-danger layui-btn-xs" office_id="0" onclick="getBookList(this)">
+                                        <i class="layui-icon ml0 mr0">&#xe637;</i>
+                                    </a>
+                                </div>
+                                <div class="layui-form-mid layui-word-aux">
+                                    <span class="Validform_checktip m0"></span>
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label"><span class="red">* </span>预约时间</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" datatype="*" nullmsg="请选择日期" class="layui-input" readonly
+                                        id="apply_date" placeholder="日期">
+                                </div>
+                                <div class="layui-input-inline w80">
+                                    <input type="text" datatype="*" nullmsg="请选择开始时间" class="layui-input" readonly
+                                        id="apply_begin_time" placeholder="开始时间">
+                                </div>
+                                <div class="layui-form-mid">
+                                    -
+                                </div>
+                                <div class="layui-input-inline w80">
+                                    <input type="text" datatype="*" nullmsg="请选择结束时间" class="layui-input" readonly
+                                        id="apply_end_time" placeholder="结束时间">
+                                </div>
+
+                                <div class="layui-form-mid layui-word-aux">
+                                    <span class="Validform_checktip m0"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-tab-item">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label"><span class="red">* </span>预约时间</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" datatype="*" nullmsg="请选择日期" class="layui-input" readonly
+                                        id="apply_date" placeholder="日期">
+                                </div>
+                                <div class="layui-input-inline w80">
+                                    <input type="text" datatype="*" nullmsg="请选择开始时间" class="layui-input" readonly
+                                        id="apply_begin_time" placeholder="开始时间">
+                                </div>
+                                <div class="layui-form-mid">
+                                    -
+                                </div>
+                                <div class="layui-input-inline w80">
+                                    <input type="text" datatype="*" nullmsg="请选择结束时间" class="layui-input" readonly
+                                        id="apply_end_time" placeholder="结束时间">
+                                </div>
+                                <div class="layui-form-mid layui-word-aux">
+                                    <a title="查询" class="layui-btn layui-btn layui-btn-xs">
+                                        <i class="layui-icon ml0 mr0">&#xe615;</i>
+                                    </a>
+                                </div>
+                                <div class="layui-form-mid layui-word-aux">
+                                    <span class="Validform_checktip m0"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-form-text pl10 pr10">
+                    <label class="layui-form-label"><span class="red">* </span>申请原因</label>
+                    <div class="layui-input-block w500">
+                        <textarea name="apply_reason" placeholder="请输入申请原因" datatype="*" nullmsg="请输入申请原因"
+                            class="layui-textarea"></textarea>
+                        <span class="Validform_checktip"></span>
+                    </div>
+                </div>
+
+                <div class="layui-form-item pl10 pr10">
+                    <input type="hidden" name="office_name" />
+                    <input type="hidden" name="office_id" />
+                    <input type="hidden" name="apply_date" />
+                    <input type="hidden" name="apply_begin_time" />
+                    <input type="hidden" name="apply_end_time" />
+                    <label class="layui-form-label"></label>
+                    <button value="提交" class="layui-btn" lay-submit lay-filter="submit_btn">提交</button>
+                    <a href="javascript:parent.closeAll()" class="layui-btn layui-btn-primary">取消</a>
+                </div>
+                <div>&nbsp;</div>
+            </div>
+        </form>
+    </div>
+    <script>
+        function getBookList(obj){
+            console.log(obj);
+        }
+
+        function renderLaydate() {
+            var laydate = layui.laydate;
+            var insDate = laydate.render({
+                elem: '.layui-show #apply_date',
+                type: 'date',
+                min: 0,
+                done: function (value, date) {
+                    //清除validform错误提示
+                    removeDateErrorTip(this.elem);
+                    $('input[name="apply_date"]').val(value);
+                }
+            });
+            var insStart = laydate.render({
+                elem: '.layui-show #apply_begin_time',
+                type: 'time',
+                min: 0,
+                done: function (value, date) {
+                    //更新结束日期的最小日期
+                    insEnd.config.min = lay.extend({}, date, {
+                        month: date.month - 1
+                    });
+
+                    //自动弹出结束日期的选择器
+                    insEnd.config.elem[0].focus();
+                    //清除validform错误提示
+                    removeDateErrorTip(this.elem);
+                    $('input[name="apply_begin_time"]').val(value);
+                }
+            });
+
+            //结束日期
+            var insEnd = laydate.render({
+                elem: '.layui-show #apply_end_time',
+                type: 'time',
+                min: 0,
+                done: function (value, date) {
+                    //更新开始日期的最大日期
+                    insStart.config.max = lay.extend({}, date, {
+                        month: date.month - 1
+                    });
+
+                    //清除validform错误提示
+                    removeDateErrorTip(this.elem);
+                    $('input[name="apply_end_time"]').val(value);
+                }
+            });
+        }
+
+        $(function () {
+            renderLaydate();
+        });
+
+        layui.form.on('select(office_id)', function (data) {
+            var officeName = $(data.elem).find('option[value="' + data.value + '"]').html();
+            $('input[name="office_name"]').val(officeName);
+            $('input[name="office_id"]').val(data.value);
+        });
+
+        function removeDateErrorTip(elem) {
+            $(elem).removeClass('Validform_error').parents('.layui-form-item')
+                .find('.Validform_checktip').removeClass('Validform_wrong');
+        }
+
+        layui.use('element', function () {
+            var element = layui.element;
+
+            element.on('tab(office)', function (data) {
+                $('.layui-tab-item').find('input,select').removeAttr('datatype').attr('disabled', true);
+                $('.layui-show').find('input,select').attr('datatype', '*').removeAttr('disabled');
+
+                $('input[name="apply_date"]').val($('.layui-show').find('#apply_date').val());
+                $('input[name="apply_begin_time"]').val($('.layui-show').find('#apply_begin_time').val());
+                $('input[name="apply_end_time"]').val($('.layui-show').find('#apply_end_time').val());
+                renderLaydate();
+            });
+        });
+    </script>
+    {include admin.public.validFormScript}
+</body>
+
+</html>

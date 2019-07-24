@@ -4,9 +4,8 @@
 namespace app\admin\dao;
 
 
-use herosphp\model\MysqlModel;
 
-class NoticeDao extends MysqlModel {
+class NoticeDao extends BaseDao {
     public function __construct() {
         parent::__construct('notice');
         $this->primaryKey = 'id';

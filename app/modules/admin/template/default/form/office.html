@@ -1,0 +1,56 @@
+<div class="layui-form p10">
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>办公室信息</legend>
+        </fieldset>
+        <div class="layui-form-item">
+            <label class="layui-form-label w100"><span class="red">* </span>办公室名称</label>
+            <div class="layui-input-inline">
+                <input type="text" name="name" datatype="*" placeholder="输入办公室名称" value="{$office.name}"
+                       autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                <span class="Validform_checktip m0">请输入办公室名称</span>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label w100"><span class="red">* </span>办公室位置</label>
+            <div class="layui-input-inline w500">
+                <input type="text" name="address" datatype="*" placeholder="输入办公室位置" value="{$office.address}"
+                       autocomplete="off" class="layui-input">
+                <span class="Validform_checktip">请输入办公室位置</span>
+            </div>
+        </div>
+    
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label w100">办公室描述</label>
+            <div class="layui-input-block w500" style="margin-left: 130px!important;">
+                <textarea name="summary" placeholder="请输入办公室描述" class="layui-textarea">{$office.summary}</textarea>
+            </div>
+        </div>
+    
+        <div class="layui-form-item">
+            <label class="layui-form-label w100"><span class="red">* </span>状态</label>
+            <div class="layui-input-inline">
+                <input type="checkbox" name="is_valid" lay-skin="switch" lay-text="启用|禁用" value="1"
+                <?php echo $office['is_valid'] == '1' ? 'checked' : '' ?>>
+            </div>
+        </div>
+    
+        <div class="layui-form-item">
+            <label class="layui-form-label"></label>
+            <button value="提交" class="layui-btn" lay-submit lay-filter="submit_btn">提交</button>
+            <a href="javascript:parent.closeAll()" class="layui-btn layui-btn-primary">取消</a>
+        </div>
+    
+        <div>&nbsp;</div>
+    </div>
+    <script>
+        layui.use(['form', 'layer'], function () {
+            $ = layui.jquery;
+            var form = layui.form
+                , layer = layui.layer;
+        });
+    </script>
+    {include admin.public.validFormScript}
+    

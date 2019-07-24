@@ -1,39 +1,28 @@
 <?php
 
-
 namespace app\admin\action;
 
 use herosphp\core\Loader;
+use app\admin\service\OfficeService;
 use herosphp\http\HttpRequest;
 use herosphp\utils\JsonResult;
-use app\admin\service\VacationService;
 
-class VacationAction extends BaseAction {
-    protected $vacationService ;
+class OfficeAction extends BaseAction {
+    protected $officeService ;
     public function __construct() {
         parent::__construct();
-        $this->vacationService = Loader::service(VacationService::class);
+        $this->officeService = Loader::service(OfficeService::class);
     }
 
-    /**
-     * 假期类型列表页
-     *
-     * @param HttpRequest $request
-     */
     public function index(HttpRequest $request) {
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $this->assign('keyword', $keyword);
-        $this->assign('dataUrl', url('/admin/vacation/getListData?keyword=' . urlencode($keyword)));
-        $this->setView('vacation/index');
+        $this->assign('dataUrl', url('/admin/office/getListData?keyword=' . urlencode($keyword)));
+        $this->setView('office/index');
     }
 
-    /**
-     * 获取列表页数据接口
-     *
-     * @param HttpRequest $request
-     */
     public function getListData(HttpRequest $request) {
-        $data = $this->vacationService->getListData($request);
+        $data = $this->officeService->getListData($request);
 
         $request = new JsonResult(JsonResult::CODE_SUCCESS, '获取数据成功');
         $request->setData($data['list']);
@@ -43,58 +32,38 @@ class VacationAction extends BaseAction {
         $request->output();
     }
 
-    /**
-     * 新增假期类型页面
-     */
     public function add() {
-        $this->setView('vacation/add');
+        $this->setView('office/add');
     }
 
-    /**
-     * 修改假期类型信息页面
-     *
-     * @param HttpRequest $request
-     */
     public function edit(HttpRequest $request) {
-        $vacationId = $request->getStrParam('id');
-        $vacation = $this->vacationService->findById($vacationId);
-        $this->assign('vacation', $vacation);
-        $this->setView('vacation/edit');
+        $officeId = $request->getStrParam('id');
+        $office = $this->officeService->findById($officeId);
+        $this->assign('office', $office);
+        $this->setView('office/edit');
     }
 
-    /**
-     * 新增假期操作
-     *
-     * @param HttpRequest $request
-     * @return Json
-     */
     public function doAdd(HttpRequest $request) {
-        if (!$this->chkPermission('vacation_list_add')) {
+        if (!$this->chkPermission('office_list_add')) {
             JsonResult::fail('您没有权限进行此操作');
         }
         $params = $request->getParameters();
         if (empty($params['summary'])) {
             unset($params['summary']);
         }
-        $result = $this->vacationService->addRow($params);
+        $result = $this->officeService->addRow($params);
         $result->output();
     }
 
-    /**
-     * 修改假期信息操作
-     *
-     * @param HttpRequest $request
-     * @return Json
-     */
     public function doEdit(HttpRequest $request) {
-        if (!$this->chkPermission('vacation_list_edit')) {
+        if (!$this->chkPermission('office_list_edit')) {
             JsonResult::fail('您没有权限进行此操作');
         }
         $params = $request->getParameters();
         if (empty($params['summary'])) {
             unset($params['summary']);
         }
-        $result = $this->vacationService->updateRow($params);
+        $result = $this->officeService->updateRow($params);
         $result->output();
     }
 
@@ -105,14 +74,14 @@ class VacationAction extends BaseAction {
      * @return Json
      */
     public function doDel(HttpRequest $request) {
-        if (!$this->chkPermission('vacation_list_del')) {
+        if (!$this->chkPermission('office_list_del')) {
             JsonResult::fail('您没有权限进行此操作');
         }
         $params = $request->getStrParam('ids');
         if (empty($params)) {
             JsonResult::fail('请选择要删除的记录');
         }
-        $result = $this->vacationService->delRows($params);
+        $result = $this->officeService->delRows($params);
         $result->output();
     }
 
@@ -123,11 +92,11 @@ class VacationAction extends BaseAction {
      * @return JsonResult
      */
     public function doChangeValid(HttpRequest $request) {
-        if (!$this->chkPermission('vacation_list_edit')) {
+        if (!$this->chkPermission('office_list_edit')) {
             JsonResult::fail('您没有权限进行此操作');
         }
         $params = $request->getParameters();
-        $res = parent::changeValid($params['id'], $params['valid'], $this->vacationService);
+        $res = parent::changeValid($params['id'], $params['valid'], $this->officeService);
         if ($res <= 0) {
             JsonResult::fail('修改状态失败，请稍后重试');
         } else {

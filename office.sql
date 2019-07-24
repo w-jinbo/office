@@ -11,7 +11,7 @@
  Target Server Version : 50726
  File Encoding         : 65001
 
- Date: 23/07/2019 17:55:13
+ Date: 24/07/2019 17:58:01
 */
 
 SET NAMES utf8mb4;
@@ -94,7 +94,15 @@ CREATE TABLE `office`  (
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '添加时间',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '办公室信息表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '办公室信息表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of office
+-- ----------------------------
+INSERT INTO `office` VALUES (8, '办公室1', '一楼', '一楼办公室', 1, '2019-07-24 14:50:05', '2019-07-24 14:50:05');
+INSERT INTO `office` VALUES (9, '办公室2', '一楼', '一楼办公室', 1, '2019-07-24 14:50:20', '2019-07-24 14:50:20');
+INSERT INTO `office` VALUES (10, '办公室3', '二楼', '二楼办公室', 0, '2019-07-24 14:50:38', '2019-07-24 14:50:38');
+INSERT INTO `office` VALUES (11, '办公室4', '三楼', '三楼办公室', 1, '2019-07-24 14:50:55', '2019-07-24 14:50:55');
 
 -- ----------------------------
 -- Table structure for office_apply
@@ -106,9 +114,10 @@ CREATE TABLE `office_apply`  (
   `office_id` int(11) UNSIGNED NOT NULL COMMENT '办公室id',
   `office_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '办公室名称',
   `apply_reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '申请理由',
-  `apply_begin_time` datetime(0) NOT NULL COMMENT '申请开始时间',
-  `apply_end_time` datetime(0) NOT NULL COMMENT '申请结束时间',
-  `status` tinyint(2) UNSIGNED NOT NULL DEFAULT 0 COMMENT '申请状态，0：已申请，1：正在使用，2：申请过期，-1:拒绝申请，-2：关闭申请',
+  `aooly_date` date NOT NULL COMMENT '申请日期',
+  `apply_begin_time` time(0) NOT NULL COMMENT '申请开始时间',
+  `apply_end_time` time(0) NOT NULL COMMENT '申请结束时间',
+  `status` tinyint(2) UNSIGNED NOT NULL DEFAULT 0 COMMENT '申请状态，1：已申请，2：正在使用，3：申请过期，4:拒绝申请，5：关闭申请',
   `audit_user_id` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '审批人账号id',
   `audit_user_username` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '审批人账号',
   `audit_opinion` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '审批意见',
@@ -211,13 +220,15 @@ CREATE TABLE `vacation`  (
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '添加时间',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '假期类型表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '假期类型表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of vacation
 -- ----------------------------
 INSERT INTO `vacation` VALUES (3, '心情假', '心情假', 1, '2019-07-22 15:01:17', '2019-07-22 15:01:17');
 INSERT INTO `vacation` VALUES (4, '健康假', '健康假', 1, '2019-07-22 15:01:33', '2019-07-22 15:01:33');
+INSERT INTO `vacation` VALUES (5, 'test', '123', 1, '2019-07-24 14:40:15', '2019-07-24 14:40:15');
+INSERT INTO `vacation` VALUES (6, '心情假', '123', 0, '2019-07-24 14:44:38', '2019-07-24 14:44:38');
 
 -- ----------------------------
 -- Table structure for vacation_apply
@@ -235,20 +246,18 @@ CREATE TABLE `vacation_apply`  (
   `apply_end_period` tinyint(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT '申请结束时间段，1：上午，2：下午',
   `status` tinyint(2) NOT NULL DEFAULT 0 COMMENT '申请状态，0：申请中，1：同意申请，2：拒绝申请，3：取消申请',
   `audit_user_id` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '审批人账号id',
-  `audit_user_username` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '审批人账号',
+  `audit_user_realname` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '审批人账号',
   `audit_opinion` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '审批意见',
   `audit_time` datetime(0) NULL DEFAULT NULL COMMENT '审批时间',
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '添加时间',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`, `user_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '假期申请记录表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '假期申请记录表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of vacation_apply
 -- ----------------------------
-INSERT INTO `vacation_apply` VALUES (1, 1, 3, '心情假', 'test', '2019-07-24', 1, '2019-07-24', 1, 1, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `vacation_apply` VALUES (2, 1, 3, '心情假', 'test', '2019-07-25', 1, '2019-07-25', 2, 2, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `vacation_apply` VALUES (3, 3, 3, '心情假', 'test', '2019-07-26', 2, '2019-07-28', 1, 3, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `vacation_apply` VALUES (4, 1, 3, '心情假', '12312321', '2019-07-23', 1, '2019-07-23', 1, 4, NULL, NULL, NULL, NULL, '2019-07-23 16:23:36', '2019-07-23 16:23:36');
+INSERT INTO `vacation_apply` VALUES (5, 1, 3, '心情假', '心情不好', '2019-07-25', 2, '2019-07-25', 2, 2, 1, 'admin1', '12312321321321', '2019-07-24 11:38:40', '2019-07-24 11:23:15', '2019-07-24 11:38:40');
+INSERT INTO `vacation_apply` VALUES (6, 1, 4, '健康假', '123', '2019-07-24', 1, '2019-07-25', 1, 4, NULL, NULL, NULL, NULL, '2019-07-24 11:42:04', '2019-07-24 11:50:27');
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -87,6 +87,9 @@ class RoleAction extends BaseAction {
             JsonResult::fail('您没有权限进行此操作');
         }
         $params = $request->getParameters();
+        if (empty($params['summary'])) {
+            unset($params['summary']);
+        }
         $result = $this->roleService->addRole($params);
         $result->output();
     }
@@ -101,6 +104,9 @@ class RoleAction extends BaseAction {
             JsonResult::fail('您没有权限进行此操作');
         }
         $params = $request->getParameters();
+        if (empty($params['summary'])) {
+            unset($params['summary']);
+        }
         $result = $this->roleService->updateRole($params);
         $result->output();
     }

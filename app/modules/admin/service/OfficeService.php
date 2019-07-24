@@ -1,20 +1,14 @@
 <?php
- 
+
 namespace app\admin\service;
 
 use herosphp\http\HttpRequest;
 use herosphp\filter\Filter;
 
-class VacationService extends BaseService {
+class OfficeService extends BaseService {
 
-    protected $modelClassName = 'app\admin\dao\VacationDao';
+    protected $modelClassName = 'app\admin\dao\OfficeDao';
 
-    /**
-     * 获取列表数据
-     *
-     * @param HttpRequest $request
-     * @return array $return
-     */
     public function getListData(HttpRequest $request) {
         $query = $this->modelDao;
         $page = $request->getIntParam('page');
@@ -22,6 +16,7 @@ class VacationService extends BaseService {
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         if (!empty($keyword)) {
             $query->whereOr('name', 'like', '%' . $keyword . '%')
+                ->whereOr('address', 'like', '%' . $keyword . '%')
                 ->whereOr('summary', 'like', '%' . $keyword . '%');
         }
 
@@ -46,11 +41,11 @@ class VacationService extends BaseService {
     }
 
     /**
-     * 获取有效的假期数组
+     * 获取有效的办公室数组
      *
      * @return array|bool
      */
-    public function vacationList() {
+    public function officeList() {
         $list = $this->modelDao->fields('id, name')->where('is_valid', '1')->find();
         return $list;
     }
@@ -64,7 +59,9 @@ class VacationService extends BaseService {
     protected function dataFilter(array $params) {
         $filterMap = array(
             'name' => array(Filter::DFILTER_STRING, array(1, 20), Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '假期名称不能为空', 'length' => '假期名称长度必须在1~20之间')),
+                array('require' => '办公室名称不能为空', 'length' => '办公室名称长度必须在1~20之间')),
+            'address' => array(Filter::DFILTER_STRING, array(1, 255), Filter::DFILTER_SANITIZE_TRIM | Filter::DFILTER_MAGIC_QUOTES, 
+                array('require' => '办公室地址不能为空')),
             'summary' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM | Filter::DFILTER_MAGIC_QUOTES, null),
         );
         $data = $params;

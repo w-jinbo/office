@@ -50,11 +50,11 @@ class BaseService extends CommonService {
             return $result;
         }
 
-        $vacationId = $data['id'];
+        $id = $data['id'];
         unset($data['id']);
         $data['is_valid'] = isset($params['is_valid']) ? 1 : 0;
         $data['update_time'] = date('Y-m-d H:i:s');
-        $res = $this->modelDao->update($data,$vacationId);
+        $res = $this->modelDao->update($data,$id);
         if ($res <= 0) {
             $result->setMessage('修改失败，请稍后重试');
             return $result;

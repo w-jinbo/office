@@ -18,6 +18,11 @@ class VacationApplyService extends BaseService {
     
     protected $modelClassName = 'app\admin\dao\VacationApplyDao';
 
+    /**
+     * 申请状态数组
+     *
+     * @var array
+     */
     protected static $statusArr = array(
         self::APPLYING => '申请中',
         self::APPLY_AGREE => '同意申请',
@@ -25,10 +30,15 @@ class VacationApplyService extends BaseService {
         self::APPLY_CANCEL => '取消申请',
     );
 
+    /**
+     * 获取列表数据
+     *
+     * @param HttpRequest $request
+     * @return array $data
+     */
     public function getListData(HttpRequest $request) {
         $query = $this->modelDao;
-        $query->where('vacation_id', '>', 0)
-            ->alias('a')
+        $query->alias('a')
             ->join('user b', MYSQL_JOIN_INNER)
             ->on('a.user_id = b.id');
             
@@ -36,12 +46,21 @@ class VacationApplyService extends BaseService {
         $pageSize = $request->getIntParam('limit');
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $status = $request->getParameter('status', 'trim|urldecode');
+        $searchDate = $request->getParameter('searchDate', 'trim|urldecode');
         $type = $request->getIntParam('type');
+        $userId = session::get('user_id');
         if ($type == 1) {
             //我的申请列表，只加载用户自己的申请记录
-            $query->where('user_id', session::get('user_id'));
+            $query->where('user_id', $userId);
+        } else {
+            //审核列表，自己不能审核自己的申请
+            $query->where('user_id', '!=', $userId);
         }
-        // var_dump($status);
+        $searchDateArr = explode(' - ', $searchDate);
+        $query->where(function($query) use($query, $searchDateArr) {
+            $query->where('apply_begin_date', 'between', $searchDateArr)
+                ->whereOr('apply_end_date', 'between', $searchDateArr);
+        });
         if (!empty($status)) {
             $query->where('status', $status);
         }
@@ -85,6 +104,12 @@ class VacationApplyService extends BaseService {
         return $return;
     }
 
+    /**
+     * 新增申请
+     *
+     * @param array $params
+     * @return JsonResult
+     */
     public function addApply(array $params) {
         $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
         $userId = Session::get('user_id');
@@ -115,6 +140,58 @@ class VacationApplyService extends BaseService {
     }
 
     /**
+     * 获取申请详情
+     *
+     * @param integer $applyId
+     * @return bool|array
+     */
+    public function getApplyInfo(int $applyId) {
+        $query = $this->modelDao;
+        $applyInfo = $query->alias('a')
+            ->join('user b', MYSQL_JOIN_INNER)
+            ->on('a.user_id = b.id')
+            ->fields('a.id, a.vacation_name, a.apply_reason, a.apply_begin_date, 
+                a.apply_begin_period, a.apply_end_date, a.apply_end_period, a.status, 
+                a.audit_user_id, a.audit_user_realname, a.audit_opinion, a.audit_time, 
+                a.create_time, b.username, b.realname, b.tel, b.department')
+            ->where('a.id', $applyId)
+            ->findOne();
+        if ($applyInfo) {
+            $beginFormat = self::formatDate($applyInfo['apply_begin_date'], $applyInfo['apply_begin_period']);
+            $endFormat = self::formatDate($applyInfo['apply_end_date'], $applyInfo['apply_end_period'], 'end');
+            $applyInfo['apply_date'] = $beginFormat . ' ~ ' . $endFormat;
+            $applyInfo['status_text'] = self::$statusArr[$applyInfo['status']];
+        }
+        return $applyInfo;
+    }
+
+    /**
+     * 申请审批
+     *
+     * @param array $params
+     * @param integer $applyId
+     * @return JsonResult
+     */
+    public function auditApply(array $params, int $applyId) {
+        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
+        $data = $this->dataFilter($params);
+        if (!is_array($data)) {
+            $result->setMessage($data);
+            return $result;
+        }
+        $res = $this->modelDao->update($data, $applyId);
+        if(!$res){
+            //数据更新失败
+            $result->setMessage('审批失败，请稍后重试');
+            return $result;
+        }
+        //数据更新成功
+        $result->setCode(JsonResult::CODE_SUCCESS);
+        $result->setMessage('审批成功');
+        return $result;
+    }
+
+    /**
      * 判断用户新申请是否与已有申请的时间重叠
      *
      * @param integer $userId 申请用户id
@@ -140,7 +217,7 @@ class VacationApplyService extends BaseService {
          */
         
         $query = $this->modelDao;
-        $query->where('user_id', $userId)->where('status', 'in', [0,1]);
+        $query->where('user_id', $userId)->where('status', 'in', [self::APPLYING, self::APPLY_AGREE]);
         //查询前三种情况
         $error = '新申请的时间段内已存在其他申请';
         $firstQuery = clone $query;
@@ -182,6 +259,12 @@ class VacationApplyService extends BaseService {
         return true;
     }
 
+    /**
+     * 数据过滤
+     *
+     * @param array $params
+     * @return string|array
+     */
     protected function dataFilter(array $params) {
         $filterMap = array(
             'user_id' => array(Filter::DFILTER_NUMERIC, null, Filter::DFILTER_SANITIZE_TRIM,
@@ -202,7 +285,7 @@ class VacationApplyService extends BaseService {
                 array('require' => '申请结束时间段不能为空')),
             'audit_user_id' => array(Filter::DFILTER_NUMERIC, null, Filter::DFILTER_SANITIZE_TRIM,
                 array('require' => '审核人id不能为空')),
-            'audit_user_username' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
+            'audit_user_realname' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
                 array('require' => '审核人姓名不能为空')),
             'audit_opinion' => array(Filter::DFILTER_STRING, array(1, 255), Filter::DFILTER_SANITIZE_TRIM | Filter::DFILTER_MAGIC_QUOTES,
                 array('require' => '审核意见不能为空',  'length' => '审核意见长度必须在1~255之内')),
@@ -212,11 +295,24 @@ class VacationApplyService extends BaseService {
         return !$data ? $error : $data;
     }
 
-    public function getStatusArr() {
+    /**
+     * 获取申请状态数组
+     *
+     * @return array
+     */
+    public static function getStatusArr() {
         return self::$statusArr;
     }
 
-    public static function formatDate($date, $period, $type = 'begin') {
+    /**
+     * 格式化申请日期，方便后续进行的时间比较
+     *
+     * @param string $date
+     * @param int $period
+     * @param string $type
+     * @return string
+     */
+    public static function formatDate(string $date, int $period, $type = 'begin') {
         $format = array(
             'begin' => array(self::AM => '08:30', self::PM => '13:30'),
             'end' => array(self::AM => '12:00', self::PM => '18:00')

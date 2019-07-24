@@ -34,7 +34,7 @@ class AdminPower {
             array('id'=>'vacation_apply', 'pId'=>'vacation_manage', 'name'=>'假期申请'),
             array('id'=>'vacation_apply_view', 'pId'=>'vacation_apply', 'name'=>'查看'),
             array('id'=>'vacation_apply_add', 'pId'=>'vacation_apply', 'name'=>'添加'),
-            array('id'=>'vacation_apply_edit', 'pId'=>'vacation_apply', 'name'=>'修改'),
+            array('id'=>'vacation_apply_cancel', 'pId'=>'vacation_apply', 'name'=>'取消'),
             array('id'=>'vacation_apply_audit', 'pId'=>'vacation_apply', 'name'=>'审批'),
         );
 

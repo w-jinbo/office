@@ -13,7 +13,7 @@
                         <div class="layui-inline">
                             <label class="layui-form-label search-form-label">关键词</label>
                             <div class="layui-input-inline w300">
-                                <input type="text" name="keyword" placeholder="{if $type == 2}申请人|{/if}假期名称|申请理由" autocomplete="off" value="{$keyword}"
+                                <input type="text" name="keyword" placeholder="{if $type == 2}申请人|{/if}办公室名称|申请理由" autocomplete="off" value="{$keyword}"
                                        class="layui-input">
                             </div>
                         </div>
@@ -75,7 +75,7 @@
     //我的申请
     var cols1 = [[
                 {field: 'id', title: 'ID', width:80,fixed:'left'}
-                ,{field: 'vacation_name', title: '假期名称',width:150,fixed:'left'}
+                ,{field: 'office_name', title: '办公室名称',width:150,fixed:'left'}
                 ,{field: 'apply_reason', title: '申请原因',minWidth:200}
                 ,{field: 'apply_date', title: '时间',width:250}
                 ,{field: 'status_text', title: '状态', width: 100,}
@@ -87,7 +87,7 @@
         var cols1 = [[
                 {field: 'id', title: 'ID', width:80,fixed:'left'}
                 ,{field: 'realname', title: '申请人',width:150,fixed:'left'}
-                ,{field: 'vacation_name', title: '假期名称',width:150}
+                ,{field: 'office_name', title: '办公室名称',width:150}
                 ,{field: 'apply_reason', title: '申请原因',minWidth:200}
                 ,{field: 'apply_date', title: '时间',width:250}
                 ,{field: 'status_text', title: '状态', width: 100,}
@@ -141,7 +141,7 @@
                     layer.confirm('真的取消申请吗', function (index) {
                         var query=new Object();
                         query.id=obj.data.id;
-                        var url = "/admin/vacationApply/doCancel";
+                        var url = "/admin/officeApply/doCancel";
                         loading("处理中...");
                         layui.$.post(url, query, function (res) {
                             closeAll();
@@ -154,7 +154,7 @@
                     });
                     break;
                 case "detail":
-                    var url = '/admin/vacationApply/detail';
+                    var url = '/admin/officeApply/detail';
                     url += '?id='+data.id;
                     openWindow(url, '申请详情', '50%', '75%');
                     break;
@@ -162,7 +162,7 @@
                     if ($(this).hasClass('layui-btn-disabled')) {
                         return false;
                     }
-                    var url = '/admin/vacationApply/audit';
+                    var url = '/admin/officeApply/audit';
                     url += '?id='+data.id;
                     openWindow(url, '审核', '50%', '75%');
                     break;
@@ -179,7 +179,7 @@
     }
 
     function add() {
-        openWindow('/admin/vacationApply/add', '新增申请', '50%', '75%');
+        openWindow('/admin/officeApply/add', '新增申请', '50%', '75%');
     }
 </script>
 </body>
