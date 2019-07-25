@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * 基类控制器
+ * @Author: WangJinBo <wangjb@pvc123.com>
+ * @Date: 2019-07-25 17:24:29 
+ * @Last Modified by: WangJinBo
+ * @Last Modified time: 2019-07-25 17:35:21
+ */
 
 namespace app\admin\action;
 

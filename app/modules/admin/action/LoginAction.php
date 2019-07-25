@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * 登录控制器
+ * @Author: WangJinBo 
+ * @Date: 2019-07-25 17:29:47 
+ * @Last Modified by: WangJinBo
+ * @Last Modified time: 2019-07-25 17:35:12
+ */
 
 namespace app\admin\action;
 

@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * 假期申请服务类
+ * @Author: WangJinBo <wangjb@pvc123.com>
+ * @Date: 2019-07-25 17:47:22 
+ * @Last Modified by: WangJinBo
+ * @Last Modified time: 2019-07-25 17:49:51
+ */
+
 namespace app\admin\service;
 
 use herosphp\http\HttpRequest;
@@ -192,6 +200,69 @@ class VacationApplyService extends BaseService {
     }
 
     /**
+     * 获取申请状态数组
+     *
+     * @return array
+     */
+    public static function getStatusArr() {
+        return self::$statusArr;
+    }
+
+    /**
+     * 格式化申请日期，方便后续进行的时间比较
+     *
+     * @param string $date
+     * @param int $period
+     * @param string $type
+     * @return string
+     */
+    public static function formatDate(string $date, int $period, $type = 'begin') {
+        $format = array(
+            'begin' => array(self::AM => '08:30', self::PM => '13:30'),
+            'end' => array(self::AM => '12:00', self::PM => '18:00')
+        );
+        // $dateTemp = date('Y-m-d H:i:s',strtotime($date . ' ' . $format[$type][$period]));
+        // return $dateTemp ;
+        return $date . ' ' . $format[$type][$period];
+    }
+
+    /**
+     * 数据过滤
+     *
+     * @param array $params
+     * @return string|array
+     */
+    protected function dataFilter(array $params) {
+        $filterMap = array(
+            'user_id' => array(Filter::DFILTER_NUMERIC, null, Filter::DFILTER_SANITIZE_TRIM,
+                array('require' => '申请人不能为空')),
+            'vocation_id' => array(Filter::DFILTER_NUMERIC, null, Filter::DFILTER_SANITIZE_TRIM,
+                array('require' => '假期类型不能为空')),
+            'vocation_name' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
+                array('require' => '假期类型名称不能为空')),
+            'apply_reason' => array(Filter::DFILTER_STRING, array(1, 255), Filter::DFILTER_SANITIZE_TRIM | Filter::DFILTER_MAGIC_QUOTES,
+                array('require' => '申请原因不能为空',  'length' => '申请原因长度必须在1~255之内')),
+            'apply_begin_date' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
+                array('require' => '申请开始日期不能为空')),
+            'apply_begin_period' => array(Filter::DFILTER_NUMERIC, null, Filter::DFILTER_SANITIZE_TRIM,
+                array('require' => '申请开始时间段不能为空')),
+            'apply_end_date' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
+                array('require' => '申请结束日期不能为空')),
+            'apply_end_period' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
+                array('require' => '申请结束时间段不能为空')),
+            'audit_user_id' => array(Filter::DFILTER_NUMERIC, null, Filter::DFILTER_SANITIZE_TRIM,
+                array('require' => '审核人id不能为空')),
+            'audit_user_realname' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
+                array('require' => '审核人姓名不能为空')),
+            'audit_opinion' => array(Filter::DFILTER_STRING, array(1, 255), Filter::DFILTER_SANITIZE_TRIM | Filter::DFILTER_MAGIC_QUOTES,
+                array('require' => '审核意见不能为空',  'length' => '审核意见长度必须在1~255之内')),
+        );
+        $data = $params;
+        $data = Filter::loadFromModel($data, $filterMap, $error);
+        return !$data ? $error : $data;
+    }
+
+    /**
      * 判断用户新申请是否与已有申请的时间重叠
      *
      * @param integer $userId 申请用户id
@@ -257,68 +328,5 @@ class VacationApplyService extends BaseService {
             return $error;
         }
         return true;
-    }
-
-    /**
-     * 数据过滤
-     *
-     * @param array $params
-     * @return string|array
-     */
-    protected function dataFilter(array $params) {
-        $filterMap = array(
-            'user_id' => array(Filter::DFILTER_NUMERIC, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '申请人不能为空')),
-            'vocation_id' => array(Filter::DFILTER_NUMERIC, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '假期类型不能为空')),
-            'vocation_name' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '假期类型名称不能为空')),
-            'apply_reason' => array(Filter::DFILTER_STRING, array(1, 255), Filter::DFILTER_SANITIZE_TRIM | Filter::DFILTER_MAGIC_QUOTES,
-                array('require' => '申请原因不能为空',  'length' => '申请原因长度必须在1~255之内')),
-            'apply_begin_date' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '申请开始日期不能为空')),
-            'apply_begin_period' => array(Filter::DFILTER_NUMERIC, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '申请开始时间段不能为空')),
-            'apply_end_date' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '申请结束日期不能为空')),
-            'apply_end_period' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '申请结束时间段不能为空')),
-            'audit_user_id' => array(Filter::DFILTER_NUMERIC, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '审核人id不能为空')),
-            'audit_user_realname' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '审核人姓名不能为空')),
-            'audit_opinion' => array(Filter::DFILTER_STRING, array(1, 255), Filter::DFILTER_SANITIZE_TRIM | Filter::DFILTER_MAGIC_QUOTES,
-                array('require' => '审核意见不能为空',  'length' => '审核意见长度必须在1~255之内')),
-        );
-        $data = $params;
-        $data = Filter::loadFromModel($data, $filterMap, $error);
-        return !$data ? $error : $data;
-    }
-
-    /**
-     * 获取申请状态数组
-     *
-     * @return array
-     */
-    public static function getStatusArr() {
-        return self::$statusArr;
-    }
-
-    /**
-     * 格式化申请日期，方便后续进行的时间比较
-     *
-     * @param string $date
-     * @param int $period
-     * @param string $type
-     * @return string
-     */
-    public static function formatDate(string $date, int $period, $type = 'begin') {
-        $format = array(
-            'begin' => array(self::AM => '08:30', self::PM => '13:30'),
-            'end' => array(self::AM => '12:00', self::PM => '18:00')
-        );
-        // $dateTemp = date('Y-m-d H:i:s',strtotime($date . ' ' . $format[$type][$period]));
-        // return $dateTemp ;
-        return $date . ' ' . $format[$type][$period];
     }
 }

@@ -1,5 +1,13 @@
 <?php
- 
+
+ /*
+  * 假期管理服务类
+ * @Author: WangJinBo <wangjb@pvc123.com>
+ * @Date: 2019-07-25 17:48:11 
+ * @Last Modified by: WangJinBo
+ * @Last Modified time: 2019-07-25 17:48:34
+ */
+
 namespace app\admin\service;
 
 use herosphp\http\HttpRequest;

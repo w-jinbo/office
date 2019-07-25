@@ -1,47 +1,46 @@
 <?php
 
 /*
- * 办公室管理控制器
+ * 文具管理控制器
  * @Author: WangJinBo <wangjb@pvc123.com>
- * @Date: 2019-07-25 17:35:31 
+ * @Date: 2019-07-25 16:44:18 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-25 17:54:25
+ * @Last Modified time: 2019-07-25 17:59:58
  */
 
 namespace app\admin\action;
 
 use herosphp\core\Loader;
-use app\admin\service\OfficeService;
+use app\admin\service\StationeryService;
 use herosphp\http\HttpRequest;
 use herosphp\utils\JsonResult;
 
-class OfficeAction extends BaseAction {
-    protected $officeService ;
+class StationeryAction extends BaseAction {
+    protected $stationeryService ;
     public function __construct() {
         parent::__construct();
-        $this->officeService = Loader::service(OfficeService::class);
+        $this->stationeryService = Loader::service(StationeryService::class);
     }
 
     /**
-     * 办公室列表页
+     * 文具列表页
      *
      * @param HttpRequest $request
      */
     public function index(HttpRequest $request) {
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $this->assign('keyword', $keyword);
-        $this->assign('dataUrl', url('/admin/office/getListData?keyword=' . urlencode($keyword)));
-        $this->setView('office/index');
+        $this->assign('dataUrl', url('/admin/stationery/getListData?keyword=' . urlencode($keyword)));
+        $this->setView('stationery/index');
     }
 
     /**
-     * 获取办公室列表数据
+     * 获取列表页数据接口
      *
      * @param HttpRequest $request
-     * @return Json
      */
     public function getListData(HttpRequest $request) {
-        $data = $this->officeService->getListData($request);
+        $data = $this->stationeryService->getListData($request);
 
         $request = new JsonResult(JsonResult::CODE_SUCCESS, '获取数据成功');
         $request->setData($data['list']);
@@ -52,57 +51,57 @@ class OfficeAction extends BaseAction {
     }
 
     /**
-     * 新增办公室页面
+     * 新增文具页面
      */
     public function add() {
-        $this->setView('office/add');
+        $this->setView('stationery/add');
     }
 
     /**
-     * 修改办公室信息页面
+     * 修改文具信息页面
      *
      * @param HttpRequest $request
      */
     public function edit(HttpRequest $request) {
-        $officeId = $request->getStrParam('id');
-        $office = $this->officeService->findById($officeId);
-        $this->assign('office', $office);
-        $this->setView('office/edit');
+        $stationeryId = $request->getStrParam('id');
+        $stationery = $this->stationeryService->findById($stationeryId);
+        $this->assign('stationery', $stationery);
+        $this->setView('stationery/edit');
     }
 
     /**
-     * 新增操作
+     * 新增文具操作
      *
      * @param HttpRequest $request
-     * @return JsonResult
+     * @return Json
      */
     public function doAdd(HttpRequest $request) {
-        if (!$this->chkPermission('office_list_add')) {
+        if (!$this->chkPermission('stationery_list_add')) {
             JsonResult::fail('您没有权限进行此操作');
         }
         $params = $request->getParameters();
         if (empty($params['summary'])) {
             unset($params['summary']);
         }
-        $result = $this->officeService->addRow($params);
+        $result = $this->stationeryService->addRow($params);
         $result->output();
     }
 
     /**
-     * 更新操作
+     * 修改文具信息操作
      *
      * @param HttpRequest $request
-     * @return JsonResult
+     * @return Json
      */
     public function doEdit(HttpRequest $request) {
-        if (!$this->chkPermission('office_list_edit')) {
+        if (!$this->chkPermission('stationery_list_edit')) {
             JsonResult::fail('您没有权限进行此操作');
         }
         $params = $request->getParameters();
         if (empty($params['summary'])) {
             unset($params['summary']);
         }
-        $result = $this->officeService->updateRow($params);
+        $result = $this->stationeryService->updateRow($params);
         $result->output();
     }
 
@@ -113,14 +112,14 @@ class OfficeAction extends BaseAction {
      * @return Json
      */
     public function doDel(HttpRequest $request) {
-        if (!$this->chkPermission('office_list_del')) {
+        if (!$this->chkPermission('stationery_list_del')) {
             JsonResult::fail('您没有权限进行此操作');
         }
         $params = $request->getStrParam('ids');
         if (empty($params)) {
             JsonResult::fail('请选择要删除的记录');
         }
-        $result = $this->officeService->delRows($params);
+        $result = $this->stationeryService->delRows($params);
         $result->output();
     }
 
@@ -131,11 +130,11 @@ class OfficeAction extends BaseAction {
      * @return JsonResult
      */
     public function doChangeValid(HttpRequest $request) {
-        if (!$this->chkPermission('office_list_edit')) {
+        if (!$this->chkPermission('stationery_list_edit')) {
             JsonResult::fail('您没有权限进行此操作');
         }
         $params = $request->getParameters();
-        $res = parent::changeValid($params['id'], $params['valid'], $this->officeService);
+        $res = parent::changeValid($params['id'], $params['valid'], $this->stationeryService);
         if ($res <= 0) {
             JsonResult::fail('修改状态失败，请稍后重试');
         } else {

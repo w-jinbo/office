@@ -30,7 +30,8 @@
                                     </select>
                                 </div>
                                 <div class="layui-form-mid layui-word-aux">
-                                    <a title="预约情况" class="layui-btn layui-btn-danger layui-btn-xs" office_id="0" onclick="getBookList(this)">
+                                    <a title="预约情况" id="book_list_btn" class="layui-btn layui-btn-danger layui-btn-xs"
+                                        office_id="0" onclick="getBookList(this)">
                                         <i class="layui-icon ml0 mr0">&#xe637;</i>
                                     </a>
                                 </div>
@@ -49,9 +50,7 @@
                                     <input type="text" datatype="*" nullmsg="请选择开始时间" class="layui-input" readonly
                                         id="apply_begin_time" placeholder="开始时间">
                                 </div>
-                                <div class="layui-form-mid">
-                                    -
-                                </div>
+                                <div class="layui-form-mid">~</div>
                                 <div class="layui-input-inline w80">
                                     <input type="text" datatype="*" nullmsg="请选择结束时间" class="layui-input" readonly
                                         id="apply_end_time" placeholder="结束时间">
@@ -66,22 +65,22 @@
                             <div class="layui-form-item">
                                 <label class="layui-form-label"><span class="red">* </span>预约时间</label>
                                 <div class="layui-input-inline">
-                                    <input type="text" datatype="*" nullmsg="请选择日期" class="layui-input" readonly
+                                    <input type="text" nullmsg="请选择日期" class="layui-input" readonly
                                         id="apply_date" placeholder="日期">
                                 </div>
                                 <div class="layui-input-inline w80">
-                                    <input type="text" datatype="*" nullmsg="请选择开始时间" class="layui-input" readonly
+                                    <input type="text" nullmsg="请选择开始时间" class="layui-input" readonly
                                         id="apply_begin_time" placeholder="开始时间">
                                 </div>
                                 <div class="layui-form-mid">
                                     -
                                 </div>
                                 <div class="layui-input-inline w80">
-                                    <input type="text" datatype="*" nullmsg="请选择结束时间" class="layui-input" readonly
+                                    <input type="text" nullmsg="请选择结束时间" class="layui-input" readonly
                                         id="apply_end_time" placeholder="结束时间">
                                 </div>
                                 <div class="layui-form-mid layui-word-aux">
-                                    <a title="查询" class="layui-btn layui-btn layui-btn-xs">
+                                    <a title="查询" class="layui-btn layui-btn layui-btn-xs" onclick="getOfficeList()">
                                         <i class="layui-icon ml0 mr0">&#xe615;</i>
                                     </a>
                                 </div>
@@ -89,10 +88,22 @@
                                     <span class="Validform_checktip m0"></span>
                                 </div>
                             </div>
+
+                            <div class="layui-form-item">
+                                    <label class="layui-form-label"><span class="red">* </span>办公室</label>
+                                    <div class="layui-input-inline">
+                                        <select id="searchByTime" nullmsg="请选择办公室" lay-filter="office_id" lay-search>
+                                                <option value="">请选择办公室</option>
+                                        </select>
+                                    </div>
+                                    <div class="layui-form-mid layui-word-aux">
+                                        <span class="Validform_checktip m0">请选择办公室</span>
+                                    </div>
+                                </div>
                         </div>
                     </div>
                 </div>
-                <div class="layui-form-item layui-form-text pl10 pr10">
+                <div class="layui-form-item layui-form-text pl10 pr10" style="margin-top: -15px;">
                     <label class="layui-form-label"><span class="red">* </span>申请原因</label>
                     <div class="layui-input-block w500">
                         <textarea name="apply_reason" placeholder="请输入申请原因" datatype="*" nullmsg="请输入申请原因"
@@ -116,8 +127,62 @@
         </form>
     </div>
     <script>
-        function getBookList(obj){
-            console.log(obj);
+        function getBookList(obj) {
+            var officeId = $(obj).attr('office_id');
+            if (officeId == 0) {
+                layer.msg('请先选择要预约的办公室');
+                return false;
+            }
+            var officeName = $('input[name="office_name"]').val();
+            var url = "{url /admin/officeApply/officeBook}" + '?id=' + officeId;
+            layer.open({
+                type: 2,
+                shadeClose: true,
+                title: officeName + ' 预约情况',
+                skin: 'layui-layer-rim', //加上边框
+                area: ['90%', '90%'], //宽高
+                content: url
+            });
+        }
+
+        function getOfficeList() {
+            loading('查询中...');
+            //重置下拉选项控件选项
+            $('#searchByTime').html('').append('<option value="">请选择办公室</option>');
+            layui.form.render('select');
+            //重置选中的数据
+            $('input[name="office_name"]').val('');
+            $('input[name="office_id"]').val('');
+            var applyDate = $('input[name="apply_date"]').val();
+            var beginTime = $('input[name="apply_begin_time"]').val();
+            var endTime = $('input[name="apply_end_time"]').val();
+            if (applyDate == '' || beginTime == '' || endTime == '' || 
+                applyDate == undefined || beginTime == undefined || endTime == undefined) {
+                layer.msg('请选择要预约的时间');
+                return false;
+            }
+            var url = '/admin/officeApply/searchOfficeByTime'
+            var query = new Object();
+            query.apply_date = applyDate;
+            query.begin_time = beginTime;
+            query.end_time = endTime;
+            $.post(url, query, function(res) {
+                layer.closeAll();
+                if (res.code == '000') {
+                    if (res.data.length == 0){
+                        layer.msg('选择的时间段没有办公室可预约');
+                        return false;
+                    }
+                    $.each(res.data, function(i,v){
+                    $('#searchByTime').append('<option value="' + v.id + '">' + v.name + '</option>');
+                    layui.form.render('select');
+                    });
+                } else {
+                    layer.alert(res.message, {icon: 5}, function () {
+                        layer.closeAll();
+                    });
+                }
+            });
         }
 
         function renderLaydate() {
@@ -176,6 +241,7 @@
             var officeName = $(data.elem).find('option[value="' + data.value + '"]').html();
             $('input[name="office_name"]').val(officeName);
             $('input[name="office_id"]').val(data.value);
+            $('#book_list_btn').attr('office_id', data.value);
         });
 
         function removeDateErrorTip(elem) {
@@ -186,6 +252,7 @@
         layui.use('element', function () {
             var element = layui.element;
 
+            //切换选项卡，重新设置要提交的数据
             element.on('tab(office)', function (data) {
                 $('.layui-tab-item').find('input,select').removeAttr('datatype').attr('disabled', true);
                 $('.layui-show').find('input,select').attr('datatype', '*').removeAttr('disabled');
@@ -193,6 +260,11 @@
                 $('input[name="apply_date"]').val($('.layui-show').find('#apply_date').val());
                 $('input[name="apply_begin_time"]').val($('.layui-show').find('#apply_begin_time').val());
                 $('input[name="apply_end_time"]').val($('.layui-show').find('#apply_end_time').val());
+
+                layui.form.render('select');
+                var selectOption = $('.layui-show select').find('option:selected');
+                $('input[name="office_name"]').val(selectOption.html());
+                $('input[name="office_id"]').val(selectOption.val());
                 renderLaydate();
             });
         });

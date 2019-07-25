@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {include admin.public.head}
+</head>
+
+<body>
+    <div class="layui-fluid pt10">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <form id="searchform" class="layui-form layui-card-header layuiadmin-card-header-auto pt10 pb10"
+                        target="_self">
+                        <input type="hidden" name="id" value="{$id}"/>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <div class="layui-input-inline">
+                                    <input type="text" class="layui-input" name="searchDate" id="searchDate"
+                                        placeholder="预约时间" readonly value="{$searchDate}">
+                                </div>
+                            </div>
+
+                            <div class="layui-inline">
+                                <a class="layui-btn layuiadmin-btn-list" onclick="doSearch()">
+                                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>搜索
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="layui-card-body">
+                        <table class="layui-table">
+                            <colgroup>
+                              <col width="120">
+                              <col width="120">
+                              <col width="120">
+                              <col width="200">
+                            </colgroup>
+                            <thead>
+                              <tr>
+                                <th>申请人</th>
+                                <th>联系电话</th>
+                                <th>状态</th>
+                                <th>使用时间</th>
+                              </tr> 
+                            </thead>
+                            <tbody>
+                                {if empty($bookList)}
+                                <tr class="tc">
+                                    <td colspan="4">暂无预约记录</td>
+                                </tr>
+                                {else}
+                                {loop $bookList $v}
+                                <tr>
+                                    <td>{$v.realname}</td>
+                                    <td>{$v.tel}</td>
+                                    <td>{$v.status_text}</td>
+                                    <td>{$v.use_time}</td>
+                                </tr>
+                                {/loop}
+                                {/if}
+                            </tbody>
+                          </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    layui.laydate.render({
+        elem: '#searchDate',
+        range: true
+    });
+
+    function doSearch() {
+        $('form').submit();
+    }
+</script>
+
+</html>

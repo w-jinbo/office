@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * 角色管理控制器
+ * @Author: WangJinBo <wangjb@pvc123.com>
+ * @Date: 2019-07-25 17:37:10 
+ * @Last Modified by: WangJinBo
+ * @Last Modified time: 2019-07-25 18:00:01
+ */
 
 namespace app\admin\action;
 
@@ -19,6 +26,8 @@ class RoleAction extends BaseAction {
 
     /**
      * 角色列表页
+     * 
+     * @param HttpRequest $request
      */
     public function index(HttpRequest $request) {
         $keyword = $request->getParameter('keyword', 'trim|urldecode');

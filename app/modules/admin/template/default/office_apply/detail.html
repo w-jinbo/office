@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html class="bg_ff">
+<head>
+    {include admin.public.head}
+</head>
+<body class="bg_ff">
+<div class="x-body bg_ff">
+    <div class="layui-form">
+        <div class="layui-form p10">
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>申请人信息</legend>
+            </fieldset>
+            <div class="layui-form-item">
+                <label class="layui-form-label">申请人</label>
+                <div class="layui-input-inline w500">
+                    <label class="layui-form-label tl w440">{$applyInfo.realname}</label>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">联系电话</label>
+                <div class="layui-input-inline">
+                    <label class="layui-form-label tl">{$applyInfo.tel}</label>
+                </div>
+                <label class="layui-form-label">部门</label>
+                <div class="layui-input-inline w300">
+                    <label class="layui-form-label tl w200">{$applyInfo.department}</label>
+                </div>
+            </div>
+
+
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>办公室申请</legend>
+            </fieldset>
+            <div class="layui-form-item">
+                <label class="layui-form-label">办公室</label>
+                <div class="layui-input-inline w300">
+                    <label class="layui-form-label tl w200">{$applyInfo.office_name}</label>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">使用时间</label>
+                <div class="layui-input-inline w400">
+                    <label class="layui-form-label tl w400">{$applyInfo.use_time}</label>
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">申请原因</label>
+                <div class="layui-input-block w500">
+                    <textarea class="layui-textarea" readonly>{$applyInfo.apply_reason}</textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">申请时间</label>
+                <div class="layui-input-inline w400">
+                    <label class="layui-form-label tl w400">{$applyInfo.create_time}</label>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">状态</label>
+                <div class="layui-input-inline w200">
+                    <label class="layui-form-label tl w200">{$applyInfo.status_text}</label>
+                </div>
+            </div>
+
+            {if $applyInfo['audit_user_id'] > 0}
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>审批结果</legend>
+            </fieldset>
+            <div class="layui-form-item">
+                <label class="layui-form-label">审批人</label>
+                <div class="layui-input-inline w500">
+                    <label class="layui-form-label tl w440">{$applyInfo.audit_user_realname}</label>
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">审批意见</label>
+                <div class="layui-input-block w500">
+                    <textarea class="layui-textarea" readonly>{$applyInfo.audit_opinion}</textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">审批时间</label>
+                <div class="layui-input-inline w400">
+                    <label class="layui-form-label tl w400">{$applyInfo.audit_time}</label>
+                </div>
+            </div>
+            {/if}
+
+            {if $auditFlag}
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>审批</legend>
+            </fieldset>
+            <form class="layui-form mainform" method="POST" action="/admin/officeApply/doUpdate">
+                <input type="hidden" name="id" value="{$applyInfo.id}"/>
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label"><span class="red">* </span>审批意见</label>
+                    <div class="layui-input-block w500">
+                        <textarea name="audit_opinion" placeholder="输入审批意见" datatype="*" nullmsg="请输入审批意见" class="layui-textarea"></textarea>
+                        <span class="Validform_checktip"></span>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"></label>
+                    <button value="提交" class="layui-btn" lay-submit lay-filter="submit_btn">提交</button>
+                    <a href="javascript:parent.closeAll()" class="layui-btn layui-btn-primary">取消</a>
+                </div>
+            </form>
+            {/if}
+        
+            <div>&nbsp;</div>
+        </div>
+    </div>
+</div>
+{include admin.public.validFormScript}
+</body>
+</html>

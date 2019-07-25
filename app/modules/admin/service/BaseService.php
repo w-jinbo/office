@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * 基础服务类
+ * @Author: WangJinBo <wangjb@pvc123.com>
+ * @Date: 2019-07-25 17:40:07 
+ * @Last Modified by: WangJinBo
+ * @Last Modified time: 2019-07-25 17:40:35
+ */
+
 namespace app\admin\service;
 
 use herosphp\model\CommonService;

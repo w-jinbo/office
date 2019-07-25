@@ -1,20 +1,20 @@
 <?php
 
 /*
- * 办公室申请Dao
+ * 文具申请Dao
  * @Author: WangJinBo <wangjb@pvc123.com>
- * @Date: 2019-07-25 17:58:44 
+ * @Date: 2019-07-25 18:00:59 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-25 17:59:16
+ * @Last Modified time: 2019-07-25 18:02:09
  */
 
 namespace app\admin\dao;
 
 
 
-class OfficeApplyDao extends BaseDao {
+class StationeryApplyDao extends BaseDao {
     public function __construct() {
-        parent::__construct('office_apply');
+        parent::__construct('stationery_apply');
         $this->primaryKey = 'id';
     }
 }

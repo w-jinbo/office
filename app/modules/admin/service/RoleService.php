@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * 角色管理服务类
+ * @Author: WangJinBo <wangjb@pvc123.com>
+ * @Date: 2019-07-25 17:41:59 
+ * @Last Modified by: WangJinBo
+ * @Last Modified time: 2019-07-25 17:42:26
+ */
 
 namespace app\admin\service;
 

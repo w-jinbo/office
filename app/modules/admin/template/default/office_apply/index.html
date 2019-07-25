@@ -49,14 +49,15 @@
                         <i class="layui-icon ml0 mr0">&#xe63c;</i>
                     </a>
                     {if $type == 2}
-                    <a title="审核" class="layui-btn layui-btn layui-btn-xs {{#if (d.status != 1 ){}}layui-btn-disabled{{#}}}" lay-event="audit">
-                        <i class="layui-icon ml0 mr0">&#xe6b2;</i>
+                    <a title="关闭申请" class="layui-btn layui-btn-warm layui-btn-xs {{#if (d.status != 2 ){}}layui-btn-disabled{{#}}}" 
+                        lay-event="cancel">
+                        <i class="layui-icon ml0 mr0">&#xe664;</i>
                     </a>
-                    {/if}
-                    {if $type == 1}
-                    <a title="取消申请" class="layui-btn layui-btn-danger layui-btn-xs {{#if (d.status != 1 ){}}layui-btn-disabled{{#}}}" lay-event="cancel" >
-                        <i class="layui-icon ml0 mr0">&#x1006;</i>
-                    </a>
+
+                    <a title="拒绝申请" class="layui-btn layui-btn-danger layui-btn-xs {{#if (d.status != 1 ){}}layui-btn-disabled{{#}}}" 
+                        lay-event="reject" >
+                            <i class="layui-icon ml0 mr0">&#x1006;</i>
+                        </a>
                     {/if}
                 </script>
 
@@ -77,7 +78,7 @@
                 {field: 'id', title: 'ID', width:80,fixed:'left'}
                 ,{field: 'office_name', title: '办公室名称',width:150,fixed:'left'}
                 ,{field: 'apply_reason', title: '申请原因',minWidth:200}
-                ,{field: 'apply_date', title: '时间',width:250}
+                ,{field: 'use_time', title: '使用时间',width:250}
                 ,{field: 'status_text', title: '状态', width: 100,}
                 ,{field: 'create_time', title: '申请时间', width: 160,}
                 ,{title: '操作', width: 180, toolbar: '#table-content-list',fixed:'right'}
@@ -89,7 +90,7 @@
                 ,{field: 'realname', title: '申请人',width:150,fixed:'left'}
                 ,{field: 'office_name', title: '办公室名称',width:150}
                 ,{field: 'apply_reason', title: '申请原因',minWidth:200}
-                ,{field: 'apply_date', title: '时间',width:250}
+                ,{field: 'use_time', title: '使用时间',width:250}
                 ,{field: 'status_text', title: '状态', width: 100,}
                 ,{field: 'create_time', title: '申请时间', width: 160,}
                 ,{title: '操作', width: 180, toolbar: '#table-content-list',fixed:'right'}
@@ -134,37 +135,26 @@
         table.on('tool(list_table_event)', function (obj) {
             var data = obj.data;
             switch (obj.event) {
-                case "cancel":
-                    if ($(this).hasClass('layui-btn-disabled')) {
-                        return false;
-                    }
-                    layer.confirm('真的取消申请吗', function (index) {
-                        var query=new Object();
-                        query.id=obj.data.id;
-                        var url = "/admin/officeApply/doCancel";
-                        loading("处理中...");
-                        layui.$.post(url, query, function (res) {
-                            closeAll();
-                            if (res.code === '000') {
-                                tableReload();
-                            } else {
-                                msgFaild(res.message);
-                            }
-                        }, "json");
-                    });
-                    break;
                 case "detail":
                     var url = '/admin/officeApply/detail';
                     url += '?id='+data.id;
                     openWindow(url, '申请详情', '50%', '75%');
                     break;
-                case "audit":
+                case "reject":
                     if ($(this).hasClass('layui-btn-disabled')) {
                         return false;
                     }
                     var url = '/admin/officeApply/audit';
                     url += '?id='+data.id;
-                    openWindow(url, '审核', '50%', '75%');
+                    openWindow(url, '拒绝申请', '50%', '75%');
+                    break;
+                case "cancel":
+                    if ($(this).hasClass('layui-btn-disabled')) {
+                        return false;
+                    }
+                    var url = '/admin/officeApply/audit';
+                    url += '?id='+data.id;
+                    openWindow(url, '取消申请', '50%', '75%');
                     break;
                 default:
             }

@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * 用户管理控制器
+ * @Author: WangJinBo <wangjb@pvc123.com>
+ * @Date: 2019-07-25 17:38:03 
+ * @Last Modified by: WangJinBo
+ * @Last Modified time: 2019-07-25 17:38:30
+ */
 
 namespace app\admin\action;
 
