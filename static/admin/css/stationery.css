@@ -1,0 +1,13 @@
+.stationery-div .stationery-table { overflow-y: scroll; width: 375px !important; max-height: 200px; margin-top: -1px; }
+
+.stationery-div .stationery-table .layui-form-checkbox { margin-top: 0px; }
+
+.stationery-div .stationery-table .jiajian { font-size: 23px; }
+
+.stationery-div .stationery-table .decrease { position: absolute; width: 23px; height: 21px; cursor: pointer; top: 8px; left: 15px; }
+
+.stationery-div .stationery-table .num { position: absolute; top: 8px; height: 21px; width: 36px; left: 39px; font-size: 12px; padding: 0px !important; line-height: 21px; border: none; text-align: center; }
+
+.stationery-div .stationery-table .increase { position: absolute; width: 23px; height: 21px; cursor: pointer; top: 8px; left: 76px; }
+
+.stationery-div .stationery-table .unit { position: relative; top: -4px; margin-left: 5px; }

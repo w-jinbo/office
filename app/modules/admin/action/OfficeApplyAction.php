@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:36:26 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-25 17:37:01
+ * @Last Modified time: 2019-07-26 17:33:09
  */
 
 namespace app\admin\action;
@@ -215,7 +215,7 @@ class OfficeApplyAction extends BaseAction {
         if ($applyInfo['status'] == OfficeApplyService::APPLY_CANCEL || 
             $applyInfo['status'] == OfficeApplyService::APPLY_OVERDUE || 
             $applyInfo['status'] == OfficeApplyService::APPLY_REJECT) {
-            JsonResult::fail('该申请目前状态不支持取消');
+            JsonResult::fail('该申请目前状态不支持变更');
         }
         $status = OfficeApplyService::APPLY_REJECT;
         if ($applyInfo['status'] == OfficeApplyService::IN_USE) {

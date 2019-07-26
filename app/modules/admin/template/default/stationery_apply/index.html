@@ -13,7 +13,7 @@
                         <div class="layui-inline">
                             <label class="layui-form-label search-form-label">关键词</label>
                             <div class="layui-input-inline w300">
-                                <input type="text" name="keyword" placeholder="{if $type == 2}申请人|{/if}办公室名称|申请原因" autocomplete="off" value="{$keyword}"
+                                <input type="text" name="keyword" placeholder="{if $type == 2}申请人|{/if}申请理由" autocomplete="off" value="{$keyword}"
                                        class="layui-input">
                             </div>
                         </div>
@@ -49,15 +49,12 @@
                         <i class="layui-icon ml0 mr0">&#xe63c;</i>
                     </a>
                     {if $type == 2}
-                    <a title="关闭申请" class="layui-btn layui-btn-warm layui-btn-xs {{#if (d.status != 2 ){}}layui-btn-disabled{{#}}}" 
-                        lay-event="cancel">
-                        <i class="layui-icon ml0 mr0">&#xe664;</i>
+                    <a title="审批" class="layui-btn layui-btn layui-btn-xs {{#if (d.status != 1 ){}}layui-btn-disabled{{#}}}" lay-event="audit">
+                        <i class="layui-icon ml0 mr0">&#xe6b2;</i>
                     </a>
-
-                    <a title="拒绝申请" class="layui-btn layui-btn-danger layui-btn-xs {{#if (d.status != 1 ){}}layui-btn-disabled{{#}}}" 
-                        lay-event="reject" >
-                            <i class="layui-icon ml0 mr0">&#x1006;</i>
-                        </a>
+                    <a title="发放" class="layui-btn layui-btn-warm layui-btn-xs {{#if (d.status != 2 ){}}layui-btn-disabled{{#}}}" lay-event="grant">
+                        <i class="layui-icon ml0 mr0">&#xe62d;</i>
+                    </a>
                     {/if}
                 </script>
 
@@ -74,23 +71,19 @@
 <script>
     var type = {$type};
     //我的申请
-    var cols1 = [[
+    var cols = [[
                 {field: 'id', title: 'ID', width:80,fixed:'left'}
-                ,{field: 'office_name', title: '办公室名称',width:150,fixed:'left'}
                 ,{field: 'apply_reason', title: '申请原因',minWidth:200}
-                ,{field: 'use_time', title: '使用时间',width:250}
                 ,{field: 'status_text', title: '状态', width: 100,}
                 ,{field: 'create_time', title: '申请时间', width: 160,}
                 ,{title: '操作', width: 180, toolbar: '#table-content-list',fixed:'right'}
             ]];
     if (type == 2) {
         //审批列表
-        var cols1 = [[
+        var cols = [[
                 {field: 'id', title: 'ID', width:80,fixed:'left'}
                 ,{field: 'realname', title: '申请人',width:150,fixed:'left'}
-                ,{field: 'office_name', title: '办公室名称',width:150}
                 ,{field: 'apply_reason', title: '申请原因',minWidth:200}
-                ,{field: 'use_time', title: '使用时间',width:250}
                 ,{field: 'status_text', title: '状态', width: 100,}
                 ,{field: 'create_time', title: '申请时间', width: 160,}
                 ,{title: '操作', width: 180, toolbar: '#table-content-list',fixed:'right'}
@@ -128,7 +121,7 @@
                     "data": res.data //解析数据列表
                 };
             }
-            , cols: cols1
+            , cols: cols
             , page: true
         });
         //监听行工具事件
@@ -136,25 +129,25 @@
             var data = obj.data;
             switch (obj.event) {
                 case "detail":
-                    var url = '/admin/officeApply/detail';
+                    var url = '/admin/stationeryApply/detail';
                     url += '?id='+data.id;
                     openWindow(url, '申请详情', '50%', '75%');
                     break;
-                case "reject":
+                case "audit":
                     if ($(this).hasClass('layui-btn-disabled')) {
                         return false;
                     }
-                    var url = '/admin/officeApply/audit';
+                    var url = '/admin/stationeryApply/audit';
                     url += '?id='+data.id;
-                    openWindow(url, '拒绝申请', '50%', '75%');
+                    openWindow(url, '审批', '50%', '75%');
                     break;
-                case "cancel":
+                case "grant":
                     if ($(this).hasClass('layui-btn-disabled')) {
                         return false;
                     }
-                    var url = '/admin/officeApply/audit';
+                    var url = '/admin/stationeryApply/grant';
                     url += '?id='+data.id;
-                    openWindow(url, '取消申请', '50%', '75%');
+                    openWindow(url, '发放', '50%', '75%');
                     break;
                 default:
             }
@@ -169,7 +162,7 @@
     }
 
     function add() {
-        openWindow('/admin/officeApply/add', '新增申请', '50%', '75%');
+        openWindow('/admin/stationeryApply/add', '新增申请', '40%', '76%');
     }
 </script>
 </body>

@@ -1,36 +1,37 @@
 <?php
 
 /*
- * 假期申请管理控制器
- * @Author: WangJinBo <wangjb@pvc123.xom> 
- * @Date: 2019-07-25 17:39:18 
+ * 文具申请控制器
+ * @Author: WangJinBo <wangjb@pvc123.com>
+ * @Date: 2019-07-26 08:42:53 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-26 17:33:00
+ * @Last Modified time: 2019-07-26 17:40:21
  */
 
 namespace app\admin\action;
 
 use herosphp\core\Loader;
+use app\admin\service\StationeryService;
+use app\admin\service\StationeryApplyService;
 use herosphp\http\HttpRequest;
-use app\admin\service\VacationApplyService;
-use app\admin\service\VacationService;
 use herosphp\utils\JsonResult;
 
-class VacationApplyAction extends BaseAction {
-
-    protected $vacationApplyService ;
-    protected $vacationService ;
+class StationeryApplyAction extends BaseAction {
+    
+    protected $stationeryService ;
+    protected $stationeryApplyService ;
 
     public function __construct() {
         parent::__construct();
-        $this->vacationApplyService = Loader::service(VacationApplyService::class);
-        $this->vacationService = Loader::service(VacationService::class);
+        $this->stationeryService = Loader::service(StationeryService::class);
+        $this->stationeryApplyService = Loader::service(StationeryApplyService::class);
     }
 
     /**
-     * 假期申请列表页
+     * 申请/审批列表页
      *
      * @param HttpRequest $request
+     * @return void
      */
     public function index(HttpRequest $request) {
         $searchDate = $request->getParameter('searchDate','trim|urldecode');
@@ -43,24 +44,24 @@ class VacationApplyAction extends BaseAction {
         //列表类型，1：我的申请，2：审批列表
         $type = $request->getStrParam('type');
         $status = $request->getStrParam('status');
-        $this->assign('statusList', VacationApplyService::getStatusArr());
+        $this->assign('statusList', StationeryApplyService::getStatusArr());
         $this->assign('keyword', $keyword);
         $this->assign('status', $status);
         $this->assign('type', $type);
         $this->assign('searchDate', $searchDate);
-        $this->assign('dataUrl', '/admin/vacationApply/getListData?type=' . $type 
+        $this->assign('dataUrl', '/admin/stationeryApply/getListData?type=' . $type 
             . '&searchDate=' . urlencode($searchDate) . '&keyword=' . urlencode($keyword) . '&status=' . $status);
-        $this->setView('vacation_apply/index');
+        $this->setView('stationery_apply/index');
     }
 
     /**
-     * 获取列表数据接口
+     * 获取列表数据
      *
      * @param HttpRequest $request
      * @return Json
      */
     public function getListData(HttpRequest $request) {
-        $data = $this->vacationApplyService->getListData($request);
+        $data = $this->stationeryApplyService->getListData($request);
 
         $result = new JsonResult(JsonResult::CODE_SUCCESS, '获取数据成功');
         $result->setData($data['list']);
@@ -68,71 +69,74 @@ class VacationApplyAction extends BaseAction {
         $result->setPage($data['page']);
         $result->setPagesize($data['pageSize']);
         $result->output();
-    } 
+    }
 
     /**
      * 新增申请页面
+     *
+     * @return void
      */
     public function add() {
-        $vacationList = $this->vacationService->vacationList();
-        $this->assign('vacationList', $vacationList);
-        $this->setView('vacation_apply/add');
+        $stationeryList = $this->stationeryService->stationeryList();
+        $this->assign('stationeryList', $stationeryList);
+        $this->setView('stationery_apply/add');
     }
 
     /**
      * 申请详情页面
      *
      * @param HttpRequest $request
+     * @return void
      */
     public function detail(HttpRequest $request) {
         $applyId = $request->getIntParam('id');
-        $applyInfo = $this->vacationApplyService->getApplyInfo($applyId);
+        $applyInfo = $this->stationeryApplyService->getApplyInfo($applyId);
         $this->assign('applyInfo', $applyInfo);
-        $this->setView('vacation_apply/detail');
+        $this->setView('stationery_apply/detail');
     }
 
     /**
-     * 审批页面
+     * 审核页面
      *
      * @param HttpRequest $request
+     * @return void
      */
     public function audit(HttpRequest $request) {
         $applyId = $request->getIntParam('id');
-        $applyInfo = $this->vacationApplyService->getApplyInfo($applyId);
+        $applyInfo = $this->stationeryApplyService->getApplyInfo($applyId);
         $this->assign('applyInfo', $applyInfo);
         $this->assign('auditFlag', true);
-        $this->setView('vacation_apply/detail');
+        $this->setView('stationery_apply/detail');
     }
 
     /**
-     * 增加申请
+     * 发放文具页面
+     *
+     * @param HttpRequest $request
+     * @return void
+     */
+    public function grant(HttpRequest $request) {
+        $applyId = $request->getIntParam('id');
+        $applyInfo = $this->stationeryApplyService->getApplyInfo($applyId);
+        $this->assign('applyInfo', $applyInfo);
+        $this->setView('stationery_apply/grant');
+    }
+
+    /**
+     * 新增操作
      *
      * @param HttpRequest $request
      * @return void
      */
     public function doAdd(HttpRequest $request) {
-        if (!$this->chkPermission('vacation_apply_add')) {
+        if (!$this->chkPermission('stationery_apply_add')) {
             JsonResult::fail('您没有权限进行此操作');
         }
         $params = $request->getParameters();
-        //判断用户申请时间是否合法
-        $beginDate = $params['apply_begin_date'];
-        $endDate = $params['apply_end_date'];
-        $beginPeriod = $params['apply_begin_period'];
-        $endPeriod = $params['apply_end_period'];
-
-        if(!isDateValid($beginDate) || !isDateValid($endDate)) {
-            JsonResult::fail('申请时间不合法，请重新选择');
+        if (empty($params)) {
+            JsonResult::fail('请选择要申请的项目');
         }
-
-        if ($beginDate > $endDate) {
-            JsonResult::fail('申请的开始时间不能大于结束时间');
-        }
-        if ($beginDate == $endDate && $beginPeriod > $endPeriod) {
-            JsonResult::fail('申请的开始时间不能大于结束时间');
-        }
-
-        $result = $this->vacationApplyService->addApply($params);
+        $result = $this->stationeryApplyService->addApply($params);
         $result->output();
     }
 
@@ -140,18 +144,18 @@ class VacationApplyAction extends BaseAction {
      * 审批操作
      *
      * @param HttpRequest $request
-     * @return Json
+     * @return void
      */
     public function doAudit(HttpRequest $request) {
-        if (!$this->chkPermission('vacation_apply_audit')) {
+        if (!$this->chkPermission('stationery_apply_audit')) {
             JsonResult::fail('您没有权限进行此操作');
         }
         $applyId = $request->getIntParam('id');
-        $applyInfo = $this->vacationApplyService->findById($applyId);
+        $applyInfo = $this->stationeryApplyService->findById($applyId);
         if (!$applyInfo) {
             JsonResult::fail('记录不存在，请刷新后重试');
         }
-        if ($applyInfo['status'] != VacationApplyService::APPLYING) {
+        if ($applyInfo['status'] != StationeryApplyService::APPLIED) {
             JsonResult::fail('该申请目前状态不支持审批');
         }
         $update = array();
@@ -162,35 +166,34 @@ class VacationApplyAction extends BaseAction {
         $date = date('Y-m-d H:i:s');
         $update['audit_time'] = $date;
         $update['update_time'] = $date;
-        $result = $this->vacationApplyService->auditApply($update, $applyId);
+        $result = $this->stationeryApplyService->auditApply($update, $applyId);
         $result->output();
     }
 
     /**
-     * 取消申请操作
+     * 发放文具操作
      *
      * @param HttpRequest $request
-     * @return Json
+     * @return void
      */
-    public function doCancel(HttpRequest $request) {
-        if (!$this->chkPermission('vacation_apply_cancel')) {
+    public function doGrant(HttpRequest $request) {
+        if (!$this->chkPermission('stationery_apply_grant')) {
             JsonResult::fail('您没有权限进行此操作');
         }
         $applyId = $request->getIntParam('id');
-        $applyInfo = $this->vacationApplyService->findById($applyId);
+        $applyInfo = $this->stationeryApplyService->findById($applyId);
         if (!$applyInfo) {
             JsonResult::fail('记录不存在，请刷新后重试');
         }
-        if ($applyInfo['status'] != VacationApplyService::APPLYING) {
-            JsonResult::fail('该申请目前状态不支持取消');
+        if ($applyInfo['status'] != StationeryApplyService::UNCLAIMED) {
+            JsonResult::fail('该申请目前状态不支持发放');
         }
-        $update = array();
-        $update['status'] = VacationApplyService::APPLY_CANCEL;
-        $update['update_time'] = date('Y-m-d H:i:s');
-        $res = $this->vacationApplyService->update($update, $applyId);
-        if ($res > 0) {
-            JsonResult::success('取消成功');
-        }
-        JsonResult::fail('系统开了小差，请稍后重试');
+        $update['grant_remark'] = $request->getStrParam('grant_remark');
+        $date = date('Y-m-d H:i:s');
+        $update['grant_time'] = $date;
+        $update['update_time'] = $date;
+        $itemArr = $request->getParameter('item');
+        $result = $this->stationeryApplyService->grant($update, $itemArr, $applyId);
+        $result->output();
     }
 }

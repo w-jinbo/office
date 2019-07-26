@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html class="bg_ff">
+
+<head>
+    {include admin.public.head}
+    {res:css admin/css/stationery.css}
+</head>
+
+<body class="bg_ff">
+    <div class="x-body bg_ff">
+        <form class="layui-form mainform" method="post" action="/admin/stationeryApply/doAdd">
+            <div class="layui-form p10">
+                <fieldset class="layui-elem-field layui-field-title">
+                    <legend>文具申请</legend>
+                </fieldset>
+                <div class="layui-form-item stationery-div">
+                    <label class="layui-form-label"><span class="red">* </span>申请项目</label>
+                    <div class="layui-input-inline">
+                        <table class="layui-table w360 m0 pos_r" style="z-index: 1" lay-size="">
+                            <colgroup>
+                                <col width="200">
+                                <col width="160">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th>文具名称</th>
+                                    <th>申请数量</th>
+                                </tr>
+                            </thead>
+                        </table>
+                        <div class="stationery-table">
+                            <table class="layui-table m0" lay-size="">
+                                <colgroup>
+                                    <col width="200">
+                                    <col width="160">
+                                </colgroup>
+                                <tbody>
+                                    {loop $stationeryList $k $v}
+                                    <tr>
+                                        <td>
+                                            <input class="stationery_id" type="checkbox" title="{$v.name}" name="item[{$k}][id]"
+                                                value="{$v.id}" lay-skin="primary" lay-filter="stationery_item">
+                                        </td>
+                                        <td class="pos_r">
+                                            <input type="hidden" name="item[{$k}][name]" value="{$v.name}" disabled/>
+                                            <input type="hidden" name="item[{$k}][unit]" value="{$v.unit}" disabled/>
+                                            <i class="rhly-iconfont jiajian"></i>
+                                            <div class="decrease" onclick="decrease(this)"></div>
+                                            <input type="text" disabled value="0" name="item[{$k}][num]" placeholder="数量"
+                                                class="layui-input num layui-disabled">
+                                            <div class="increase" onclick="increase(this)"></div>
+                                            <span class="unit">{$v.unit}</span>
+                                        </td>
+                                    </tr>
+                                    {/loop}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item" style="margin-left: 110px">
+                    <input id="num" type="hidden" datatype="*" nullmsg="请选择要申请的项目" value=""/>
+                    <span class="Validform_checktip"></span>
+                </div>
+
+
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label"><span class="red">* </span>申请原因</label>
+                    <div class="layui-input-block w500">
+                        <textarea name="apply_reason" placeholder="请输入申请原因" datatype="*" nullmsg="请输入申请原因"
+                            class="layui-textarea"></textarea>
+                        <span class="Validform_checktip"></span>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"></label>
+                    <input id="chkFlag" type="hidden" datatype="*" value="true"/>
+                    <button value="提交" class="layui-btn" lay-submit lay-filter="submit_btn">提交</button>
+                    <a href="javascript:parent.closeAll()" class="layui-btn layui-btn-primary">取消</a>
+                </div>
+
+                <div>&nbsp;</div>
+            </div>
+        </form>
+    </div>
+    {include admin.public.validFormScript}
+</body>
+<script>
+    layui.form.on('checkbox(stationery_item)', function (data) {
+        if (data.elem.checked) {
+            //选中，解除数量框锁定，数量设置为1
+            numUnLock(data.elem);
+        } else {
+            //取消选中，锁定数量框，数量设置为0
+            numLock(data.elem);
+        }
+    });
+
+    $(function() {
+        $('.num').on('blur', chkNum);
+    });
+
+    function chkNum() {
+        var num = $(this).val();
+        var reg = /^[0-9]*$/;
+        if (!reg.test(num)) {
+            layer.msg('请输入正确的数字');
+            $(this).focus().select();
+            $('#chkFlag').val('');
+            return;
+        } 
+        if (num == 0) {
+            var chkBox = $(this).parent().prev().find('input');
+            chkBox.prop('checked',false);
+            numLock(chkBox);
+        }
+        $('#chkFlag').val('true');
+    }
+
+    /**
+     * 减少数量
+     */
+    function decrease(obj) {
+        var num = $(obj).next();
+        //禁用，直接返回
+        if (num.hasClass('layui-disabled')) {
+            return;
+        }
+        if (num.val() <= 0) {
+            num.val(0);
+            return;
+        }
+        num.val(num.val()-1);
+        //减到0，去除选中
+        if(num.val() == 0) {
+            var chkBox = num.parent().prev().find('input');
+            chkBox.prop('checked',false);
+            numLock(chkBox);
+        }
+    }
+
+    /**
+     * 增加数量
+     */
+    function increase(obj) {
+        var num = $(obj).prev();
+        //数量从0到1，自动选中
+        if (num.val() <= 0) {
+            var chkBox = num.parent().prev().find('input');
+            chkBox.prop('checked',true);
+            numUnLock(chkBox);
+            return;
+        }
+        num.val(parseInt(num.val())+1);
+    }
+
+    /**
+     * 锁定数量框
+     */
+    function numLock(obj) {
+        $(obj).parent().next().find('.num').val(0).addClass('layui-disabled');
+        $(obj).parent().next().find('input').attr('disabled');
+        layui.form.render();
+        chkItemNum();
+    }
+
+    /**
+     * 解锁数量框
+     */
+    function numUnLock(obj) {
+        $(obj).parent().next().find('.num').val(1).removeClass('layui-disabled');
+        $(obj).parent().next().find('input').removeAttr('disabled');
+        layui.form.render();
+        chkItemNum();
+    }
+
+    function chkItemNum() {
+        var num = $('.stationery_id:checked').size();
+        if (num > 0) {
+            $('#num').val('true');
+        } else {
+            $('#num').val('');
+        }
+    }
+</script>
+
+</html>

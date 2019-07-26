@@ -1,0 +1,54 @@
+.stationery-div {
+    .stationery-table {
+        overflow-y: scroll;
+        width: 375px !important;
+        max-height: 200px;
+        margin-top: -1px;
+
+        .layui-form-checkbox {
+            margin-top: 0px;
+        }
+
+        .jiajian {
+            font-size: 23px;
+            // display: block;
+        }
+
+        .decrease {
+            position: absolute;
+            width: 23px;
+            height: 21px;
+            cursor: pointer;
+            top: 8px;
+            left: 15px;
+        }
+
+        .num {
+            position: absolute;
+            top: 8px;
+            height: 21px;
+            width: 36px;
+            left: 39px;
+            font-size: 12px;
+            padding: 0px !important;
+            line-height: 21px;
+            border: none;
+            text-align: center;
+        }
+
+        .increase {
+            position: absolute;
+            width: 23px;
+            height: 21px;
+            cursor: pointer;
+            top: 8px;
+            left: 76px;
+        }
+
+        .unit {
+            position: relative;
+            top: -4px;
+            margin-left: 5px;
+        }
+    }
+}

@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 16:47:54 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-25 17:42:46
+ * @Last Modified time: 2019-07-26 15:17:54
  */
 
 namespace app\admin\service;
@@ -59,7 +59,7 @@ class StationeryService extends BaseService{
      * @return array|bool
      */
     public function stationeryList() {
-        $list = $this->modelDao->fields('id, name')->where('is_valid', '1')->find();
+        $list = $this->modelDao->fields('id, name, unit')->where('is_valid', '1')->find();
         return $list;
     }
 

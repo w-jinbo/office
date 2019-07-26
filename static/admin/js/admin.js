@@ -19,7 +19,11 @@ function clickMenu(obj) {
         if (refresh == undefined) {
             refresh = 0;
         }
-        openTab(a.find('cite').html(), a.attr('_href'), refresh);
+        var title = a.attr('title');
+        if (title == '' || title == undefined){
+            title = a.find('cite').html();
+        }
+        openTab(title, a.attr('_href'), refresh);
     }
 }
 

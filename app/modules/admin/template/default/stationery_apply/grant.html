@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html class="bg_ff">
+
+<head>
+    {include admin.public.head}
+    {res:css admin/css/stationery.css}
+</head>
+
+<body class="bg_ff">
+    <div class="x-body bg_ff">
+        <form class="layui-form mainform" method="post" action="/admin/stationeryApply/doGrant">
+            <input type="hidden" name="id" value="{$applyInfo.id}"/>
+            <div class="layui-form p10">
+                <fieldset class="layui-elem-field layui-field-title">
+                    <legend>文具发放</legend>
+                </fieldset>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">申请人</label>
+                    <div class="layui-input-inline w500">
+                        <label class="layui-form-label tl w440">{$applyInfo.realname}</label>
+                    </div>
+                </div>
+                <div class="layui-form-item stationery-div">
+                    <label class="layui-form-label"><span class="red">* </span>申请项目</label>
+                    <div class="layui-input-inline">
+                        <table class="layui-table w460 m0 pos_r" style="z-index: 1" lay-size="">
+                            <colgroup>
+                                <col width="200">
+                                <col width="100">
+                                <col width="160">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th>文具名称</th>
+                                    <th>申请数量</th>
+                                    <th>发放数量</th>
+                                </tr>
+                            </thead>
+                        </table>
+                        <div class="stationery-table" style="width: 475px!important;">
+                            <table class="layui-table m0" lay-size="">
+                                <colgroup>
+                                    <col width="200">
+                                    <col width="100">
+                                    <col width="160">
+                                </colgroup>
+                                <tbody>
+                                    {loop $applyInfo['item'] $k $v}
+                                    <tr>
+                                        <td>{$v.stationery_name}</td>
+                                        <td>{$v.apply_num} {$v.stationery_unit}</td>
+                                        <td class="pos_r">
+                                            <i class="rhly-iconfont jiajian"></i>
+                                            <div class="decrease" onclick="decrease(this)"></div>
+                                            <input type="text" value="{$v.apply_num}" name="item[{$v.id}]" placeholder="数量"
+                                                class="layui-input num">
+                                            <div class="increase" onclick="increase(this)"></div>
+                                            <span class="unit">{$v.stationery_unit}</span>
+                                        </td>
+                                    </tr>
+                                    {/loop}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">备注</label>
+                    <div class="layui-input-block w500">
+                        <textarea name="apply_reason" placeholder="请输入备注" class="layui-textarea"></textarea>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"></label>
+                    <input id="chkFlag" type="hidden" datatype="*" value="true"/>
+                    <button value="提交" class="layui-btn" lay-submit lay-filter="submit_btn">提交</button>
+                    <a href="javascript:parent.closeAll()" class="layui-btn layui-btn-primary">取消</a>
+                </div>
+
+                <div>&nbsp;</div>
+            </div>
+        </form>
+    </div>
+    {include admin.public.validFormScript}
+</body>
+<script>
+    $(function() {
+        $('.num').on('blur', chkNum);
+    });
+
+    function chkNum() {
+        var num = $(this).val();
+        var reg = /^[0-9]*$/;
+        if (!reg.test(num)) {
+            layer.msg('请输入正确的数字');
+            $(this).focus().select();
+            $('#chkFlag').val('');
+            return;
+        } 
+        $('#chkFlag').val('true');
+    }
+
+    /**
+     * 减少数量
+     */
+    function decrease(obj) {
+        var num = $(obj).next();
+        if (num.val() <= 0) {
+            num.val(0);
+            return;
+        }
+        num.val(num.val()-1);
+    }
+
+    /**
+     * 增加数量
+     */
+    function increase(obj) {
+        var num = $(obj).prev();
+        num.val(parseInt(num.val())+1);
+    }
+</script>
+
+</html>
