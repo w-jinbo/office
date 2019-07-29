@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:24:29 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-25 17:35:21
+ * @Last Modified time: 2019-07-29 16:49:15
  */
 
 namespace app\admin\action;
@@ -14,7 +14,6 @@ namespace app\admin\action;
 use app\admin\service\UserService;
 use herosphp\core\Controller;
 use herosphp\core\Loader;
-use herosphp\session\Session;
 use herosphp\utils\JsonResult;
 use herosphp\http\HttpRequest;
 use app\demo\service\RoleService;
@@ -25,7 +24,6 @@ class BaseAction extends Controller {
     protected $admin ;
     public function __construct() {
         parent::__construct();
-        Session::start();
         $this->userService = Loader::service(UserService::class);
         $this->roleService = Loader::service(RoleService::class);
         $this->isLogin();
@@ -35,32 +33,12 @@ class BaseAction extends Controller {
      * 判断用户是否已经登录
      */
     public function isLogin() {
-        $userId=Session::get('user_id');
-        if (!$userId) {
-            location('/admin/login/index');
-            die();
-        }
-        $admin = $this->userService->findById($userId);
+        $admin = $this->userService->getUser();
         if (!$admin) {
             location('/admin/login/index');
             die();
         }
-        $admin['permissions'] = array();
-        //获取用户拥有的角色权限
-        $roleArr = explode(',', $admin['role_ids']);
-        if (!empty($roleArr)) {
-            $role = $this->roleService->where('is_valid', 1)->where('id', 'in', $roleArr)->fields('permissions')->find();
-            $permissions = array();
-            foreach ($role as $k => $v) {
-                $tempArr = explode(',', $v['permissions']);
-                $permissions = array_merge($permissions, $tempArr);
-            }
-            $permissions = array_unique($permissions);
-            $admin['permissions'] = $permissions;
-        }
         $this->admin = $admin;
-        Session::set('user_id', $admin['id']);
-        Session::set('username', $admin['username']);
     }
 
     /**

@@ -5,13 +5,14 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:40:07 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-25 17:40:35
+ * @Last Modified time: 2019-07-29 17:32:26
  */
 
 namespace app\admin\service;
 
 use herosphp\model\CommonService;
 use herosphp\utils\JsonResult;
+use herosphp\filter\Filter;
 
 class BaseService extends CommonService {
 
@@ -89,5 +90,10 @@ class BaseService extends CommonService {
         $result->setCode(JsonResult::CODE_SUCCESS);
         $result->setMessage('删除成功');
         return $result;
+    }
+
+    public function dataFilter(array $filterMap, array $params) {
+        $data = Filter::loadFromModel($params, $filterMap, $error);
+        return !$data ? $error : $data;
     }
 }

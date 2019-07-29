@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:42:54 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-25 17:43:19
+ * @Last Modified time: 2019-07-29 16:48:53
  */
 
 namespace app\admin\service;
@@ -16,10 +16,12 @@ use herosphp\model\CommonService;
 use herosphp\session\Session;
 use herosphp\utils\JsonResult;
 use herosphp\http\HttpRequest;
+use app\demo\dao\UserDao;
+use herosphp\core\Loader;
 
 class UserService extends CommonService {
 
-    protected $modelClassName = 'app\admin\dao\UserDao';
+    protected $modelClassName = UserDao::class;
 
     /**
      * 用户登录
@@ -217,10 +219,10 @@ class UserService extends CommonService {
     }
 
     /**
-     * 判断用户是否已经登录过
-     * @return bool
+     * 获取用户信息
+     * @return bool|array
      */
-    public function isLogined() {
+    public function getUser() {
         $userName = Session::get('username');
         if (empty($userName)) {
             return false;
@@ -231,9 +233,21 @@ class UserService extends CommonService {
             return false;
         }
 
-        Session::set('user_id', $user['id']);
-        Session::set('username', $user['username']);
-        location('/admin/main/index');
+        $user['permissions'] = array();
+        //获取用户拥有的角色权限
+        $roleArr = explode(',', $user['role_ids']);
+        if (!empty($roleArr)) {
+            $roleService = Loader::service(RoleService::class);
+            $role = $roleService->where('is_valid', 1)->where('id', 'in', $roleArr)->fields('permissions')->find();
+            $permissions = array();
+            foreach ($role as $k => $v) {
+                $tempArr = explode(',', $v['permissions']);
+                $permissions = array_merge($permissions, $tempArr);
+            }
+            $permissions = array_unique($permissions);
+            $user['permissions'] = $permissions;
+        }
+        return $user;
     }
 
     /**

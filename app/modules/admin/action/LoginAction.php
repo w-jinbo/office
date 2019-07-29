@@ -5,7 +5,7 @@
  * @Author: WangJinBo 
  * @Date: 2019-07-25 17:29:47 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-25 17:35:12
+ * @Last Modified time: 2019-07-29 16:49:10
  */
 
 namespace app\admin\action;
@@ -24,13 +24,16 @@ class LoginAction extends Controller {
 
     public function __construct() {
         parent::__construct();
-        Session::start();
         $this->userService = Loader::service(UserService::class);
     }
 
     public function index() {
         //判断用户是否已经登录
-        $this->userService->isLogined();
+        $user = $this->userService->getUser();
+        if (is_array($user)) {
+            location('/admin/main/index');
+            die();
+        }
         $this->assign('title', '登录');
         $this->setView('login/index');
     }

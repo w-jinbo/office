@@ -5,19 +5,19 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:41:59 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-25 17:42:26
+ * @Last Modified time: 2019-07-29 17:47:05
  */
 
 namespace app\admin\service;
 
 
 use herosphp\filter\Filter;
-use herosphp\model\CommonService;
 use herosphp\utils\JsonResult;
 use herosphp\http\HttpRequest;
+use app\demo\dao\RoleDao;
 
-class RoleService extends CommonService {
-    protected $modelClassName = 'app\admin\dao\RoleDao';
+class RoleService extends BaseService {
+    protected $modelClassName = RoleDao::class;
 
     /**
      * 获取角色选项列表
@@ -66,31 +66,25 @@ class RoleService extends CommonService {
     }
 
     /**
-     * 增加角色
+     * 新增角色
      *
-     * @param array $params 表单数据
-     * @return JsonResult $result
+     * @param string $name 角色名
+     * @param integer $isValid 是否有效
+     * @param string $summary 描述
+     * @param string $permissions 权限集合
+     * @return int
      */
-    public function addRole(array $params) {
-        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
-        $data = $this->dataFilter($params);
-        if (!is_array($data)) {
-            $result->setMessage($data);
-            return $result;
-        }
-
+    public function addRole(string $name, int $isValid, string $summary, string $permissions) {
         $date = date('Y-m-d H:i:s');
-        //是否有效
-        $data['is_valid'] = isset($params['is_valid']) ? 1 : 0;
-        $data['create_time'] = $date;
-        $data['update_time'] = $date;
-        $res = $this->modelDao->add($data);
-        if ($res <= 0) {
-            $result->setMessage('添加失败，请稍后重试');
-            return $result;
-        }
-        $result->setCode(JsonResult::CODE_SUCCESS);
-        $result->setMessage('添加成功');
+        $data = array(
+            'name' => $name,
+            'is_valid' => $isValid,
+            'summary' => $summary,
+            'permissions' => $permissions,
+            'create_time' => $date,
+            'update_time' => $date
+        );
+        $result = $this->modelDao->add($data);
         return $result;
     }
 
@@ -139,26 +133,5 @@ class RoleService extends CommonService {
         $result->setCode(JsonResult::CODE_SUCCESS);
         $result->setMessage('删除成功');
         return $result;
-    }
-
-    /**
-     * 数据过滤
-     *
-     * @param array $params
-     * @return array|string
-     */
-    private function dataFilter(array $params) {
-        $filterMap = array(
-            'name' => array(Filter::DFILTER_STRING, array(1, 20), Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '角色名不能为空', 'length' => '角色名称长度必须在1~20之间')),
-            'permissions' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM | Filter::DFILTER_MAGIC_QUOTES,
-                array('require' => '权限集合不能为空')),
-            'summary' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM | Filter::DFILTER_MAGIC_QUOTES, null),
-        );
-        $data = $params;
-        unset($data['ap_codes']);
-        $data['permissions'] = implode(',', $params['ap_codes']);
-        $data = Filter::loadFromModel($data, $filterMap, $error);
-        return !$data ? $error : $data;
     }
 }

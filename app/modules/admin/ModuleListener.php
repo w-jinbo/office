@@ -19,6 +19,7 @@ use herosphp\session\Session;
       */
      public function beforeActionInvoke(HttpRequest $request)
      {
+        Session::start();
         //权限认证的代码可以写在这里
          //die("您没有权限。");
 

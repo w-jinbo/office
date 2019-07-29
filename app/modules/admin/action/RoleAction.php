@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:37:10 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-25 18:00:01
+ * @Last Modified time: 2019-07-29 18:02:29
  */
 
 namespace app\admin\action;
@@ -16,6 +16,7 @@ use app\admin\service\RoleService;
 use herosphp\core\Loader;
 use herosphp\http\HttpRequest;
 use herosphp\utils\JsonResult;
+use app\admin\dao\RoleDao;
 
 class RoleAction extends BaseAction {
     protected $roleService ;
@@ -64,7 +65,6 @@ class RoleAction extends BaseAction {
         $powerArray = AdminPower::getPowerArray();
         $power = $this->getPowerList('', $powerArray);
         $this->assign('powerArray', $power);
-//        print_r($power);exit;
         $this->setView('role/add');
     }
 
@@ -95,12 +95,23 @@ class RoleAction extends BaseAction {
         if (!$this->chkPermission('role_list_add')) {
             JsonResult::fail('您没有权限进行此操作');
         }
-        $params = $request->getParameters();
-        if (empty($params['summary'])) {
-            unset($params['summary']);
+        $params = $this->getParams($request);
+        $data = $this->roleService->dataFilter(RoleDao::$filter, $params);
+
+        if (!is_array($data)) {
+            JsonResult::fail($data);
         }
-        $result = $this->roleService->addRole($params);
-        $result->output();
+
+        if (!isset($data['summary'])) {
+            $data['summary'] = '';
+        }
+        
+        $result = $this->roleService->addRole($data['name'], $data['is_valid'], $data['summary'], $data['permissions']);
+        if ($result <= 0) {
+            JsonResult::fail('添加失败');
+        }
+        JsonResult::success('添加成功');
+
     }
 
     /**
@@ -154,6 +165,23 @@ class RoleAction extends BaseAction {
         } else {
             JsonResult::success('修改状态成功');
         }
+    }
+
+    private function getParams(HttpRequest $request) {
+        $name = $request->getStrParam('name', 'trim|urldecode');
+        $summary = $request->getStrParam('summary', 'trim|urldecode');
+        $isValid = $request->getIntParam('is_valid');
+        $permissions = $request->getParameter('permissions');
+        
+        $params = array(
+            'name' => $name,
+            'is_valid' => $isValid,
+            'permissions' => implode(',', (array)$permissions)
+        );
+        if (!empty($summary)) {
+            $params['summary'] = $summary;
+        }
+        return $params;
     }
 
     /**

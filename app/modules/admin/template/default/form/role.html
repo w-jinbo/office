@@ -38,7 +38,7 @@
             <?php $pcount = count($pitem['sub']); ?>
             <tr>
                 <td rowspan="{$pcount}" class="w160">
-                    <input type="checkbox" name="ap_codes[]" lay-skin="primary" title="{$pitem.name}"
+                    <input type="checkbox" name="permissions[]" lay-skin="primary" title="{$pitem.name}"
                            id="{$pitem.id}" pid="{$pitem.pId}" lay-filter="ap_code"
                            value="{$pitem.id}" <?php echo in_array($pitem['id'],$role['power_array'])?' checked':''?>>
                 </td>
@@ -46,7 +46,7 @@
                 <?php echo $fkey>$pcount?'</tr>':'';?>
 
                 <td width="180">
-                    <input type="checkbox" name="ap_codes[]" lay-skin="primary" title="{$fitem.name}"
+                    <input type="checkbox" name="permissions[]" lay-skin="primary" title="{$fitem.name}"
                            value="{$fitem.id}"
                            id="{$fitem.id}" pid="{$fitem.pId}" lay-filter="ap_code"
                             <?php echo in_array($fitem['id'],$role['power_array'])?' checked':''?>>
@@ -54,7 +54,7 @@
                 <td>
                     <div class="layui-input-block ml10">
                         {loop $fitem['sub'] $item}
-                        <input name="ap_codes[]" lay-skin="primary" type="checkbox" title="{$item.name}"
+                        <input name="permissions[]" lay-skin="primary" type="checkbox" title="{$item.name}"
                                id="{$item.id}" pid="{$item.pId}" ppid="{$fitem.pId}" value="{$item.id}" lay-filter="ap_code"
                                 <?php echo in_array($item['id'],$role['power_array'])?' checked':''?>>
                         {/loop}
