@@ -11,14 +11,12 @@
 namespace app\admin\action;
 
 use herosphp\http\HttpRequest;
-use herosphp\session\Session;
 use app\admin\dao\UserDao;
 use herosphp\utils\JsonResult;
 
 class MainAction extends BaseAction {
     public function __construct() {
         parent::__construct();
-        $userId = Session::get('user_id');
         $this->assign('admin', $this->admin);
     }
 

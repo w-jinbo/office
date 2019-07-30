@@ -16,59 +16,77 @@ use herosphp\utils\JsonResult;
 class BaseService extends CommonService {
 
     /**
-     * 新增一条数据
+     * 获取列表数据
      *
-     * @param array $params
-     * @return JsonResult
+     * @param sting $keyword 关键词
+     * @param int $page 页码
+     * @param int $pageSize 分页大小
+     * @return array $return
      */
-    public function addRow(array $params) {
-        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
-        $data = $this->dataFilter($params);
-        if (!is_array($data)) {
-            $result->setMessage($data);
-            return $result;
+    public function getListData(string $keyword, int $page, int $pageSize) {
+        $query = $this->modelDao;
+        if (!empty($keyword)) {
+            $query->where('name', 'like', '%' . $keyword . '%')
+                ->whereOr('summary', 'like', '%' . $keyword . '%');
         }
 
-        $date = date('Y-m-d H:i:s');
-        //是否有效
-        $data['is_valid'] = isset($params['is_valid']) ? 1 : 0;
-        $data['create_time'] = $date;
-        $data['update_time'] = $date;
-        $res = $this->modelDao->add($data);
-        if ($res <= 0) {
-            $result->setMessage('添加失败，请稍后重试');
-            return $result;
+        $return = array(
+            'page' => $page,
+            'pageSize' => $pageSize,
+            'total' => 0,
+            'list' => array()
+        );
+
+        //克隆查询对象，防止查询条件丢失
+        $countQuery = clone $query;
+        $total = $countQuery->count();
+        if ($total <= 0) {
+            return $return;
         }
-        $result->setCode(JsonResult::CODE_SUCCESS);
-        $result->setMessage('添加成功');
+
+        $data = $query->page($page, $pageSize)->order('id desc')->find();
+        $return['total'] = $total;
+        $return['list'] = $data;
+        return $return;
+    }
+    /**
+     * 新增一条数据
+     *
+     * @param string $name
+     * @param string $summary
+     * @param int $isValid
+     * @return int|bool
+     */
+    protected function addRow(string $name, string $summary, int $isValid) {
+        $date = date('Y-m-d H:i:s');
+        $data = array(
+            'name' => $name,
+            'summary' => $summary,
+            'is_valid' => $isValid,
+            'create_time' => $date,
+            'update_time' => $date,
+        );
+        $result = $this->modelDao->add($data);
         return $result;
     }
 
     /**
      * 修改一条数据的信息
      *
-     * @param array $params
-     * @return JsonResult
+     * @param int $id
+     * @param string $name
+     * @param string $summary
+     * @param int $isValid
+     * @return int|bool
      */
-    public function updateRow(array $params) {
-        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
-        $data = $this->dataFilter($params);
-        if (!is_array($data)) {
-            $result->setMessage($data);
-            return $result;
-        }
-
-        $id = $data['id'];
-        unset($data['id']);
-        $data['is_valid'] = isset($params['is_valid']) ? 1 : 0;
-        $data['update_time'] = date('Y-m-d H:i:s');
-        $res = $this->modelDao->update($data,$id);
-        if ($res <= 0) {
-            $result->setMessage('修改失败，请稍后重试');
-            return $result;
-        }
-        $result->setCode(JsonResult::CODE_SUCCESS);
-        $result->setMessage('修改成功');
+    protected function updateRow(int $id, string $name, string $summary, int $isValid) {
+        $data = array(
+            'name' => $name,
+            'summary' => $summary,
+            'is_valid' => $isValid,
+            'update_time' => date('Y-m-d H:i:s'),
+        );
+        $result = $this->modelDao->update($data, $id);
         return $result;
     }
 
@@ -82,5 +100,16 @@ class BaseService extends CommonService {
         $idsArr = explode(',', $ids);
         $result = $this->modelDao->where('id', 'in', $idsArr)->deletes();
         return $result;
+    }
+
+    /**
+     * 获取当前登录的用户信息
+     *
+     * @return void
+     */
+    protected function getUser() {
+        $userService = new UserService();
+        $user = $userService->getUser();
+        return $user;
     }
 }

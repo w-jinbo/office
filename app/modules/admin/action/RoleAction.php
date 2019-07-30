@@ -94,7 +94,7 @@ class RoleAction extends BaseAction {
         if (!$this->chkPermission('role_list_add')) {
             JsonResult::fail('您没有权限进行此操作');
         }
-        $params = $this->getParams($request);
+        $params = self::getParams($request);
         $data = $this->dataFilter(RoleDao::$filter, $params);
 
         if (!is_array($data)) {
@@ -110,7 +110,6 @@ class RoleAction extends BaseAction {
             JsonResult::fail('添加失败');
         }
         JsonResult::success('添加成功');
-
     }
 
     /**
@@ -124,7 +123,7 @@ class RoleAction extends BaseAction {
             JsonResult::fail('您没有权限进行此操作');
         }
         $roleId = $request->getIntParam('id');
-        $params = $this->getParams($request);
+        $params = self::getParams($request);
         $data = $this->dataFilter(RoleDao::$filter, $params);
 
         if (!is_array($data)) {

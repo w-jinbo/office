@@ -72,7 +72,7 @@ class BaseAction extends Controller {
      * @param string $delIds 要删除的记录id集合 1,2,3
      * @return JsonResult
      */
-    public function doDel($service, string $delIds) {
+    protected function doDel($service, string $delIds) {
         if (empty($delIds)) {
             JsonResult::fail('请选择要删除的记录');
         }

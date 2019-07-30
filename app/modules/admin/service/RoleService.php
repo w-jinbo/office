@@ -26,41 +26,6 @@ class RoleService extends BaseService {
     }
 
     /**
-     * 获取角色列表数据
-     *
-     * @param sting $keyword 关键词
-     * @param int $page 页码
-     * @param int $pageSize 分页大小
-     * @return array $return
-     */
-    public function getListData(string $keyword, int $page, int $pageSize) {
-        $query = $this->modelDao;
-        if (!empty($keyword)) {
-            $query->where('name', 'like', '%' . $keyword . '%')
-                ->whereOr('summary', 'like', '%' . $keyword . '%');
-        }
-
-        $return = array(
-            'page' => $page,
-            'pageSize' => $pageSize,
-            'total' => 0,
-            'list' => array()
-        );
-
-        //克隆查询对象，防止查询条件丢失
-        $countQuery = clone $query;
-        $total = $countQuery->count();
-        if ($total <= 0) {
-            return $return;
-        }
-
-        $data = $query->page($page, $pageSize)->order('id desc')->find();
-        $return['total'] = $total;
-        $return['list'] = $data;
-        return $return;
-    }
-
-    /**
      * 新增角色
      *
      * @param string $name 角色名

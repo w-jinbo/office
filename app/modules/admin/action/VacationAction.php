@@ -14,6 +14,7 @@ use herosphp\core\Loader;
 use herosphp\http\HttpRequest;
 use herosphp\utils\JsonResult;
 use app\admin\service\VacationService;
+use app\admin\dao\VacationDao;
 
 class VacationAction extends BaseAction {
     protected $vacationService ;
@@ -40,7 +41,10 @@ class VacationAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function getListData(HttpRequest $request) {
-        $data = $this->vacationService->getListData($request);
+        $keyword = $request->getParameter('keyword', 'trim|urldecode');
+        $page = $request->getIntParam('page');
+        $pageSize = $request->getIntParam('limit');
+        $data = $this->vacationService->getListData($keyword, $page, $pageSize);
 
         $request = new JsonResult(JsonResult::CODE_SUCCESS, '获取数据成功');
         $request->setData($data['list']);
@@ -79,12 +83,13 @@ class VacationAction extends BaseAction {
         if (!$this->chkPermission('vacation_list_add')) {
             JsonResult::fail('您没有权限进行此操作');
         }
-        $params = $request->getParameters();
-        if (empty($params['summary'])) {
-            unset($params['summary']);
+        $data = self::getParams($request);
+        
+        $result = $this->vacationService->addVacation($data['name'], $data['summary'], $data['is_valid']);
+        if ($result <= 0) {
+            JsonResult::fail('添加失败');
         }
-        $result = $this->vacationService->addRow($params);
-        $result->output();
+        JsonResult::success('添加成功');
     }
 
     /**
@@ -97,12 +102,14 @@ class VacationAction extends BaseAction {
         if (!$this->chkPermission('vacation_list_edit')) {
             JsonResult::fail('您没有权限进行此操作');
         }
-        $params = $request->getParameters();
-        if (empty($params['summary'])) {
-            unset($params['summary']);
+        $vacationId = $request->getIntParam('id');
+        $data = self::getParams($request);
+    
+        $result = $this->vacationService->updateVacation($vacationId, $data['name'], $data['summary'], $data['is_valid']);
+        if ($result <= 0) {
+            JsonResult::fail('修改失败');
         }
-        $result = $this->vacationService->updateRow($params);
-        $result->output();
+        JsonResult::success('修改成功');
     }
 
     /**
@@ -115,12 +122,8 @@ class VacationAction extends BaseAction {
         if (!$this->chkPermission('vacation_list_del')) {
             JsonResult::fail('您没有权限进行此操作');
         }
-        $params = $request->getStrParam('ids');
-        if (empty($params)) {
-            JsonResult::fail('请选择要删除的记录');
-        }
-        $result = $this->vacationService->delRows($params);
-        $result->output();
+        $ids = $request->getStrParam('ids');
+        parent::doDel($this->vacationService, $ids);
     }
 
     /**
@@ -140,5 +143,39 @@ class VacationAction extends BaseAction {
         } else {
             JsonResult::success('修改状态成功');
         }
+    }
+
+    /**
+     * 获取表单提交的参数并校验
+     *
+     * @param HttpRequest $request
+     * @return array $params
+     */
+    private function getParams(HttpRequest $request) {
+        $name = $request->getParameter('name', 'trim|urldecode');
+        $summary = $request->getParameter('summary', 'trim|urldecode');
+        $isValid = $request->getIntParam('is_valid');
+        
+        $params = array(
+            'name' => $name,
+            'is_valid' => $isValid,
+        );
+        //用户有填写描述，将内容赋值到待校验数组中
+        if (!empty($summary)) {
+            $params['summary'] = $summary;
+        }
+
+        //过滤数据
+        $data = $this->dataFilter(VacationDao::$filter, $params);
+
+        if (!is_array($data)) {
+            JsonResult::fail($data);
+        }
+
+        //存储描述的键值对不存在，用户没有填写描述或清空，需要将数据内容清空
+        if (!isset($data['summary'])) {
+            $data['summary'] = '';
+        }
+        return $data;
     }
 }

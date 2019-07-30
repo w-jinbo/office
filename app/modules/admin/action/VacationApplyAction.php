@@ -15,6 +15,7 @@ use herosphp\http\HttpRequest;
 use app\admin\service\VacationApplyService;
 use app\admin\service\VacationService;
 use herosphp\utils\JsonResult;
+use app\admin\dao\VacationApplyDao;
 
 class VacationApplyAction extends BaseAction {
 
@@ -60,7 +61,15 @@ class VacationApplyAction extends BaseAction {
      * @return Json
      */
     public function getListData(HttpRequest $request) {
-        $data = $this->vacationApplyService->getListData($request);
+        $page = $request->getIntParam('page');
+        $pageSize = $request->getIntParam('limit');
+        $keyword = $request->getParameter('keyword', 'trim|urldecode');
+        $status = $request->getIntParam('status');
+        $searchDate = $request->getParameter('searchDate', 'trim|urldecode');
+        $type = $request->getIntParam('type');
+        $searchDateArr = explode(' - ', $searchDate);
+        $data = $this->vacationApplyService->getListData($keyword, $status, 
+            $searchDateArr, $type, $page, $pageSize);
 
         $result = new JsonResult(JsonResult::CODE_SUCCESS, '获取数据成功');
         $result->setData($data['list']);
@@ -114,12 +123,12 @@ class VacationApplyAction extends BaseAction {
         if (!$this->chkPermission('vacation_apply_add')) {
             JsonResult::fail('您没有权限进行此操作');
         }
-        $params = $request->getParameters();
+        $data = self::getParams($request);
         //判断用户申请时间是否合法
-        $beginDate = $params['apply_begin_date'];
-        $endDate = $params['apply_end_date'];
-        $beginPeriod = $params['apply_begin_period'];
-        $endPeriod = $params['apply_end_period'];
+        $beginDate = $data['apply_begin_date'];
+        $endDate = $data['apply_end_date'];
+        $beginPeriod = $data['apply_begin_period'];
+        $endPeriod = $data['apply_end_period'];
 
         if(!isDateValid($beginDate) || !isDateValid($endDate)) {
             JsonResult::fail('申请时间不合法，请重新选择');
@@ -132,8 +141,13 @@ class VacationApplyAction extends BaseAction {
             JsonResult::fail('申请的开始时间不能大于结束时间');
         }
 
-        $result = $this->vacationApplyService->addApply($params);
-        $result->output();
+        $result = $this->vacationApplyService->addApply($data['vacation_id'], $data['vacation_name'], 
+            $data['apply_begin_date'], $data['apply_begin_period'], $data['apply_end_date'], 
+            $data['apply_end_period'], $data['apply_reason']);
+            if ($result['success'] == false) {
+                JsonResult::fail($result['message']);
+            }
+            JsonResult::success('申请成功');
     }
 
     /**
@@ -154,16 +168,12 @@ class VacationApplyAction extends BaseAction {
         if ($applyInfo['status'] != VacationApplyService::APPLYING) {
             JsonResult::fail('该申请目前状态不支持审批');
         }
-        $update = array();
-        $update['status'] = $request->getIntParam('status');
-        $update['audit_user_id'] = $this->admin['id'];
-        $update['audit_user_realname'] = $this->admin['realname'];
-        $update['audit_opinion'] = $request->getStrParam('audit_opinion');
-        $date = date('Y-m-d H:i:s');
-        $update['audit_time'] = $date;
-        $update['update_time'] = $date;
-        $result = $this->vacationApplyService->auditApply($update, $applyId);
-        $result->output();
+        $data = self::getParams($request);
+        $result = $this->vacationApplyService->auditApply($applyId, $data['status'], $data['audit_opinion']);
+        if ($result <= 0) {
+            JsonResult::fail('审批失败');
+        }
+        JsonResult::success('审批成功');
     }
 
     /**
@@ -192,5 +202,34 @@ class VacationApplyAction extends BaseAction {
             JsonResult::success('取消成功');
         }
         JsonResult::fail('系统开了小差，请稍后重试');
+    }
+
+    private function getParams(HttpRequest $request) {
+        $vacationName = $request->getStrParam('vacation_name');
+        $vacationId = $request->getIntParam('vacation_id');
+        $applyBeginDate = $request->getStrParam('apply_begin_date');
+        $applyBeginPeriod = $request->getIntParam('apply_begin_period');
+        $applyEndDate = $request->getStrParam('apply_end_date');
+        $applyEndPeriod = $request->getIntParam('apply_end_period');
+        $applyReason = $request->getStrParam('apply_reason');
+        $status = $request->getIntParam('status');
+        $auditOpinion = $request->getStrParam('audit_opinion');
+
+        $params = array();
+        !empty($vacationName) ? $params['vacation_name'] = $vacationName : '';
+        !empty($vacationId) ? $params['vacation_id'] = $vacationId : '';
+        !empty($applyBeginDate) ? $params['apply_begin_date'] = $applyBeginDate : '';
+        !empty($applyBeginPeriod) ? $params['apply_begin_period'] = $applyBeginPeriod : '';
+        !empty($applyEndDate) ? $params['apply_end_date'] = $applyEndDate : '';
+        !empty($applyEndPeriod) ? $params['apply_end_period'] = $applyEndPeriod : '';
+        !empty($applyReason) ? $params['apply_reason'] = $applyReason : '';
+        !empty($status) ? $params['status'] = $status : '';
+        !empty($auditOpinion) ? $params['audit_opinion'] = $auditOpinion : '';
+
+        $data = $this->dataFilter(VacationApplyDao::$filter, $params);
+        if (!is_array($data)) {
+            JsonResult::fail($data);
+        }
+        return $data;
     }
 }
