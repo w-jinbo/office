@@ -15,6 +15,7 @@ use app\admin\service\RoleService;
 use herosphp\core\Loader;
 use herosphp\http\HttpRequest;
 use herosphp\utils\JsonResult;
+use app\admin\dao\UserDao;
 
 class UserAction extends BaseAction {
     protected $roleService ;
@@ -42,7 +43,10 @@ class UserAction extends BaseAction {
      * @return Json
      */
     public function getListData(HttpRequest $request) {
-        $data = $this->userService->getListData($request);
+        $keyword = $request->getParameter('keyword', 'trim|urldecode');
+        $page = $request->getIntParam('page');
+        $pageSize = $request->getIntParam('limit');
+        $data = $this->userService->getListData($keyword, $page, $pageSize);
 
         $result = new JsonResult(JsonResult::CODE_SUCCESS, '获取数据成功');
         $result->setData($data['list']);
@@ -57,8 +61,7 @@ class UserAction extends BaseAction {
      * 增加用户页面
      */
     public function add() {
-        $roleList = $this->roleService->roleList();
-        $this->assign('roleList', $roleList);
+        self::assignRole();
         $this->setView('user/add');
     }
 
@@ -71,8 +74,7 @@ class UserAction extends BaseAction {
         $userId = $request->getStrParam('id');
         $user = $this->userService->findById($userId);
         $user['role_ids_arr'] = explode(',', $user['role_ids']);
-        $roleList = $this->roleService->roleList();
-        $this->assign('roleList', $roleList);
+        self::assignRole();
         $this->assign('isEdit', true);
         $this->assign('user', $user);
         $this->setView('user/edit');
@@ -100,9 +102,23 @@ class UserAction extends BaseAction {
         if (!$this->chkPermission('user_list_add')) {
             JsonResult::fail('您没有权限进行此操作');
         }
-        $params = $request->getParameters();
-        $result = $this->userService->addUser($params);
-        $result->output();
+        $params = self::getParams($request);
+        $data = $this->dataFilter(UserDao::$filter, $params);
+        if (!is_array($data)) {
+            JsonResult::fail($data);
+        }
+
+        $user = $this->userService->isUser($data['username']);
+        if ($user) {
+            JsonResult::fail('该电子邮箱已被注册');
+        }
+
+        $result = $this->userService->addUser($data['username'], $data['password'], $data['realname'], 
+            $data['tel'], $data['department'], $data['is_valid'], $data['role_ids']);
+        if ($result <= 0) {
+            JsonResult::fail('添加失败');
+        }
+        JsonResult::success('添加成功');
     }
 
     /**
@@ -116,10 +132,21 @@ class UserAction extends BaseAction {
             JsonResult::fail('您没有权限进行此操作');
         }
         $userId = $request->getStrParam('id');
-        $params = $request->getParameters();
-        unset($params['id']);
-        $result = $this->userService->updateUser($params, $userId);
-        $result->output();
+        $params = self::getParams($request);
+        $data = $this->dataFilter(UserDao::$filter, $params);
+
+        if (!is_array($data)) {
+            JsonResult::fail($data);
+        }
+        if (empty($data['role_ids'])) {
+            JsonResult::fail('角色集合不能为空');
+        }
+        $result = $this->userService->updateUser($data['realname'], $data['tel'], 
+            $data['department'], $data['is_valid'], $data['role_ids'], $userId);
+        if ($result <= 0) {
+            JsonResult::fail('修改失败');
+        }
+        JsonResult::success('修改成功');
     }
 
     /**
@@ -161,18 +188,14 @@ class UserAction extends BaseAction {
      * 删除用户操作
      *
      * @param HttpRequest $request
-     * @return Json
+     * @return JsonResult
      */
     public function doDel(HttpRequest $request){
         if (!$this->chkPermission('user_list_del')) {
             JsonResult::fail('您没有权限进行此操作');
         }
-        $params = $request->getStrParam('ids');
-        if (empty($params)) {
-            JsonResult::fail('请选择要删除的记录');
-        }
-        $result = $this->userService->delUsers($params);
-        $result->output();
+        $ids = $request->getStrParam('ids');
+        parent::doDel($this->userService, $ids);
     }
 
     /**
@@ -210,5 +233,42 @@ class UserAction extends BaseAction {
             JsonResult::fail('该电子邮箱已被注册');
         }
         JsonResult::success('该电子邮箱可以注册');
+    }
+
+    /**
+     * 获取表单提交的参数
+     *
+     * @param HttpRequest $request
+     * @return array $params
+     */
+    private function getParams(HttpRequest $request) {
+        $username = $request->getStrParam('username');
+        $pwd = $request->getStrParam('password');
+        $realname = $request->getStrParam('realname');
+        $tel = $request->getStrParam('tel');
+        $department = $request->getStrParam('department');
+        $isValid = $request->getIntParam('is_valid');
+        $roleIds = $request->getStrParam('role_ids');
+        
+        $params = array(
+            'realname' => $realname,
+            'tel' => $tel,
+            'department' => $department,
+            'is_valid' => $isValid,
+            'role_ids' => $roleIds,
+        );
+        !empty($username) ? $params['username'] = $username : '';
+        !empty($pwd) ? $params['password'] = $pwd : '';
+        return $params;
+    }
+
+    /**
+     * 获取角色列表并赋值到模板
+     *
+     * @return void
+     */
+    private function assignRole() {
+        $roleList = $this->roleService->roleList();
+        $this->assign('roleList', $roleList);
     }
 }

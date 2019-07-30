@@ -17,8 +17,12 @@ use herosphp\core\Loader;
 use herosphp\utils\JsonResult;
 use herosphp\http\HttpRequest;
 use app\demo\service\RoleService;
+use app\admin\traits\DataFilterTraits;
 
 class BaseAction extends Controller {
+
+    use DataFilterTraits;
+
     protected $userService ;
     protected $roleService ;
     protected $admin ;
@@ -59,6 +63,24 @@ class BaseAction extends Controller {
         $result->setPage($page);
         $result->setPagesize($pageSize);
         return $result;
+    }
+
+    /**
+     * 删除操作
+     *
+     * @param service $service 服务类对象
+     * @param string $delIds 要删除的记录id集合 1,2,3
+     * @return JsonResult
+     */
+    public function doDel($service, string $delIds) {
+        if (empty($delIds)) {
+            JsonResult::fail('请选择要删除的记录');
+        }
+        $result = $service->delRows($delIds);
+        if (!$result) {
+            JsonResult::fail('删除失败，请稍后重试');
+        }
+        JsonResult::success();
     }
 
     /**

@@ -15,7 +15,6 @@ use app\admin\service\UserService;
 use herosphp\core\Controller;
 use herosphp\core\Loader;
 use herosphp\http\HttpRequest;
-use herosphp\session\Session;
 use herosphp\utils\JsonResult;
 
 class LoginAction extends Controller {
@@ -51,7 +50,11 @@ class LoginAction extends Controller {
         }
 
         $result=$this->userService->login($userName, $passWord);
-
-        $result->output();
+        if ($result['success'] == false) {
+            JsonResult::fail($result['message']);
+        }
+        $jsonResult = new JsonResult(JsonResult::CODE_SUCCESS, '登录成功');
+        $jsonResult->setData(['url'=>'/admin/Main/index']);
+        $jsonResult->output();
     }
 }

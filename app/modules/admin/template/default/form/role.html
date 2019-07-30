@@ -2,6 +2,7 @@
     <fieldset class="layui-elem-field layui-field-title">
         <legend>角色信息</legend>
     </fieldset>
+    {if !$isEdit }
     <div class="layui-form-item">
         <label class="layui-form-label"><span class="red">* </span>角色名称</label>
         <div class="layui-input-inline">
@@ -12,6 +13,14 @@
             <span class="Validform_checktip m0">请输入角色名称</span>
         </div>
     </div>
+    {else}
+    <div class="layui-form-item">
+        <label class="layui-form-label">角色名称</label>
+        <div class="layui-input-inline">
+            <label class="layui-form-label tl w200">{$role.name}</label>
+        </div>
+    </div>
+    {/if}
 
     <div class="layui-form-item layui-form-text">
         <label class="layui-form-label">角色描述</label>

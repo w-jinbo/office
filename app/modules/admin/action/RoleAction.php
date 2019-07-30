@@ -43,10 +43,13 @@ class RoleAction extends BaseAction {
      * 获取角色列表数据接口
      *
      * @param HttpRequest $request
-     * @return Json
+     * @return JsonResult
      */
     public function getDataList(HttpRequest $request) {
-        $data = $this->roleService->getListData($request);
+        $keyword = $request->getParameter('keyword', 'trim|urldecode');
+        $page = $request->getIntParam('page');
+        $pageSize = $request->getIntParam('limit');
+        $data = $this->roleService->getListData($keyword, $page, $pageSize);
 
         $result = new JsonResult(JsonResult::CODE_SUCCESS, '获取数据成功');
         $result->setData($data['list']);
@@ -62,9 +65,7 @@ class RoleAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function add(HttpRequest $request) {
-        $powerArray = AdminPower::getPowerArray();
-        $power = $this->getPowerList('', $powerArray);
-        $this->assign('powerArray', $power);
+        $this->assignPower();
         $this->setView('role/add');
     }
 
@@ -78,11 +79,8 @@ class RoleAction extends BaseAction {
         $role = $this->roleService->findById($id);
         $role['power_array'] = explode(',', $role['permissions']);
         $this->assign('role', $role);
-
-        //获取权限
-        $powerArray = AdminPower::getPowerArray();
-        $power = $this->getPowerList('', $powerArray);
-        $this->assign('powerArray', $power);
+        $this->assign('isEdit', true);
+        $this->assignPower();
         $this->setView('role/edit');
     }
 
@@ -90,13 +88,14 @@ class RoleAction extends BaseAction {
      * 增加角色操作
      *
      * @param HttpRequest $request
+     * @return JsonResult
      */
     public function doAdd(HttpRequest $request) {
         if (!$this->chkPermission('role_list_add')) {
             JsonResult::fail('您没有权限进行此操作');
         }
         $params = $this->getParams($request);
-        $data = $this->roleService->dataFilter(RoleDao::$filter, $params);
+        $data = $this->dataFilter(RoleDao::$filter, $params);
 
         if (!is_array($data)) {
             JsonResult::fail($data);
@@ -118,17 +117,28 @@ class RoleAction extends BaseAction {
      * 修改角色信息操作
      *
      * @param HttpRequest $request
+     * @return JsonResult
      */
     public function doEdit(HttpRequest $request) {
         if (!$this->chkPermission('role_list_edit')) {
             JsonResult::fail('您没有权限进行此操作');
         }
-        $params = $request->getParameters();
-        if (empty($params['summary'])) {
-            unset($params['summary']);
+        $roleId = $request->getIntParam('id');
+        $params = $this->getParams($request);
+        $data = $this->dataFilter(RoleDao::$filter, $params);
+
+        if (!is_array($data)) {
+            JsonResult::fail($data);
         }
-        $result = $this->roleService->updateRole($params);
-        $result->output();
+
+        if (!isset($data['summary'])) {
+            $data['summary'] = '';
+        }
+        $result = $this->roleService->updateRole($roleId, $data['is_valid'], $data['summary'], $data['permissions']);
+        if ($result <= 0) {
+            JsonResult::fail('修改失败');
+        }
+        JsonResult::success('修改成功');
     }
 
     /**
@@ -140,12 +150,8 @@ class RoleAction extends BaseAction {
         if (!$this->chkPermission('role_list_del')) {
             JsonResult::fail('您没有权限进行此操作');
         }
-        $params = $request->getStrParam('ids');
-        if (empty($params)) {
-            JsonResult::fail('请选择要删除的记录');
-        }
-        $result = $this->roleService->delRoles($params);
-        $result->output();
+        $ids = $request->getStrParam('ids');
+        parent::doDel($this->roleService, $ids);
     }
 
     /**
@@ -167,9 +173,15 @@ class RoleAction extends BaseAction {
         }
     }
 
+    /**
+     * 获取表单提交的参数
+     *
+     * @param HttpRequest $request
+     * @return array $params
+     */
     private function getParams(HttpRequest $request) {
-        $name = $request->getStrParam('name', 'trim|urldecode');
-        $summary = $request->getStrParam('summary', 'trim|urldecode');
+        $name = $request->getParameter('name', 'trim|urldecode');
+        $summary = $request->getParameter('summary', 'trim|urldecode');
         $isValid = $request->getIntParam('is_valid');
         $permissions = $request->getParameter('permissions');
         
@@ -182,6 +194,18 @@ class RoleAction extends BaseAction {
             $params['summary'] = $summary;
         }
         return $params;
+    }
+
+    /**
+     * 获取权限数据并赋值到模板
+     *
+     * @return void
+     */
+    private function assignPower() {
+        //获取权限
+        $powerArray = AdminPower::getPowerArray();
+        $power = $this->getPowerList('', $powerArray);
+        $this->assign('powerArray', $power);
     }
 
     /**

@@ -11,15 +11,11 @@
 namespace app\admin\service;
 
 
-use herosphp\filter\Filter;
-use herosphp\model\CommonService;
 use herosphp\session\Session;
-use herosphp\utils\JsonResult;
-use herosphp\http\HttpRequest;
-use app\demo\dao\UserDao;
+use app\admin\dao\UserDao;
 use herosphp\core\Loader;
 
-class UserService extends CommonService {
+class UserService extends BaseService {
 
     protected $modelClassName = UserDao::class;
 
@@ -28,25 +24,28 @@ class UserService extends CommonService {
      *
      * @param string $userName 用户名
      * @param string $passWord 密码
-     * @return JsonResult $result
+     * @return array $result
      */
     public function login(string $userName, string $passWord) {
-        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
+        $result = array(
+            'success' => false,
+            'message' => ''
+        );
         //查询账号是否存在
         $user = $this->isUser($userName);
         if (!$user) {
-            $result->setMessage('没有该用户的账号信息');
+            $result['message'] = '没有该用户的账号信息';
             return $result;
         }
 
         if ($user['is_valid'] === 0){
-            $result->setMessage('该账号已被禁用');
+            $result['message'] = '该账号已被禁用';
             return $result;
         }
 
         $md5Pwd = md5(md5($passWord) . $user['salt']);
         if ($md5Pwd != $user['password']) {
-            $result->setMessage('账号或密码错误');
+            $result['message'] = '账号或密码错误';
             return $result;
         }
 
@@ -54,23 +53,21 @@ class UserService extends CommonService {
         Session::set('user_id', $user['id']);
         Session::set('username', $userName);
 
-        $result->setCode(JsonResult::CODE_SUCCESS);
-        $result->setMessage('登录成功');
-        $result->setData(['url'=>'/admin/Main/index']);//跳转页面
+        $result['success'] = true;
+        $result['message'] = '登录成功';
         return $result;
     }
 
     /**
      * 获取用户列表数据
      *
-     * @param HttpRequest $request 请求数组，包含分页，分页大小，条件
+     * @param sting $keyword 关键词
+     * @param int $page 页码
+     * @param int $pageSize 分页大小
      * @return array $return
      */
-    public function getListData(HttpRequest $request) {
+    public function getListData(string $keyword, int $page, int $pageSize) {
         $query = $this->modelDao;
-        $page = $request->getIntParam('page');
-        $pageSize = $request->getIntParam('limit');
-        $keyword = $request->getParameter('keyword', 'trim|urldecode');
         if (!empty($keyword)) {
             $query->whereOr('username', 'like', '%' . $keyword . '%')
                 ->whereOr('realname', 'like', '%' . $keyword . '%')
@@ -100,67 +97,65 @@ class UserService extends CommonService {
     /**
      * 增加用户操作
      * 
-     * @param array $params 表单数据
-     * @return JsonResult $result
+     * @param string $username 登录账号
+     * @param string $pwd 密码
+     * @param string $realName 用户姓名
+     * @param string $tel 联系电话
+     * @param string $department 部门
+     * @param int $isValid 是否有效
+     * @param string $roleIds 角色id集合
+     * @return int|bool $result 
      */
-    public function addUser(array $params) {
-        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
-        $data = $this->dataFilter($params);
-        if (!is_array($data)) {
-            $result->setMessage($data);
-            return $result;
-        }
-        $user = $this->isUser($data['username']);
-        if ($user) {
-            $result->setMessage('该电子邮箱已被注册');
-            return $result;
-        }
+    public function addUser(string $username, string $pwd, string $realName, 
+        string $tel, string $department, string $isValid, string $roleIds) {
+        $data = array(
+            'username' => $username,
+            'realname' => $realName,
+            'tel' => $tel,
+            'department' => $department,
+            'is_valid' => $isValid,
+            'role_ids' => $roleIds
+        );
+
+        $date = date('Y-m-d H:i:s');
 
         $data['salt'] = rand(1000, 9999);
-        $data['password'] = md5(md5($data['password']) . $data['salt']);
-        $date = date('Y-m-d H:i:s');
-        //是否有效
-        $data['is_valid'] = isset($params['is_valid']) ? 1 : 0;
+        $data['password'] = md5(md5($pwd) . $data['salt']);
         $data['create_time'] = $date;
         $data['update_time'] = $date;
-        $res = $this->modelDao->add($data);
-        if ($res <= 0) {
-            $result->setMessage('添加失败，请稍后重试');
-            return $result;
-        }
-        $result->setCode(JsonResult::CODE_SUCCESS);
-        $result->setMessage('添加成功');
+        $result = $this->modelDao->add($data);
         return $result;
     }
 
     /**
      * 更新用户信息
-     * @param array $params 表单数据
-     * @param string $userId 更新用户记录id
-     * @return JsonResult $result
+     * @param string $realName 用户姓名
+     * @param string $tel 联系电话
+     * @param string $department 部门
+     * @param int $isValid 是否有效
+     * @param string $roleIds 角色id集合
+     * @param string $userId 用户记录id
+     * @return bool|int $result
      */
-    public function updateUser(array $params, string $userId = '') {
-        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
-        $data = $this->dataFilter($params);
-        if (!is_array($data)) {
-            $result->setMessage($data);
-            return $result;
+    public function updateUser(string $realName, string $tel, string $department, 
+        int $isValid = null, string $roleIds = '', int $userId = 0) {
+        if ($userId <= 0) {
+            $user = self::getUser();
+            $userId = $user['id'];
         }
-        if (empty($userId)) {
-            $userId = Session::get('user_id');
-        }
-        //数据验证通过，更新用户数据
-        $data['is_valid'] = isset($params['is_valid']) ? 1 : 0;
-        $data['update_time'] = date('Y-m-d H:i:s');
-        $res = $this->modelDao->update($data, $userId);
-        if(!$res){
-            //数据更新失败
-            $result->setMessage('修改失败，请稍后重试');
-            return $result;
-        }
-        //数据更新成功
-        $result->setCode(JsonResult::CODE_SUCCESS);
-        $result->setMessage('修改成功');
+        
+        $data = array(
+            'realname' => $realName,
+            'tel' => $tel,
+            'department' => $department,
+            'update_time' => date('Y-m-d H:i:s')
+        );
+
+        //用户修改个人信息时没有以下两项数据
+        $isValid === null ? $data['is_valid'] = $isValid : '';
+        !empty(roleIds) ? $data['role_ids'] = $roleIds : '';
+
+        $result = $this->modelDao->update($data, $userId);
         return $result;
     }
 
@@ -168,43 +163,16 @@ class UserService extends CommonService {
      * 修改密码操作
      * 
      * @param string $newPwd 新密码
-     * @param string $oldPwd 旧密码
-     * @return JsonResult $result
+     * @param int $userId 用户记录id
+     * @return int|bool $result
      */
-    public function setPwd(string $newPwd, string $oldPwd) {
-        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
-        $userId = Session::get('user_id');
-        $user = $this->modelDao->findById($userId);
-        if (!$user) {
-            $result->setMessage('没有找到用户信息');
-            return $result;
-        }
-
-        //验证旧密码
-        $chkOldPwd = md5(md5($oldPwd).$user['salt']);
-        if ($chkOldPwd != $user['password']) {
-            $result->setMessage('旧密码错误，验证失败');
-            return $result;
-        }
-
-        //修改数据
+    public function setPwd(string $newPwd, int $userId) {
         $update = array();
         $salt = rand(1000, 9999);
-        $update['password'] = md5(md5($newPwd).$salt);
+        $update['password'] = md5(md5($newPwd) . $salt);
         $update['salt'] = $salt;
         $update['update_time'] = date('Y-m-d H:i:s');
-        $res = $this->modelDao->update($update,$userId);
-        if(!$res){
-            //数据更新失败
-            $result->setMessage('修改失败，请稍后重试');
-            return $result;
-        }
-        //数据更新成功
-        $result->setCode(JsonResult::CODE_SUCCESS);
-        $result->setMessage('修改成功，请重新登录');
-        $result->setData(['url'=>'/admin/login/index']);
-        Session::set('user_id', null);
-        Session::set('username', null);
+        $result = $this->modelDao->update($update, $userId);
         return $result;
     }
 
@@ -214,8 +182,6 @@ class UserService extends CommonService {
     public function quit() {
         Session::set('user_id', null);
         Session::set('username', null);
-
-        location('/admin/login/index');
     }
 
     /**
@@ -259,51 +225,5 @@ class UserService extends CommonService {
     public function isUser (string $userName) {
         $user = $this->modelDao->where('username',$userName)->findOne();
         return empty($user) ? false :$user;
-    }
-
-    /**
-     * 删除用户操作
-     * 
-     * @param string $ids 要删除的用户记录id集合
-     * @return JsonResult $result
-     */
-    public function delUsers(string $ids) {
-        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
-        $idsArr = explode(',', $ids);
-        $res = $this->modelDao->where('id', 'in', $idsArr)->deletes();
-        if ($res <= 0) {
-            $result->setMessage('删除失败，请稍后重试');
-            return $result;
-        }
-        $result->setCode(JsonResult::CODE_SUCCESS);
-        $result->setMessage('删除成功');
-        return $result;
-    }
-
-    /**
-     * 数据过滤
-     * 
-     * @param array $params 表单数据
-     * @return array|string
-     */
-    private function dataFilter(array $params) {
-        $filterMap = array(
-            'username' => array(Filter::DFILTER_EMAIL, array(1, 20), Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '用户名不能为空', 'length' => '用户名长度必须在6~20之间', 'type' => '请输入正确的电子邮箱')),
-            'password' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '密码不能为空')),
-            // 'salt' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
-            //     array('require' => '密码盐不能为空', 'length' => '密码盐长度必须是4个字符')),
-            'role_ids' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '角色集合不能为空')),
-            'realname' => array(Filter::DFILTER_STRING, array(2, 20), Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '用户姓名不能为空', 'length' => '用户姓名长度必须在2~20之内')),
-            'tel' => array(Filter::DFILTER_MOBILE, null, null, array('require' => '手机号码不能为空', 'type' => '请输入正确的手机号码')),
-            'department' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '部门名称不能为空', 'length' => '部门名称长度必须在2~20之内'))
-        );
-        $data=$params;
-        $data = Filter::loadFromModel($data, $filterMap, $error);
-        return !$data ? $error : $data;
     }
 }

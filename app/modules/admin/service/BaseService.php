@@ -12,7 +12,6 @@ namespace app\admin\service;
 
 use herosphp\model\CommonService;
 use herosphp\utils\JsonResult;
-use herosphp\filter\Filter;
 
 class BaseService extends CommonService {
 
@@ -80,20 +79,8 @@ class BaseService extends CommonService {
      * @return JsonResult
      */
     public function delRows(string $ids) {
-        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
         $idsArr = explode(',', $ids);
-        $res = $this->modelDao->where('id', 'in', $idsArr)->deletes();
-        if ($res <= 0) {
-            $result->setMessage('删除失败，请稍后重试');
-            return $result;
-        }
-        $result->setCode(JsonResult::CODE_SUCCESS);
-        $result->setMessage('删除成功');
+        $result = $this->modelDao->where('id', 'in', $idsArr)->deletes();
         return $result;
-    }
-
-    public function dataFilter(array $filterMap, array $params) {
-        $data = Filter::loadFromModel($params, $filterMap, $error);
-        return !$data ? $error : $data;
     }
 }

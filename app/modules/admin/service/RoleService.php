@@ -10,11 +10,7 @@
 
 namespace app\admin\service;
 
-
-use herosphp\filter\Filter;
-use herosphp\utils\JsonResult;
-use herosphp\http\HttpRequest;
-use app\demo\dao\RoleDao;
+use app\admin\dao\RoleDao;
 
 class RoleService extends BaseService {
     protected $modelClassName = RoleDao::class;
@@ -32,16 +28,15 @@ class RoleService extends BaseService {
     /**
      * 获取角色列表数据
      *
-     * @param HttpRequest $request
+     * @param sting $keyword 关键词
+     * @param int $page 页码
+     * @param int $pageSize 分页大小
      * @return array $return
      */
-    public function getListData(HttpRequest $request) {
+    public function getListData(string $keyword, int $page, int $pageSize) {
         $query = $this->modelDao;
-        $page = $request->getIntParam('page');
-        $pageSize = $request->getIntParam('limit');
-        $keyword = $request->getParameter('keyword', 'trim|urldecode');
         if (!empty($keyword)) {
-            $query->whereOr('name', 'like', '%' . $keyword . '%')
+            $query->where('name', 'like', '%' . $keyword . '%')
                 ->whereOr('summary', 'like', '%' . $keyword . '%');
         }
 
@@ -91,47 +86,20 @@ class RoleService extends BaseService {
     /**
      * 更新角色记录信息
      *
-     * @param array $params 表单数据
-     * @return JsonResult $result
+     * @param int $roleId 记录id
+     * @param integer $isValid 是否有效
+     * @param string $summary 描述
+     * @param string $permissions 权限集合
+     * @return int
      */
-    public function updateRole(array $params) {
-        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
-        $data = $this->dataFilter($params);
-        if (!is_array($data)) {
-            $result->setMessage($data);
-            return $result;
-        }
-
-        $roleId = $data['id'];
-        unset($data['id']);
-        $data['is_valid'] = isset($params['is_valid']) ? 1 : 0;
-        $data['update_time'] = date('Y-m-d H:i:s');
-        $res = $this->modelDao->update($data,$roleId);
-        if ($res <= 0) {
-            $result->setMessage('修改失败，请稍后重试');
-            return $result;
-        }
-        $result->setCode(JsonResult::CODE_SUCCESS);
-        $result->setMessage('修改成功');
-        return $result;
-    }
-
-    /**
-     * 删除角色
-     *
-     * @param string $ids 角色id字符串集合
-     * @return JsonResult $result
-     */
-    public function delRoles(string $ids) {
-        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
-        $idsArr = explode(',', $ids);
-        $res = $this->modelDao->where('id', 'in', $idsArr)->deletes();
-        if ($res <= 0) {
-            $result->setMessage('删除失败，请稍后重试');
-            return $result;
-        }
-        $result->setCode(JsonResult::CODE_SUCCESS);
-        $result->setMessage('删除成功');
+    public function updateRole(int $roleId, int $isValid, string $summary, string $permissions) {
+        $data = array(
+            'is_valid' => $isValid,
+            'summary' => $summary,
+            'permissions' => $permissions,
+            'update_time' => date('Y-m-d H:i:s')
+        );
+        $result = $this->modelDao->update($data, $roleId);
         return $result;
     }
 }
