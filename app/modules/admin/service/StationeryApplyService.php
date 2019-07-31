@@ -128,8 +128,8 @@ class StationeryApplyService extends BaseService {
             'update_time' => $date,
         );
         $query->beginTransaction();
-        $res = $query->add($data);
-        if ($res <= 0) {
+        $applyId = $query->add($data);
+        if ($applyId <= 0) {
             $query->rollback();
             return false;
         }
@@ -137,15 +137,15 @@ class StationeryApplyService extends BaseService {
         $stationeryItemService = Loader::service(StationeryApplyItemService::class);
         foreach ($stationeryArr as $key => $item) {
             $temp = $item;
-            $temp['stationery_apply_id'] = $res;
-            $stationeryItemFlag = $stationeryItemService->addRow($res, $item['stationery_id'], 
+            $temp['stationery_apply_id'] = $applyId;
+            $stationeryItemFlag = $stationeryItemService->addRow($applyId, $item['stationery_id'], 
                 $item['stationery_name'], $item['stationery_unit'], $item['apply_num']);
             if (!$stationeryItemFlag) {
                 return false;
             }
         }
         $query->commit();
-        return true;
+        return $applyId;
     }
 
     /**

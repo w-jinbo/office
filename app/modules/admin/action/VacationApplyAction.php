@@ -16,6 +16,7 @@ use app\admin\service\VacationApplyService;
 use app\admin\service\VacationService;
 use herosphp\utils\JsonResult;
 use app\admin\dao\VacationApplyDao;
+use app\admin\service\SystemTipService;
 
 class VacationApplyAction extends BaseAction {
 
@@ -147,6 +148,7 @@ class VacationApplyAction extends BaseAction {
         if ($result['success'] == false) {
             JsonResult::fail($result['message']);
         }
+        $this->addSystemTip(SystemTipService::VACATION_APPLY, $result);
         JsonResult::success('申请成功');
     }
 
@@ -173,6 +175,7 @@ class VacationApplyAction extends BaseAction {
         if ($result <= 0) {
             JsonResult::fail('审批失败');
         }
+        $this->addSystemTip(SystemTipService::VACATION_RESULT, $applyId, $applyInfo['user_id']);
         JsonResult::success('审批成功');
     }
 

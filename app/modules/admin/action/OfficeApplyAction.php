@@ -16,6 +16,7 @@ use app\admin\service\OfficeApplyService;
 use herosphp\http\HttpRequest;
 use herosphp\utils\JsonResult;
 use app\admin\dao\OfficeApplyDao;
+use app\admin\service\SystemTipService;
 
 class OfficeApplyAction extends BaseAction {
 
@@ -223,6 +224,7 @@ class OfficeApplyAction extends BaseAction {
         if ($result <=0 ) {
             JsonResult::fail('审批失败');
         }
+        $this->addSystemTip(SystemTipService::OFFICE_RESULT, $applyId, $applyInfo['user_id']);
         JsonResult::success('审批成功');
     }
 

@@ -6,6 +6,7 @@ use herosphp\core\Loader;
 use app\admin\service\NoticeService;
 use herosphp\http\HttpRequest;
 use herosphp\utils\JsonResult;
+use app\admin\dao\NoticeDao;
 
 class NoticeAction extends BaseAction {
 
@@ -24,7 +25,10 @@ class NoticeAction extends BaseAction {
     }
 
     public function getDataList(HttpRequest $request) {
-        $data = $this->noticeService->getListData($request);
+        $keyword = $request->getParameter('keyword', 'trim|urldecode');
+        $page = $request->getIntParam('page');
+        $pageSize = $request->getIntParam('limit');
+        $data = $this->noticeService->getListData($keyword, $page, $pageSize);
 
         $result = new JsonResult(JsonResult::CODE_SUCCESS, '获取数据成功');
         $result->setData($data['list']);
@@ -45,16 +49,17 @@ class NoticeAction extends BaseAction {
         $this->setView('notice/edit');
     }
 
-    public function doAdd(HttpRequest $request) {exit;
+    public function doAdd(HttpRequest $request) {
         if (!$this->chkPermission('notice_list_add')) {
             JsonResult::fail('您没有权限进行此操作');
         }
-        $params = $request->getParameters();
-        if (empty($params['summary'])) {
-            unset($params['summary']);
+        $data = $this->getParams($request);
+        $result = $this->noticeService->addNotice($data['title'], 
+            $data['summary'], $data['content'], $data['is_valid']);
+        if ($result <= 0) {
+            JsonResult::fail('添加失败');
         }
-        $result = $this->noticeService->addRow($params);
-        $result->output();
+        JsonResult::success('添加成功');
     }
 
     /**
@@ -66,12 +71,14 @@ class NoticeAction extends BaseAction {
         if (!$this->chkPermission('notice_list_edit')) {
             JsonResult::fail('您没有权限进行此操作');
         }
-        $params = $request->getParameters();
-        if (empty($params['summary'])) {
-            unset($params['summary']);
-        }
-        $result = $this->noticeService->updateRow($params);
-        $result->output();
+        $noticeId = $request->getIntParam('id');
+        $data = $this->getParams($request);
+        $result = $this->noticeService->updateNotice($noticeId, $data['title'], 
+            $data['summary'], $data['content'], $data['is_valid']);
+            if ($result <= 0) {
+                JsonResult::fail('修改失败');
+            }
+            JsonResult::success('修改成功');
     }
 
     /**
@@ -83,12 +90,8 @@ class NoticeAction extends BaseAction {
         if (!$this->chkPermission('notice_list_del')) {
             JsonResult::fail('您没有权限进行此操作');
         }
-        $params = $request->getStrParam('ids');
-        if (empty($params)) {
-            JsonResult::fail('请选择要删除的记录');
-        }
-        $result = $this->noticeService->delRows($params);
-        $result->output();
+        $ids = $request->getStrParam('ids');
+        parent::doDel($this->noticeService, $ids);
     }
 
     /**
@@ -108,5 +111,40 @@ class NoticeAction extends BaseAction {
         } else {
             JsonResult::success('修改状态成功');
         }
+    }
+
+    /**
+     * 获取表单提交的参数
+     *
+     * @param HttpRequest $request
+     * @return array $params
+     */
+    private function getParams(HttpRequest $request) {
+        $title = $request->getParameter('title', 'trim|urldecode');
+        $summary = $request->getParameter('summary', 'trim|urldecode');
+        $content = $request->getParameter('content', 'trim|urldecode');
+        $isValid = $request->getIntParam('is_valid');
+        
+        $params = array(
+            'title' => $title,
+            'is_valid' => $isValid,
+            'content' => $content
+        );
+        if (!empty($summary)) {
+            $params['summary'] = $summary;
+        }
+
+        //过滤数据
+        $data = $this->dataFilter(NoticeDao::$filter, $params);
+
+        if (!is_array($data)) {
+            JsonResult::fail($data);
+        }
+
+        //存储描述的键值对不存在，用户没有填写描述或清空，需要将数据内容清空
+        if (!isset($data['summary'])) {
+            $data['summary'] = '';
+        }
+        return $data;
     }
 }

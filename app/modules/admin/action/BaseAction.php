@@ -18,6 +18,7 @@ use herosphp\utils\JsonResult;
 use herosphp\http\HttpRequest;
 use app\demo\service\RoleService;
 use app\admin\traits\DataFilterTraits;
+use app\admin\service\SystemTipService;
 
 class BaseAction extends Controller {
 
@@ -99,4 +100,9 @@ class BaseAction extends Controller {
         }
         return true;
     } 
+
+    protected function addSystemTip(int $type, int $logId, int $userId = 0) {
+        $systemTipModel = new SystemTipService();
+        $systemTipModel->addTip($type, $logId, $userId);
+    }
 }

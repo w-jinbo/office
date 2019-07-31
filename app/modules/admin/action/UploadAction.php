@@ -25,7 +25,7 @@ class UploadAction extends BaseAction {
         );
 
         $config = array(
-            "upload_dir" => "../static/upload/".date('Y')."/".date('m'),
+            "upload_dir" => "../static/upload/" . date('Y') . "/" . date('m'),
             //允许上传的文件类型
             'allow_ext' => 'jpg|jpeg|png|gif|bmp',
             //图片的最大宽度, 0没有限制
@@ -36,7 +36,15 @@ class UploadAction extends BaseAction {
             'max_size' =>  1024000,     /* 文件size的最大 1MB */
         );
         $upload = new FileUpload($config);
-        $result = $upload->upload('file');
-        var_dump($result);
+        $img = $upload->upload('file');
+        if (!is_array($img)) {
+            echo json_encode($img);
+            die();
+        }
+        $result['data']['src'] = '../' . $img['file_path'];
+        $result['code'] = 0;
+        $result['msg'] = '上传成功';
+        echo json_encode($result);
+        die();
     }
 }

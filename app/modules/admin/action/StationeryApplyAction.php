@@ -17,6 +17,7 @@ use herosphp\http\HttpRequest;
 use herosphp\utils\JsonResult;
 use app\admin\dao\StationeryApplyDao;
 use app\admin\dao\StationeryApplyItemDao;
+use app\admin\service\SystemTipService;
 
 class StationeryApplyAction extends BaseAction {
     
@@ -152,6 +153,7 @@ class StationeryApplyAction extends BaseAction {
         if (!$result) {
             JsonResult::fail('申请失败');
         }
+        $this->addSystemTip(SystemTipService::STATIONERY_APPLY, $result);
         JsonResult::success('申请成功');
     }
 
@@ -180,6 +182,7 @@ class StationeryApplyAction extends BaseAction {
         if ($result <= 0) {
             JsonResult::fail('审批失败');
         }
+        $this->addSystemTip(SystemTipService::STATIONERY_RESULT, $applyId, $applyInfo['user_id']);
         JsonResult::success('审批成功');
     }
 

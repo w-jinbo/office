@@ -10,19 +10,14 @@
 
 namespace app\admin\service;
 
-use herosphp\http\HttpRequest;
-use herosphp\filter\Filter;
 use app\admin\dao\NoticeDao;
 
 class NoticeService extends BaseService {
 
     protected $modelClassName = NoticeDao::class;
 
-    public function getListData(HttpRequest $request) {
+    public function getListData($keyword, $page, $pageSize) {
         $query = $this->modelDao;
-        $page = $request->getIntParam('page');
-        $pageSize = $request->getIntParam('limit');
-        $keyword = $request->getParameter('keyword', 'trim|urldecode');
         if (!empty($keyword)) {
             $query->whereOr('title', 'like', '%' . $keyword . '%')
                 ->whereOr('summary', 'like', '%' . $keyword . '%');
@@ -49,23 +44,47 @@ class NoticeService extends BaseService {
     }
 
     /**
-     * 数据过滤
+     * 添加公告
      *
-     * @param array $params
-     * @return array|string
+     * @param string $title 公告标题
+     * @param string $summary 描述
+     * @param string $content 正文内容
+     * @param integer $isValid 是否有效
+     * @return bool|int
      */
-    protected function dataFilter(array $params) {
-        $filterMap = array(
-            'title' => array(Filter::DFILTER_STRING, array(1, 100), Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '公告标题不能为空', 'length' => '公告标题长度必须在1~100之间')),
-            'summary' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM | Filter::DFILTER_MAGIC_QUOTES, null),
-            'title' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM | Filter::DFILTER_MAGIC_QUOTES, 
-                array('require' => '公告正文不能为空')),
+    public function addNotice(string $title, string $summary, string $content, int $isValid) {
+        $date = date('Y-m-d H:i:s');
+        $data = array(
+            'title' => $title,
+            'summary' => $summary,
+            'content' => $content,
+            'is_valid' => $isValid,
+            'create_time' => $date,
+            'update_time' => $date,
         );
-        $data = $params;
-        unset($data['ap_codes']);
-        $data['permissions'] = implode(',', $params['ap_codes']);
-        $data = Filter::loadFromModel($data, $filterMap, $error);
-        return !$data ? $error : $data;
+        $result = $this->modelDao->add($data);
+        return $result;
+    }
+
+    /**
+     * 修改公告信息
+     *
+     * @param integer $id 记录id
+     * @param string $title 公告标题
+     * @param string $summary 描述
+     * @param string $content 正文内容
+     * @param integer $isValid 是否有效
+     * @return bool|int
+     */
+    public function updateNotice(int $id, string $title, string $summary, string $content, int $isValid) {
+        $data = array(
+            'title' => $title,
+            'summary' => $summary,
+            'content' => $content,
+            'is_valid' => $isValid,
+            'update_time' => date('Y-m-d H:i:s'),
+        );
+        $result = $this->modelDao->update($data, $id);
+        return $result;
     }
 }

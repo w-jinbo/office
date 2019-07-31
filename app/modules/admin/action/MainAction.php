@@ -28,7 +28,7 @@ class MainAction extends BaseAction {
     }
 
     public function main() {
-        
+        $this->setView('main/main');
     }
 
     /**
