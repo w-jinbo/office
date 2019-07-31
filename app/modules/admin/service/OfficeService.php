@@ -30,7 +30,7 @@ class OfficeService extends BaseService {
      * 添加办公室
      *
      * @param string $name 办公室名称
-     * @param string address 办公室位置
+     * @param string $address 办公室位置
      * @param string $summary 描述
      * @param integer $isValid 是否有效
      * @return bool|int

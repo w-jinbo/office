@@ -15,6 +15,8 @@ use app\admin\service\StationeryService;
 use app\admin\service\StationeryApplyService;
 use herosphp\http\HttpRequest;
 use herosphp\utils\JsonResult;
+use app\admin\dao\StationeryApplyDao;
+use app\admin\dao\StationeryApplyItemDao;
 
 class StationeryApplyAction extends BaseAction {
     
@@ -61,7 +63,15 @@ class StationeryApplyAction extends BaseAction {
      * @return Json
      */
     public function getListData(HttpRequest $request) {
-        $data = $this->stationeryApplyService->getListData($request);
+        $page = $request->getIntParam('page');
+        $pageSize = $request->getIntParam('limit');
+        $keyword = $request->getParameter('keyword', 'trim|urldecode');
+        $status = $request->getIntParam('status');
+        $searchDate = $request->getParameter('searchDate', 'trim|urldecode');
+        $type = $request->getIntParam('type');
+        $searchDateArr = explode(' - ', $searchDate);
+        $data = $this->stationeryApplyService->getListData($keyword, $status, 
+            $searchDateArr, $type, $page, $pageSize);
 
         $result = new JsonResult(JsonResult::CODE_SUCCESS, '获取数据成功');
         $result->setData($data['list']);
@@ -132,12 +142,17 @@ class StationeryApplyAction extends BaseAction {
         if (!$this->chkPermission('stationery_apply_add')) {
             JsonResult::fail('您没有权限进行此操作');
         }
-        $params = $request->getParameters();
-        if (empty($params)) {
+        $data = $this->getParams($request);
+        if (empty($data['item'])) {
             JsonResult::fail('请选择要申请的项目');
         }
-        $result = $this->stationeryApplyService->addApply($params);
-        $result->output();
+
+        $admin = $this->admin;
+        $result = $this->stationeryApplyService->addApply($admin['id'], $data['apply_reason'], $data['item']);
+        if (!$result) {
+            JsonResult::fail('申请失败');
+        }
+        JsonResult::success('申请成功');
     }
 
     /**
@@ -158,16 +173,14 @@ class StationeryApplyAction extends BaseAction {
         if ($applyInfo['status'] != StationeryApplyService::APPLIED) {
             JsonResult::fail('该申请目前状态不支持审批');
         }
-        $update = array();
-        $update['status'] = $request->getIntParam('status');
-        $update['audit_user_id'] = $this->admin['id'];
-        $update['audit_user_realname'] = $this->admin['realname'];
-        $update['audit_opinion'] = $request->getStrParam('audit_opinion');
-        $date = date('Y-m-d H:i:s');
-        $update['audit_time'] = $date;
-        $update['update_time'] = $date;
-        $result = $this->stationeryApplyService->auditApply($update, $applyId);
-        $result->output();
+        $data = $this->getParams($request);
+        $admin = $this->admin;
+        $result = $this->stationeryApplyService->auditApply($applyId, $admin['id'], 
+            $admin['realname'], $data['status'], $data['audit_opinion']);
+        if ($result <= 0) {
+            JsonResult::fail('审批失败');
+        }
+        JsonResult::success('审批成功');
     }
 
     /**
@@ -188,12 +201,59 @@ class StationeryApplyAction extends BaseAction {
         if ($applyInfo['status'] != StationeryApplyService::UNCLAIMED) {
             JsonResult::fail('该申请目前状态不支持发放');
         }
-        $update['grant_remark'] = $request->getStrParam('grant_remark');
-        $date = date('Y-m-d H:i:s');
-        $update['grant_time'] = $date;
-        $update['update_time'] = $date;
-        $itemArr = $request->getParameter('item');
-        $result = $this->stationeryApplyService->grant($update, $itemArr, $applyId);
-        $result->output();
+        $data = $this->getParams($request);
+        $result = $this->stationeryApplyService->grant($applyId, $data['item'], $data['grant_remark']);
+        if (!$result) {
+            JsonResult::fail('发放失败');
+        }
+        JsonResult::success('发放成功');
+    }
+
+    /**
+     * 获取表单数据并校验
+     *
+     * @param HttpRequest $request
+     * @return array|string
+     */
+    private function getParams(HttpRequest $request) {
+        $reason = $request->getParameter('apply_reason', 'trim|urldecode');
+        $item = $request->getParameter('item');
+        $status = $request->getIntParam('status');
+        $opinion = $request->getParameter('audit_opinion', 'trim|urldecode');
+        $remark = $request->getParameter('grant_remark', 'trim|urldecode');
+
+        $params = array();
+        !empty($reason) ? $params['apply_reason'] = $reason : '';
+        !empty($status) ? $params['status'] = $status : '';
+        !empty($opinion) ? $params['audit_opinion'] = $opinion : '';
+        !empty($remark) ? $params['grant_remark'] = $remark : '';
+        if (!empty($params)) {
+            $data = $this->dataFilter(StationeryApplyDao::$filter, $params);
+            if (!is_array($data)) {
+                JsonResult::fail($data);
+            }
+        }
+
+        if (!empty($item)) {
+            $itemData = array();
+            $filter = StationeryApplyItemDao::$filter;
+            foreach ($item as $k => $v) {
+                $param = array();
+                !empty($v['id']) ? $param['stationery_id'] = $v['id'] : '';
+                !empty($v['apply_item_id']) ? $param['apply_item_id'] = $v['apply_item_id'] : '';
+                !empty($v['name']) ? $param['stationery_name'] = $v['name'] : '';
+                !empty($v['unit']) ? $param['stationery_unit'] = $v['unit'] : '';
+                !empty($v['num']) ? $param['apply_num'] = $v['num'] : '';
+                !empty($v['grant_num']) ? $param['grant_num'] = $v['grant_num'] : '';
+                $temp = $this->dataFilter($filter, $param);
+                if (!is_array($temp)) {
+                    JsonResult::fail($temp);
+                }
+                $itemData[$k] = $temp;
+            }
+            $data['item'] = $itemData;
+        }
+
+        return $data;
     }
 }

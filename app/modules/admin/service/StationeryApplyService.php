@@ -10,11 +10,8 @@
 
 namespace app\admin\service;
 
-use herosphp\utils\JsonResult;
-use herosphp\session\Session;
-use herosphp\filter\Filter;
 use herosphp\core\Loader;
-use herosphp\http\HttpRequest;
+use app\admin\dao\StationeryApplyDao;
 
 class StationeryApplyService extends BaseService {
 
@@ -35,7 +32,7 @@ class StationeryApplyService extends BaseService {
         self::APPLY_REJECT => '拒绝申请',
     );
 
-    protected $modelClassName = 'app\admin\dao\StationeryApplyDao';
+    protected $modelClassName = StationeryApplyDao::class;
 
     /**
      * 获取申请状态数组
@@ -49,22 +46,23 @@ class StationeryApplyService extends BaseService {
     /**
      * 获取列表数据
      *
-     * @param HttpRequest $request
-     * @return void
+     * @param string $keyword 关键字
+     * @param int $status 状态
+     * @param array $searchDate 查询时间范围
+     * @param int $type 类型，1：我的申请，2：审批列表
+     * @param int $page 分页
+     * @param int $pageSize 分页大小
+     * @return array $data
      */
-    public function getListData(HttpRequest $request) {
+    public function getListData(string $keyword = '', int $status = 0, 
+        array $searchDate, int $type, int $page, int $pageSize) {
         $query = $this->modelDao;
         $query->alias('a')
             ->join('user b', MYSQL_JOIN_INNER)
             ->on('a.user_id = b.id');
             
-        $page = $request->getIntParam('page');
-        $pageSize = $request->getIntParam('limit');
-        $keyword = $request->getParameter('keyword', 'trim|urldecode');
-        $status = $request->getParameter('status', 'trim|urldecode');
-        $searchDate = $request->getParameter('searchDate', 'trim|urldecode');
-        $type = $request->getIntParam('type');
-        $userId = session::get('user_id');
+        $user = $this->getUser();
+        $userId = $user['id'];
         if ($type == 1) {
             //我的申请列表，只加载用户自己的申请记录
             $query->where('user_id', $userId);
@@ -72,9 +70,8 @@ class StationeryApplyService extends BaseService {
             //审核列表，自己不能审核自己的申请
             $query->where('user_id', '!=', $userId);
         }
-        $searchDateArr = explode(' - ', $searchDate);
-        $searchDateArr[1] = $searchDateArr[1] . ' 23:59:59';
-        $query->where('a.create_time', 'between', $searchDateArr);
+        $searchDate[1] = $searchDate[1] . ' 23:59:59';
+        $query->where('a.create_time', 'between', $searchDate);
         if (!empty($status)) {
             $query->where('status', $status);
         }
@@ -115,127 +112,103 @@ class StationeryApplyService extends BaseService {
     /**
      * 新增申请
      *
-     * @param array $params
-     * @return void
+     * @param integer $userId 申请人id
+     * @param string $reason 申请原因
+     * @param array $stationeryArr 申请物品数组，包含物品记录id，物品名称，物品单位，申请数量
+     * @return bool
      */
-    public function addApply(array $params) {
+    public function addApply(int $userId, string $reason, array $stationeryArr) {
         $query = $this->modelDao;
-        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
-        $userId = Session::get('user_id');
-        $params['user_id'] = $userId;
-        //申请的文具子项
-        $itemArr = $params['item'];
-        unset($params['item']);
-        $data = $this->dataFilter($params);
-        if (!is_array($data)) {
-            $result->setMessage($data);
-            return $result;
-        }
         $date = date('Y-m-d H:i:s');
-        $data['create_time'] = $date;
-        $data['update_time'] = $date;
-        $data['status'] = self::APPLIED;
+        $data = array(
+            'user_id' => $userId,
+            'apply_reason' => $reason,
+            'status' => self::APPLIED,
+            'create_time' => $date,
+            'update_time' => $date,
+        );
         $query->beginTransaction();
         $res = $query->add($data);
         if ($res <= 0) {
             $query->rollback();
-            $result->setMessage('申请失败，请稍后重试');
-            return $result;
+            return false;
         }
         //添加申请成功，将申请物品项添加到关联表中
         $stationeryItemService = Loader::service(StationeryApplyItemService::class);
-        foreach ($itemArr as $key => $item) {
-            $temp = array();
+        foreach ($stationeryArr as $key => $item) {
+            $temp = $item;
             $temp['stationery_apply_id'] = $res;
-            $temp['stationery_id'] = $item['id'];
-            $temp['stationery_name'] = $item['name'];
-            $temp['stationery_unit'] = $item['unit'];
-            $temp['apply_num'] = $item['num'];
-            $stationeryItemFlag = $stationeryItemService->addRow($temp);
+            $stationeryItemFlag = $stationeryItemService->addRow($res, $item['stationery_id'], 
+                $item['stationery_name'], $item['stationery_unit'], $item['apply_num']);
             if (!$stationeryItemFlag) {
-                $query->rollback();
-                $result->setMessage('申请失败，请稍后重试');
-                return $result;
+                return false;
             }
         }
         $query->commit();
-        $result->setCode(JsonResult::CODE_SUCCESS);
-        $result->setMessage('申请成功');
-        return $result;
+        return true;
     }
 
     /**
-     * 申请审批
+     * 审批申请
      *
-     * @param array $params
-     * @param integer $applyId
-     * @return JsonResult
+     * @param integer $applyId 申请记录id
+     * @param integer $adminId 审批账号id
+     * @param string $adminName 审批人姓名
+     * @param integer $status 审批状态
+     * @param string $opinion 审批意见
+     * @return bool|int
      */
-    public function auditApply(array $params, int $applyId) {
-        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
-        $data = $this->dataFilter($params);
-        if (!is_array($data)) {
-            $result->setMessage($data);
-            return $result;
-        }
-        $res = $this->modelDao->update($data, $applyId);
-        if(!$res){
-            //数据更新失败
-            $result->setMessage('审批失败，请稍后重试');
-            return $result;
-        }
-        //数据更新成功
-        $result->setCode(JsonResult::CODE_SUCCESS);
-        $result->setMessage('审批成功');
+    public function auditApply(int $applyId, int $adminId, string $adminName, int $status, string $opinion) {
+        $date = date('Y-m-d H:i:s');
+        $data = array(
+            'audit_user_id' => $adminId,
+            'audit_user_realname' => $adminName,
+            'status' => $status,
+            'audit_opinion' => $opinion,
+            'audit_time' => $date,
+            'update_time' => $date,
+        );
+        $result = $this->modelDao->update($data, $applyId);
         return $result;
     }
 
     /**
      * 发放文具
      *
-     * @param array $params
-     * @param array $itemArr
-     * @param integer $applyId
-     * @return JsonResult
+     * @param integer $applyId 申请记录id
+     * @param array $stationeryArr 物品数组，包含发放数量，关联记录id
+     * @param string $remark 发放备注
+     * @return bool
      */
-    public function grant(array $params, array $itemArr, int $applyId) {
+    public function grant(int $applyId, array $stationeryArr, string $remark = null) {
         $query = $this->modelDao;
-        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
-        if (empty($params['grant_remark'])) {
-            unset($params['grant_remark']);
-        }
-        $data = $this->dataFilter($params);
-        if (!is_array($data)) {
-            $result->setMessage($data);
-            return $result;
-        }
-        $data['status'] = self::RECEIVED;
+        $date = date('Y-m-d H:i:s');
+        $data = array(
+            'grant_remark' => empty($remark) ? '' : $remark,
+            'status' => self::RECEIVED,
+            'grant_time' => $date,
+            'update_time' => $date,
+        );
         $query->beginTransaction();
         $res = $query->update($data, $applyId);
         if(!$res){
             //数据更新失败
             $query->rollback();
-            $result->setMessage('发放失败，请稍后重试');
-            return $result;
+            return false;
         }
 
         //更新发放数量
         $stationeryItemService = Loader::service(StationeryApplyItemService::class);
-        foreach ($itemArr as $key => $item) {
-            $temp = array();
-            $temp['grant_num'] = $item;
-            $stationeryItemFlag = $stationeryItemService->updateRow($temp, $key);
+        foreach ($stationeryArr as $key => $item) {
+            $stationeryItemFlag = $stationeryItemService->updateRow($item['grant_num'], $item['apply_item_id']);
             if (!$stationeryItemFlag) {
                 $query->rollback();
-                $result->setMessage('发放失败，请稍后重试');
-                return $result;
+                return false;
             }
         }
         $query->commit();
         //数据更新成功
-        $result->setCode(JsonResult::CODE_SUCCESS);
-        $result->setMessage('发放成功');
-        return $result;
+        return true;
         
     }
 
@@ -265,31 +238,5 @@ class StationeryApplyService extends BaseService {
                 ->find();
         }
         return $applyInfo;
-    }
-
-    /**
-     * 数据过滤
-     *
-     * @param array $params
-     * @return array|string
-     */
-    private function dataFilter(array $params) {
-        $filterMap = array(
-            'user_id' => array(Filter::DFILTER_NUMERIC, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '申请人不能为空')),
-            'apply_reason' => array(Filter::DFILTER_STRING, array(1, 255), Filter::DFILTER_SANITIZE_TRIM | Filter::DFILTER_MAGIC_QUOTES,
-                array('require' => '申请原因不能为空',  'length' => '申请原因长度必须在1~255之内')),
-            'audit_user_id' => array(Filter::DFILTER_NUMERIC, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '审核人id不能为空')),
-            'audit_user_realname' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '审核人姓名不能为空')),
-            'audit_opinion' => array(Filter::DFILTER_STRING, array(1, 255), Filter::DFILTER_SANITIZE_TRIM | Filter::DFILTER_MAGIC_QUOTES,
-                array('require' => '审核意见不能为空',  'length' => '审核意见长度必须在1~255之内')),
-            'grant_remark' => array(Filter::DFILTER_STRING, array(1, 255), Filter::DFILTER_SANITIZE_TRIM | Filter::DFILTER_MAGIC_QUOTES,
-                array('require' => '发放备注不能为空',  'length' => '发放备注长度必须在1~255之内')),
-        );
-        $data = $params;
-        $data = Filter::loadFromModel($data, $filterMap, $error);
-        return !$data ? $error : $data;
     }
 }

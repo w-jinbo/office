@@ -160,7 +160,7 @@
      */
     function numLock(obj) {
         $(obj).parent().next().find('.num').val(0).addClass('layui-disabled');
-        $(obj).parent().next().find('input').attr('disabled');
+        $(obj).parent().next().find('input').attr('disabled', true);
         layui.form.render();
         chkItemNum();
     }

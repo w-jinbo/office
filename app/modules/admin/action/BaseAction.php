@@ -46,26 +46,6 @@ class BaseAction extends Controller {
     }
 
     /**
-     * 获取列表数据(废弃)
-     * 
-     * @param $service
-     * @param HttpRequest $request
-     * @return JsonResult $result
-     */
-    public function getDataList($service, HttpRequest $request) {
-        $result = new JsonResult(JsonResult::CODE_SUCCESS, '获取数据成功');
-        $page = $request->getIntParam('page');
-        $pageSize = $request->getIntParam('limit');
-        $total = $service->count();
-        $data = $service->page($page, $pageSize)->order('id desc')->find();
-        $result->setData($data);
-        $result->setCount($total);
-        $result->setPage($page);
-        $result->setPagesize($pageSize);
-        return $result;
-    }
-
-    /**
      * 删除操作
      *
      * @param service $service 服务类对象

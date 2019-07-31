@@ -128,7 +128,7 @@
             $.post(url, query, function(res) {
                 if (res.code == '000') {
                 } else {
-                    layer.alert(data.message, {icon: 2}, function () {
+                    layer.alert(res.message, {icon: 2}, function () {
                         parent.tableReload();
                     });
                 }

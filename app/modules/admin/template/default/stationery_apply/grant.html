@@ -52,7 +52,8 @@
                                         <td class="pos_r">
                                             <i class="rhly-iconfont jiajian"></i>
                                             <div class="decrease" onclick="decrease(this)"></div>
-                                            <input type="text" value="{$v.apply_num}" name="item[{$v.id}]" placeholder="数量"
+                                            <input type="hidden" value="{$v.id}" name="item[{$k}][apply_item_id]"/>
+                                            <input type="text" value="{$v.apply_num}" name="item[{$k}][grant_num]" placeholder="数量"
                                                 class="layui-input num">
                                             <div class="increase" onclick="increase(this)"></div>
                                             <span class="unit">{$v.stationery_unit}</span>
@@ -69,7 +70,7 @@
                 <div class="layui-form-item layui-form-text">
                     <label class="layui-form-label">备注</label>
                     <div class="layui-input-block w500">
-                        <textarea name="apply_reason" placeholder="请输入备注" class="layui-textarea"></textarea>
+                        <textarea name="grant_remark" placeholder="请输入备注" class="layui-textarea"></textarea>
                     </div>
                 </div>
 
