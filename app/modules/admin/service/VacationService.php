@@ -26,11 +26,28 @@ class VacationService extends BaseService {
         return $list;
     }
 
+    /**
+     * 添加假期类型
+     *
+     * @param string $name 假期名称
+     * @param string $summary 描述
+     * @param integer $isValid 是否有效
+     * @return bool|int
+     */
     public function addVacation(string $name, string $summary, int $isValid) {
         $result = parent::addRow($name, $summary, $isValid);
         return $result;
     }
 
+    /**
+     * 修改假期类型信息
+     *
+     * @param integer $id 记录id
+     * @param string $name 假期名称
+     * @param string $summary 描述
+     * @param integer $isValid 是否有效
+     * @return bool|int
+     */
     public function updateVacation(int $id, string $name, string $summary, int $isValid) {
         $result = parent::updateRow($id, $name, $summary, $isValid);
         return $result;

@@ -10,43 +10,11 @@
 
 namespace app\admin\service;
 
-use herosphp\http\HttpRequest;
-use herosphp\filter\Filter;
+use app\admin\dao\OfficeDao;
 
 class OfficeService extends BaseService {
 
-    protected $modelClassName = 'app\admin\dao\OfficeDao';
-
-    public function getListData(HttpRequest $request) {
-        $query = $this->modelDao;
-        $page = $request->getIntParam('page');
-        $pageSize = $request->getIntParam('limit');
-        $keyword = $request->getParameter('keyword', 'trim|urldecode');
-        if (!empty($keyword)) {
-            $query->whereOr('name', 'like', '%' . $keyword . '%')
-                ->whereOr('address', 'like', '%' . $keyword . '%')
-                ->whereOr('summary', 'like', '%' . $keyword . '%');
-        }
-
-        $return = array(
-            'page' => $page,
-            'pageSize' => $pageSize,
-            'total' => 0,
-            'list' => array()
-        );
-
-        //克隆查询对象，防止查询条件丢失
-        $countQuery = clone $query;
-        $total = $countQuery->count();
-        if ($total <= 0) {
-            return $return;
-        }
-
-        $data = $query->page($page, $pageSize)->order('id desc')->find();
-        $return['total'] = $total;
-        $return['list'] = $data;
-        return $return;
-    }
+    protected $modelClassName = OfficeDao::class;
 
     /**
      * 获取有效的办公室数组
@@ -59,21 +27,47 @@ class OfficeService extends BaseService {
     }
 
     /**
-     * 数据过滤
+     * 添加办公室
      *
-     * @param array $params
-     * @return array|string
+     * @param string $name 办公室名称
+     * @param string address 办公室位置
+     * @param string $summary 描述
+     * @param integer $isValid 是否有效
+     * @return bool|int
      */
-    protected function dataFilter(array $params) {
-        $filterMap = array(
-            'name' => array(Filter::DFILTER_STRING, array(1, 20), Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '办公室名称不能为空', 'length' => '办公室名称长度必须在1~20之间')),
-            'address' => array(Filter::DFILTER_STRING, array(1, 255), Filter::DFILTER_SANITIZE_TRIM | Filter::DFILTER_MAGIC_QUOTES, 
-                array('require' => '办公室地址不能为空')),
-            'summary' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM | Filter::DFILTER_MAGIC_QUOTES, null),
+    public function addOffice(string $name, string $address, string $summary, int $isValid) {
+        $date = date('Y-m-d H:i:s');
+        $data = array(
+            'name' => $name,
+            'address' => $address,
+            'summary' => $summary,
+            'is_valid' => $isValid,
+            'create_time' => $date,
+            'update_time' => $date,
         );
-        $data = $params;
-        $data = Filter::loadFromModel($data, $filterMap, $error);
-        return !$data ? $error : $data;
+        $result = $this->modelDao->add($data);
+        return $result;
+    }
+
+    /**
+     * 修改办公室信息
+     *
+     * @param integer $id 记录id
+     * @param string $name 办公室名称
+     * @param string $address 办公室位置
+     * @param string $summary 描述
+     * @param integer $isValid 是否有效
+     * @return bool|int
+     */
+    public function updateOffice(int $id, string $name, string $address, string $summary, int $isValid) {
+        $data = array(
+            'name' => $name,
+            'address' => $address,
+            'summary' => $summary,
+            'is_valid' => $isValid,
+            'update_time' => date('Y-m-d H:i:s'),
+        );
+        $result = $this->modelDao->update($data, $id);
+        return $result;
     }
 }

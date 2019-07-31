@@ -10,10 +10,7 @@
 
 namespace app\admin\service;
 
-use herosphp\session\Session;
-use herosphp\utils\JsonResult;
-use herosphp\filter\Filter;
-use herosphp\http\HttpRequest;
+use app\admin\dao\OfficeApplyDao;
 
 class OfficeApplyService extends BaseService {
 
@@ -36,27 +33,29 @@ class OfficeApplyService extends BaseService {
         self::APPLY_CANCEL => '关闭申请',
     );
 
-    protected $modelClassName = 'app\admin\dao\OfficeApplyDao';
+    protected $modelClassName = OfficeApplyDao::class;
     
     /**
      * 获取列表数据
      *
-     * @param HttpRequest $request
-     * @return array
+     * @param string $keyword 关键字
+     * @param int $status 状态
+     * @param array $searchDate 查询时间范围
+     * @param int $type 类型，1：我的申请，2：审批列表
+     * @param int $page 分页
+     * @param int $pageSize 分页大小
+     * @return array $data
      */
-    public function getListData(HttpRequest $request) {
+    public function getListData(string $keyword = '', int $status = 0, 
+        array $searchDate, int $type, int $page, int $pageSize) {
         $query = $this->modelDao;
         $query->alias('a')
             ->join('user b', MYSQL_JOIN_INNER)
             ->on('a.user_id = b.id');
             
-        $page = $request->getIntParam('page');
-        $pageSize = $request->getIntParam('limit');
-        $keyword = $request->getParameter('keyword', 'trim|urldecode');
-        $status = $request->getParameter('status', 'trim|urldecode');
-        $searchDate = $request->getParameter('searchDate', 'trim|urldecode');
-        $type = $request->getIntParam('type');
-        $userId = session::get('user_id');
+        
+        $user = $this->getUser();
+        $userId = $user['id'];
         if ($type == 1) {
             //我的申请列表，只加载用户自己的申请记录
             $query->where('user_id', $userId);
@@ -64,8 +63,7 @@ class OfficeApplyService extends BaseService {
             //审核列表，自己不能审核自己的申请
             $query->where('user_id', '!=', $userId);
         }
-        $searchDateArr = explode(' - ', $searchDate);
-        $query->where('apply_date', 'between', $searchDateArr);
+        $query->where('apply_date', 'between', $searchDate);
         if (!empty($status)) {
             $query->where('status', $status);
         }
@@ -119,61 +117,103 @@ class OfficeApplyService extends BaseService {
     /**
      * 新增申请
      *
-     * @param array $params
-     * @return JsonResult
+     * @param integer $officeId 办公室记录id
+     * @param string $officeName 办公室名称
+     * @param string $date 预约日期
+     * @param string $beginTime 预约开始时间
+     * @param string $endTime 预约结束时间
+     * @param string $reason 申请原因
+     * @return array $result
      */
-    public function addApply(array $params) {
-        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
-        $userId = Session::get('user_id');
-        $params['user_id'] = $userId;
-        $data = $this->dataFilter($params);
-        if (!is_array($data)) {
-            $result->setMessage($data);
-            return $result;
-        }
-        $error = $this->chkApplyDate($params['office_id'], $params['apply_date'], 
-            $params['apply_begin_time'], $params['apply_end_time']);
+    public function addApply(int $officeId, string $officeName, string $date, 
+        string $beginTime, string $endTime, string $reason) {
+        $result = array(
+            'success' => false,
+            'message' => '',
+        );
+        $user = $this->getUser();
+        $userId = $user['id'];
+
+        $error = $this->chkApplyDate($officeId, $date, $beginTime, $endTime);
         if(!($error === true)){
-            return new JsonResult(JsonResult::CODE_FAIL, $error);
+            $result['message'] = $error;
+            return result;
         }
         $date = date('Y-m-d H:i:s');
-        $data['create_time'] = $date;
-        $data['update_time'] = $date;
-        $data['status'] = self::APPLIED;
+        $data = array(
+            'user_id' => $userId,
+            'office_id' => $officeId,
+            'office_name' => $officeName,
+            'apply_date' => $date,
+            'apply_begin_time' => $beginTime,
+            'apply_end_time' => $endTime,
+            'apply_reason' => $reason,
+            'status' => self::APPLIED,
+            'create_time' => $date,
+            'update_time' => $date,
+        );
         $res = $this->modelDao->add($data);
         if ($res <= 0) {
-            $result->setMessage('申请失败，请稍后重试');
+            $result['message'] = '申请失败';
             return $result;
         }
-        $result->setCode(JsonResult::CODE_SUCCESS);
-        $result->setMessage('申请成功');
+        $result['success'] = true;
+        $result['message'] = '申请成功';
         return $result;
     }
 
     /**
      * 更新申请记录
      *
-     * @param array $params
-     * @param integer $applyId
-     * @return JsonResult
+     * @param integer $adminId 审批人账号记录id
+     * @param string $adminName 审批人姓名
+     * @param integer $status 状态
+     * @param string $opinion 审批意见
+     * @param integer $applyId 申请记录id
+     * @return bool|int $result
      */
-    public function updateApply(array $params, int $applyId) {
-        $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
-        $data = $this->dataFilter($params);
-        if (!is_array($data)) {
-            $result->setMessage($data);
-            return $result;
-        }
-        $res = $this->modelDao->update($data, $applyId);
-        if(!$res){
-            //数据更新失败
-            $result->setMessage('审批失败，请稍后重试');
-            return $result;
-        }
-        //数据更新成功
-        $result->setCode(JsonResult::CODE_SUCCESS);
-        $result->setMessage('审批成功');
+    public function updateApply(int $adminId, string $adminName, int $status, string $opinion, int $applyId) {
+        $date = date('Y-m-d H:i:s');
+        $data = array(
+            'audit_user_id' => $adminId,
+            'audit_user_realname' => $adminName,
+            'status' => $status,
+            'audit_opinion' => $opinion,
+            'audit_time' => $date,
+            'update_time' => $date 
+        );
+        $result = $this->modelDao->update($data, $applyId);
         return $result;
+    }
+
+    /**
+     * 获取办公室的预约情况
+     *
+     * @param integer $officeId 办公室记录id
+     * @param string $beginDate 开始时间
+     * @param string $endDate 结束时间
+     * @return array $list
+     */
+    public function getOfficeBookEdById(int $officeId, string $beginDate, string $endDate) {
+        $query = $this->modelDao;
+        $list = $query
+            ->alias('a')
+            ->join('user b', MYSQL_JOIN_INNER)
+            ->on('a.user_id = b.id')
+            ->fields('a.office_name, a.apply_date, a.apply_begin_time, a.apply_end_time, a.status, b.realname, b.tel')
+            ->where('status', 'in', [self::APPLIED, self::IN_USE])
+            ->where('office_id', $officeId)
+            ->where('apply_date', 'between', [$beginDate, $endDate])
+            ->order('apply_date asc, apply_begin_time asc')
+            ->find();
+        if (!empty($list)) {
+            $statusArr = self::getStatusArr();
+            foreach ($list as $k => $v) {
+                $list[$k]['status_text'] = $statusArr[$v['status']];
+                $list[$k]['use_time'] = $v['apply_date'] . '  ' .$v['apply_begin_time'] . ' ~ ' . $v['apply_end_time'];
+            }
+        }
+        return $list;
     }
 
     /**
@@ -225,40 +265,6 @@ class OfficeApplyService extends BaseService {
             $applyInfo['status_text'] = self::$statusArr[$applyInfo['status']];
         }
         return $applyInfo;
-    }
-
-    /**
-     * 数据过滤
-     *
-     * @param array $params
-     * @return bool|array
-     */
-    protected function dataFilter(array $params) {
-        $filterMap = array(
-            'user_id' => array(Filter::DFILTER_NUMERIC, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '申请人不能为空')),
-            'office_id' => array(Filter::DFILTER_NUMERIC, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '假期类型不能为空')),
-            'office_name' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '假期类型名称不能为空')),
-            'apply_reason' => array(Filter::DFILTER_STRING, array(1, 255), Filter::DFILTER_SANITIZE_TRIM | Filter::DFILTER_MAGIC_QUOTES,
-                array('require' => '申请原因不能为空',  'length' => '申请原因长度必须在1~255之内')),
-            'apply_date' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '申请日期不能为空')),
-            'apply_begin_time' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '申请开始时间不能为空')),
-            'apply_end_time' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '申请结束时间不能为空')),
-            'audit_user_id' => array(Filter::DFILTER_NUMERIC, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '审核人id不能为空')),
-            'audit_user_realname' => array(Filter::DFILTER_STRING, null, Filter::DFILTER_SANITIZE_TRIM,
-                array('require' => '审核人姓名不能为空')),
-            'audit_opinion' => array(Filter::DFILTER_STRING, array(1, 255), Filter::DFILTER_SANITIZE_TRIM | Filter::DFILTER_MAGIC_QUOTES,
-                array('require' => '审核意见不能为空',  'length' => '审核意见长度必须在1~255之内')),
-        );
-        $data = $params;
-        $data = Filter::loadFromModel($data, $filterMap, $error);
-        return !$data ? $error : $data;
     }
 
     /**

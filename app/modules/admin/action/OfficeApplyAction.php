@@ -15,6 +15,7 @@ use app\admin\service\OfficeService;
 use app\admin\service\OfficeApplyService;
 use herosphp\http\HttpRequest;
 use herosphp\utils\JsonResult;
+use app\admin\dao\OfficeApplyDao;
 
 class OfficeApplyAction extends BaseAction {
 
@@ -60,7 +61,15 @@ class OfficeApplyAction extends BaseAction {
      * @return Json
      */
     public function getListData(HttpRequest $request) {
-        $data = $this->officeApplyService->getListData($request);
+        $page = $request->getIntParam('page');
+        $pageSize = $request->getIntParam('limit');
+        $keyword = $request->getParameter('keyword', 'trim|urldecode');
+        $status = $request->getIntParam('status');
+        $searchDate = $request->getParameter('searchDate', 'trim|urldecode');
+        $type = $request->getIntParam('type');
+        $searchDateArr = explode(' - ', $searchDate);
+        $data = $this->officeApplyService->getListData($keyword, $status, 
+            $searchDateArr, $type, $page, $pageSize);
 
         $result = new JsonResult(JsonResult::CODE_SUCCESS, '获取数据成功');
         $result->setData($data['list']);
@@ -96,24 +105,7 @@ class OfficeApplyAction extends BaseAction {
             $beginDate = $dateArr[0];
             $endDate = $dateArr[1];
         }
-        $query = $this->officeApplyService;
-        $list = $query
-            ->alias('a')
-            ->join('user b', MYSQL_JOIN_INNER)
-            ->on('a.user_id = b.id')
-            ->fields('a.office_name, a.apply_date, a.apply_begin_time, a.apply_end_time, a.status, b.realname, b.tel')
-            ->where('status', 'in', [OfficeApplyService::APPLIED, OfficeApplyService::IN_USE])
-            ->where('office_id', $officeId)
-            ->where('apply_date', 'between', [$beginDate, $endDate])
-            ->order('apply_date asc, apply_begin_time asc')
-            ->find();
-        if (!empty($list)) {
-            $statusArr = OfficeApplyService::getStatusArr();
-            foreach ($list as $k => $v) {
-                $list[$k]['status_text'] = $statusArr[$v['status']];
-                $list[$k]['use_time'] = $v['apply_date'] . '  ' .$v['apply_begin_time'] . ' ~ ' . $v['apply_end_time'];
-            }
-        }
+        $list = $this->officeApplyService->getOfficeBookEdById($officeId, $beginDate, $endDate);
         $this->assign('bookList', $list);
         $this->assign('searchDate', $beginDate. ' - ' . $endDate);
         $this->assign('id', $officeId);
@@ -185,16 +177,20 @@ class OfficeApplyAction extends BaseAction {
         if (!$this->chkPermission('office_apply_add')) {
             JsonResult::fail('您没有权限进行此操作');
         }
-        $params = $request->getParameters();
+        $data  = $this->getParams($request);
 
         //判断用户申请时间是否合法
-        $applyDate = $params['apply_date'];
-        $beginTime = $params['apply_begin_time'];
-        $endTime = $params['apply_end_time'];
+        $applyDate = $data['apply_date'];
+        $beginTime = $data['apply_begin_time'];
+        $endTime = $data['apply_end_time'];
         $this->chkApplyDate($applyDate, $beginTime, $endTime);
 
-        $result = $this->officeApplyService->addApply($params);
-        $result->output();
+        $result = $this->officeApplyService->addApply($data['office_id'], $data['office_name'], 
+            $data['apply_date'], $data['apply_begin_time'], $data['apply_end_time'], $data['apply_reason']);
+        if ($result['success'] == false) {
+            JsonResult::fail($result['message']);
+        }
+        JsonResult::success('申请成功');
     }
 
     /**
@@ -221,24 +217,21 @@ class OfficeApplyAction extends BaseAction {
         if ($applyInfo['status'] == OfficeApplyService::IN_USE) {
             $status = OfficeApplyService::APPLY_CANCEL;
         }
-        $update = array();
-        $update['audit_user_id'] = $this->admin['id'];
-        $update['audit_user_realname'] = $this->admin['realname'];
-        $update['status'] = $status;
-        $update['audit_opinion'] = $request->getStrParam('audit_opinion');
-        $date = date('Y-m-d H:i:s');
-        $update['audit_time'] = $date;
-        $update['update_time'] = $date;
-        $result = $this->officeApplyService->updateApply($update, $applyId);
-        $result->output();
+        $admin = $this->admin;
+        $opinion = $request->getStrParam('audit_opinion');
+        $result = $this->officeApplyService->updateApply($admin['id'], $admin['realname'], $status, $opinion, $applyId);
+        if ($result <=0 ) {
+            JsonResult::fail('审批失败');
+        }
+        JsonResult::success('审批成功');
     }
 
     /**
      * 校验申请时间是否合法
      *
-     * @param string $date
-     * @param string $begin
-     * @param string $end
+     * @param string $date 日期
+     * @param string $begin 开始时间
+     * @param string $end 结束时间
      * @return void
      */
     private function chkApplyDate(string $date, string $begin, string $end) {
@@ -259,5 +252,36 @@ class OfficeApplyAction extends BaseAction {
         if ($begin > $end) {
             JsonResult::fail('申请的开始时间不能大于结束时间');
         }
+    }
+
+    /**
+     * 获取表单数据并校验
+     *
+     * @param HttpRequest $request
+     * @return array|string
+     */
+    private function getParams(HttpRequest $request) {
+        $officeName = $request->getStrParam('office_name');
+        $officeId = $request->getIntParam('office_id');
+        $applyDate = $request->getStrParam('apply_date');
+        $applyBeginTime = $request->getStrParam('apply_begin_time');
+        $applyEndTime = $request->getStrParam('apply_end_time');
+        $applyReason = $request->getStrParam('apply_reason');
+        $auditOpinion = $request->getStrParam('audit_opinion');
+
+        $params = array();
+        !empty($officeName) ? $params['office_name'] = $officeName : '';
+        !empty($officeId) ? $params['office_id'] = $officeId : '';
+        !empty($applyDate) ? $params['apply_date'] = $applyDate : '';
+        !empty($applyBeginTime) ? $params['apply_begin_time'] = $applyBeginTime : '';
+        !empty($applyEndTime) ? $params['apply_end_time'] = $applyEndTime : '';
+        !empty($applyReason) ? $params['apply_reason'] = $applyReason : '';
+        !empty($auditOpinion) ? $params['audit_opinion'] = $auditOpinion : '';
+        
+        $data = $this->dataFilter(OfficeApplyDao::$filter, $params);
+        if (!is_array($data)) {
+            JsonResult::fail($data);
+        }
+        return $data;
     }
 }

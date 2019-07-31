@@ -14,6 +14,7 @@ use herosphp\core\Loader;
 use app\admin\service\OfficeService;
 use herosphp\http\HttpRequest;
 use herosphp\utils\JsonResult;
+use app\admin\dao\OfficeDao;
 
 class OfficeAction extends BaseAction {
     protected $officeService ;
@@ -41,7 +42,10 @@ class OfficeAction extends BaseAction {
      * @return Json
      */
     public function getListData(HttpRequest $request) {
-        $data = $this->officeService->getListData($request);
+        $keyword = $request->getParameter('keyword', 'trim|urldecode');
+        $page = $request->getIntParam('page');
+        $pageSize = $request->getIntParam('limit');
+        $data = $this->officeService->getListData($keyword, $page, $pageSize);
 
         $request = new JsonResult(JsonResult::CODE_SUCCESS, '获取数据成功');
         $request->setData($data['list']);
@@ -80,12 +84,13 @@ class OfficeAction extends BaseAction {
         if (!$this->chkPermission('office_list_add')) {
             JsonResult::fail('您没有权限进行此操作');
         }
-        $params = $request->getParameters();
-        if (empty($params['summary'])) {
-            unset($params['summary']);
+        $data = self::getParams($request);
+
+        $result = $this->officeService->addOffice($data['name'], $data['address'], $data['summary'], $data['is_valid']);
+        if ($result <= 0) {
+            JsonResult::fail('添加失败');
         }
-        $result = $this->officeService->addRow($params);
-        $result->output();
+        JsonResult::success('添加成功');
     }
 
     /**
@@ -98,12 +103,14 @@ class OfficeAction extends BaseAction {
         if (!$this->chkPermission('office_list_edit')) {
             JsonResult::fail('您没有权限进行此操作');
         }
-        $params = $request->getParameters();
-        if (empty($params['summary'])) {
-            unset($params['summary']);
+        $officeId = $request->getIntParam('id');
+        $data = self::getParams($request);
+
+        $result = $this->officeService->updateOffice($officeId, $data['name'], $data['address'], $data['summary'], $data['is_valid']);
+        if ($result <= 0) {
+            JsonResult::fail('修改失败');
         }
-        $result = $this->officeService->updateRow($params);
-        $result->output();
+        JsonResult::success('修改成功');
     }
 
     /**
@@ -116,12 +123,8 @@ class OfficeAction extends BaseAction {
         if (!$this->chkPermission('office_list_del')) {
             JsonResult::fail('您没有权限进行此操作');
         }
-        $params = $request->getStrParam('ids');
-        if (empty($params)) {
-            JsonResult::fail('请选择要删除的记录');
-        }
-        $result = $this->officeService->delRows($params);
-        $result->output();
+        $ids = $request->getStrParam('ids');
+        parent::doDel($this->officeService, $ids);
     }
 
     /**
@@ -141,5 +144,41 @@ class OfficeAction extends BaseAction {
         } else {
             JsonResult::success('修改状态成功');
         }
+    }
+
+    /**
+     * 获取表单提交的参数并校验
+     *
+     * @param HttpRequest $request
+     * @return array $params
+     */
+    private function getParams(HttpRequest $request) {
+        $name = $request->getParameter('name', 'trim|urldecode');
+        $address = $request->getStrParam('address');
+        $summary = $request->getParameter('summary', 'trim|urldecode');
+        $isValid = $request->getIntParam('is_valid');
+        
+        $params = array(
+            'name' => $name,
+            'address' => $address,
+            'is_valid' => $isValid,
+        );
+        //用户有填写描述，将内容赋值到待校验数组中
+        if (!empty($summary)) {
+            $params['summary'] = $summary;
+        }
+
+        //过滤数据
+        $data = $this->dataFilter(OfficeDao::$filter, $params);
+
+        if (!is_array($data)) {
+            JsonResult::fail($data);
+        }
+
+        //存储描述的键值对不存在，用户没有填写描述或清空，需要将数据内容清空
+        if (!isset($data['summary'])) {
+            $data['summary'] = '';
+        }
+        return $data;
     }
 }

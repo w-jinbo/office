@@ -144,10 +144,10 @@ class VacationApplyAction extends BaseAction {
         $result = $this->vacationApplyService->addApply($data['vacation_id'], $data['vacation_name'], 
             $data['apply_begin_date'], $data['apply_begin_period'], $data['apply_end_date'], 
             $data['apply_end_period'], $data['apply_reason']);
-            if ($result['success'] == false) {
-                JsonResult::fail($result['message']);
-            }
-            JsonResult::success('申请成功');
+        if ($result['success'] == false) {
+            JsonResult::fail($result['message']);
+        }
+        JsonResult::success('申请成功');
     }
 
     /**
