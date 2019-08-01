@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:33:35 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-25 17:34:21
+ * @Last Modified time: 2019-08-01 15:49:39
  */
 
 namespace app\admin\action;
@@ -13,21 +13,40 @@ namespace app\admin\action;
 use herosphp\http\HttpRequest;
 use app\admin\dao\UserDao;
 use herosphp\utils\JsonResult;
+use app\admin\service\NoticeService;
+use app\admin\service\SystemTipService;
 
 class MainAction extends BaseAction {
     public function __construct() {
         parent::__construct();
         $this->assign('admin', $this->admin);
+        $GLOBALS['admin'] = $this->admin;
     }
 
     /**
-     * 首页
+     * 主页
      */
     public function index() {
         $this->setView('main/index');
     }
 
+    /**
+     * 首页
+     *
+     * @return void
+     */
     public function main() {
+        //获取系统公告
+        $noticeModel = new NoticeService();
+        $noticeList = $noticeModel->getListData('', 1, 5, 1);
+        $this->assign('noticeList', $noticeList);
+
+        //获取系统通知
+        $vacationAudit = $this->chkPermission('vacation_apply_audit');
+        $stationeryAudit = $this->chkPermission('stationery_apply_audit');
+        $systemTipModel = new SystemTipService();
+        $systemTipList = $systemTipModel->getListData($this->admin['id'], 1, 5, 0, $vacationAudit, $stationeryAudit);
+        $this->assign('systemTipList', $systemTipList);
         $this->setView('main/main');
     }
 
@@ -68,7 +87,6 @@ class MainAction extends BaseAction {
      * @return void
      */
     public function doSetUserInfo(HttpRequest $request) {
-        $parameters = $request->getParameters();
         $realName= $request->getStrParam('realname');
         $tel = $request->getStrParam('tel');
         $department = $request->getStrParam('department');

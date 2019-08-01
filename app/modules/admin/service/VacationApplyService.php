@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:47:22 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-25 17:49:51
+ * @Last Modified time: 2019-08-01 11:38:01
  */
 
 namespace app\admin\service;
@@ -159,6 +159,7 @@ class VacationApplyService extends BaseService {
         }
         $result['success'] = true;
         $result['message'] = '申请成功';
+        $result['apply_id'] = $res;
         return $result;
     }
 
@@ -169,7 +170,6 @@ class VacationApplyService extends BaseService {
      * @return bool|array
      */
     public function getApplyInfo(int $applyId) {
-        UserService::getUserTest();
         $query = $this->modelDao;
         $applyInfo = $query->alias('a')
             ->join('user b', MYSQL_JOIN_INNER)

@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:38:03 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-25 17:38:30
+ * @Last Modified time: 2019-08-01 17:47:05
  */
 
 namespace app\admin\action;
@@ -30,6 +30,7 @@ class UserAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function index(HttpRequest $request) {
+        $this->chkPermissionWeb('user_list');
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $this->assign('keyword', $keyword);
         $this->assign('dataUrl', url('/admin/user/getListData?keyword=' . urlencode($keyword)));
@@ -61,6 +62,7 @@ class UserAction extends BaseAction {
      * 增加用户页面
      */
     public function add() {
+        $this->chkPermissionWeb('user_list_add');
         self::assignRole();
         $this->setView('user/add');
     }
@@ -71,8 +73,12 @@ class UserAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function edit(HttpRequest $request) {
+        $this->chkPermissionWeb('user_list_edit');
         $userId = $request->getStrParam('id');
         $user = $this->userService->findById($userId);
+        if (empty($user)) {
+            $this->error('没有找到对应的记录');
+        }
         $user['role_ids_arr'] = explode(',', $user['role_ids']);
         self::assignRole();
         $this->assign('isEdit', true);
@@ -86,8 +92,12 @@ class UserAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function resetPwd(HttpRequest $request) {
+        $this->chkPermissionWeb('user_list_reset_pwd');
         $userId = $request->getStrParam('id');
         $user = $this->userService->findById($userId);
+        if (empty($user)) {
+            $this->error('没有找到对应的记录');
+        }
         $this->assign('user', $user);
         $this->setView('user/reset_pwd');
     }

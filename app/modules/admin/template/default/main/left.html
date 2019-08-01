@@ -1,128 +1,154 @@
+{if chkPower('user_manage')}
 <li class="layout-nav-list-item">
     <a href="javascript:void(0)" title="用户管理">
         <cite>用户管理</cite>
-        <i class="rhly-iconfont jiantou-right right"></i>
+        <i class="office-iconfont jiantou-right right"></i>
     </a>
     <ul class="sub-nav-list">
+        {if chkPower('user_list')}
         <li>
             <a href="javascript:void(0)" title="用户列表" _href="/admin/user/index" _refresh="1">
-                <i class="rhly-iconfont yuandian"></i>
+                <i class="office-iconfont yuandian"></i>
                 <cite>用户列表</cite>
-                <i class="rhly-iconfont jiantouarrow-right right"></i>
+                <i class="office-iconfont jiantouarrow-right right"></i>
             </a>
         </li>
+        {/if}
+        {if chkPower('role_list')}
         <li>
             <a href="javascript:void(0)" title="角色列表" _href="/admin/role/index" _refresh="1">
-                <i class="rhly-iconfont yuandian"></i>
+                <i class="office-iconfont yuandian"></i>
                 <cite>角色列表</cite>
-                <i class="rhly-iconfont jiantouarrow-right right"></i>
+                <i class="office-iconfont jiantouarrow-right right"></i>
             </a>
         </li>
+        {/if}
     </ul>
 </li>
+{/if}
 
 <li class="layout-nav-list-item">
     <a href="javascript:void(0)" title="假期调休管理">
         <cite>假期调休管理</cite>
-        <i class="rhly-iconfont jiantou-right right"></i>
+        <i class="office-iconfont jiantou-right right"></i>
     </a>
     <ul class="sub-nav-list">
+        {if chkPower('vacation_list')}
         <li>
             <a href="javascript:void(0)" title="假期类型列表" _href="/admin/vacation/index" _refresh="1">
-                <i class="rhly-iconfont yuandian"></i>
+                <i class="office-iconfont yuandian"></i>
                 <cite>假期类型列表</cite>
-                <i class="rhly-iconfont jiantouarrow-right right"></i>
+                <i class="office-iconfont jiantouarrow-right right"></i>
             </a>
         </li>
+        {/if}
+        {if chkPower('vacation_apply')}
         <li>
             <a href="javascript:void(0)" title="我的假期申请" _href="/admin/vacationApply/index?type=1" _refresh="1">
-                <i class="rhly-iconfont yuandian"></i>
+                <i class="office-iconfont yuandian"></i>
                 <cite>我的申请</cite>
-                <i class="rhly-iconfont jiantouarrow-right right"></i>
+                <i class="office-iconfont jiantouarrow-right right"></i>
             </a>
         </li>
+        {/if}
+        {if chkPower('vacation_apply_audit')}
         <li>
             <a href="javascript:void(0)" title="假期审批列表" _href="/admin/vacationApply/index?type=2" _refresh="1">
-                <i class="rhly-iconfont yuandian"></i>
+                <i class="office-iconfont yuandian"></i>
                 <cite>审批列表</cite>
-                <i class="rhly-iconfont jiantouarrow-right right"></i>
+                <i class="office-iconfont jiantouarrow-right right"></i>
             </a>
         </li>
+        {/if}
     </ul>
 </li>
 
 <li class="layout-nav-list-item">
     <a href="javascript:void(0)" title="办公室管理">
         <cite>办公室管理</cite>
-        <i class="rhly-iconfont jiantou-right right"></i>
+        <i class="office-iconfont jiantou-right right"></i>
     </a>
     <ul class="sub-nav-list">
+        {if chkPower('office_list')}
         <li>
             <a href="javascript:void(0)" title="办公室列表" _href="/admin/office/index" _refresh="1">
-                <i class="rhly-iconfont yuandian"></i>
+                <i class="office-iconfont yuandian"></i>
                 <cite>办公室列表</cite>
-                <i class="rhly-iconfont jiantouarrow-right right"></i>
+                <i class="office-iconfont jiantouarrow-right right"></i>
             </a>
         </li>
+        {/if}
+        {if chkPower('office_apply')}
         <li>
             <a href="javascript:void(0)" title="我的办公室申请" _href="/admin/officeApply/index?type=1" _refresh="1">
-                <i class="rhly-iconfont yuandian"></i>
+                <i class="office-iconfont yuandian"></i>
                 <cite>我的申请</cite>
-                <i class="rhly-iconfont jiantouarrow-right right"></i>
+                <i class="office-iconfont jiantouarrow-right right"></i>
             </a>
         </li>
+        {/if}
+        {if chkPower('office_apply_audit')}
         <li>
             <a href="javascript:void(0)" title="办公室审批列表" _href="/admin/officeApply/index?type=2" _refresh="1">
-                <i class="rhly-iconfont yuandian"></i>
+                <i class="office-iconfont yuandian"></i>
                 <cite>审批列表</cite>
-                <i class="rhly-iconfont jiantouarrow-right right"></i>
+                <i class="office-iconfont jiantouarrow-right right"></i>
             </a>
         </li>
+        {/if}
     </ul>
 </li>
 
 <li class="layout-nav-list-item">
     <a href="javascript:void(0)" title="文具管理">
         <cite>文具管理</cite>
-        <i class="rhly-iconfont jiantou-right right"></i>
+        <i class="office-iconfont jiantou-right right"></i>
     </a>
     <ul class="sub-nav-list">
+        {if chkPower('stationery_list')}
         <li>
             <a href="javascript:void(0)" title="文具列表" _href="/admin/stationery/index" _refresh="1">
-                <i class="rhly-iconfont yuandian"></i>
+                <i class="office-iconfont yuandian"></i>
                 <cite>文具列表</cite>
-                <i class="rhly-iconfont jiantouarrow-right right"></i>
+                <i class="office-iconfont jiantouarrow-right right"></i>
             </a>
         </li>
+        {/if}
+        {if chkPower('stationery_apply')}
         <li>
             <a href="javascript:void(0)" title="我的文具申请" _href="/admin/stationeryApply/index?type=1" _refresh="1">
-                <i class="rhly-iconfont yuandian"></i>
+                <i class="office-iconfont yuandian"></i>
                 <cite>我的申请</cite>
-                <i class="rhly-iconfont jiantouarrow-right right"></i>
+                <i class="office-iconfont jiantouarrow-right right"></i>
             </a>
         </li>
+        {/if}
+        {if chkPower('stationery_apply_audit')}
         <li>
             <a href="javascript:void(0)" title="文具审批列表" _href="/admin/stationeryApply/index?type=2" _refresh="1">
-                <i class="rhly-iconfont yuandian"></i>
+                <i class="office-iconfont yuandian"></i>
                 <cite>审批列表</cite>
-                <i class="rhly-iconfont jiantouarrow-right right"></i>
+                <i class="office-iconfont jiantouarrow-right right"></i>
             </a>
         </li>
+        {/if}
     </ul>
 </li>
 
+{if chkPower('notice_manage')}
 <li class="layout-nav-list-item">
     <a href="javascript:void(0)" title="公告管理">
         <cite>公告管理</cite>
-        <i class="rhly-iconfont jiantou-right right"></i>
+        <i class="office-iconfont jiantou-right right"></i>
     </a>
     <ul class="sub-nav-list">
         <li>
             <a href="javascript:void(0)" title="公告列表" _href="/admin/notice/index" _refresh="1">
-                <i class="rhly-iconfont yuandian"></i>
+                <i class="office-iconfont yuandian"></i>
                 <cite>公告列表</cite>
-                <i class="rhly-iconfont jiantouarrow-right right"></i>
+                <i class="office-iconfont jiantouarrow-right right"></i>
             </a>
         </li>
     </ul>
 </li>
+{/if}

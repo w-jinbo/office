@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:42:54 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-29 16:48:53
+ * @Last Modified time: 2019-08-01 17:47:55
  */
 
 namespace app\admin\service;
@@ -152,7 +152,7 @@ class UserService extends BaseService {
         );
 
         //用户修改个人信息时没有以下两项数据
-        $isValid === null ? $data['is_valid'] = $isValid : '';
+        $isValid !== null ? $data['is_valid'] = $isValid : '';
         !empty(roleIds) ? $data['role_ids'] = $roleIds : '';
 
         $result = $this->modelDao->update($data, $userId);

@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 16:44:18 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-25 17:59:58
+ * @Last Modified time: 2019-08-01 16:37:50
  */
 
 namespace app\admin\action;
@@ -29,6 +29,7 @@ class StationeryAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function index(HttpRequest $request) {
+        $this->chkPermissionWeb('stationery_list');
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $this->assign('keyword', $keyword);
         $this->assign('dataUrl', url('/admin/stationery/getListData?keyword=' . urlencode($keyword)));
@@ -59,6 +60,7 @@ class StationeryAction extends BaseAction {
      * 新增文具页面
      */
     public function add() {
+        $this->chkPermissionWeb('stationery_list_add');
         $this->setView('stationery/add');
     }
 
@@ -68,8 +70,12 @@ class StationeryAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function edit(HttpRequest $request) {
+        $this->chkPermissionWeb('stationery_list_edit');
         $stationeryId = $request->getStrParam('id');
         $stationery = $this->stationeryService->findById($stationeryId);
+        if (empty($stationery)) {
+            $this->error('没有找到对应的记录');
+        }
         $this->assign('stationery', $stationery);
         $this->setView('stationery/edit');
     }

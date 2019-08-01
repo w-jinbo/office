@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-26 08:44:25 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-26 17:43:01
+ * @Last Modified time: 2019-08-01 17:41:03
  */
 
 namespace app\admin\service;
@@ -200,7 +200,8 @@ class StationeryApplyService extends BaseService {
         //更新发放数量
         $stationeryItemService = Loader::service(StationeryApplyItemService::class);
         foreach ($stationeryArr as $key => $item) {
-            $stationeryItemFlag = $stationeryItemService->updateRow($item['grant_num'], $item['apply_item_id']);
+            $grantNum = empty($item['grant_num']) ? 0 : $item['grant_num'];
+            $stationeryItemFlag = $stationeryItemService->updateRow($grantNum, $item['apply_item_id']);
             if (!$stationeryItemFlag) {
                 $query->rollback();
                 return false;

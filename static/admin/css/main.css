@@ -1,0 +1,17 @@
+body { min-width: 670px; }
+
+body .main { padding: 20px; background-color: #f2f2f2; }
+
+body .main .quick-entry .entry-list .entry-btn, body .main .quick-entry .entry-list .apply-btn { float: left; text-align: center; margin: 10px 20px; line-height: 35px; cursor: pointer; background: #f2f2f2; padding: 20px 15px; border-radius: 5px; width: 110px; }
+
+body .main .quick-entry .entry-list .entry-btn .office-iconfont, body .main .quick-entry .entry-list .apply-btn .office-iconfont { font-size: 40px; }
+
+body .main .more { position: absolute; top: 0; right: 10px; }
+
+body .main .msg-list { min-height: 190px; }
+
+body .main .msg-list .msg-item { position: relative; cursor: pointer; }
+
+body .main .msg-list .msg-item .title { max-width: 400px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+body .main .msg-list .msg-item .date { position: absolute; right: 0; top: 0; }

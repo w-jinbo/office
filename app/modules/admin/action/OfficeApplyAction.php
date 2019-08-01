@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:36:26 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-26 17:33:09
+ * @Last Modified time: 2019-08-01 16:45:07
  */
 
 namespace app\admin\action;
@@ -151,6 +151,9 @@ class OfficeApplyAction extends BaseAction {
     public function detail(HttpRequest $request) {
         $applyId = $request->getIntParam('id');
         $applyInfo = $this->officeApplyService->getApplyInfo($applyId);
+        if (empty($applyInfo)) {
+            $this->error('没有找到对应的记录');
+        }
         $this->assign('applyInfo', $applyInfo);
         $this->setView('office_apply/detail');
     }
@@ -161,8 +164,12 @@ class OfficeApplyAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function audit(HttpRequest $request) {
+        $this->chkPermissionWeb('office_apply_audit');
         $applyId = $request->getIntParam('id');
         $applyInfo = $this->officeApplyService->getApplyInfo($applyId);
+        if (empty($applyInfo)) {
+            $this->error('没有找到对应的记录');
+        }
         $this->assign('applyInfo', $applyInfo);
         $this->assign('auditFlag', true);
         $this->setView('office_apply/detail');

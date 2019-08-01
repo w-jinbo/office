@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-29 08:40:28 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-29 16:32:04
+ * @Last Modified time: 2019-08-01 15:36:46
  */
 
 namespace app\admin\service;
@@ -16,13 +16,32 @@ class NoticeService extends BaseService {
 
     protected $modelClassName = NoticeDao::class;
 
-    public function getListData($keyword, $page, $pageSize) {
+    /**
+     * 获取列表数据
+     *
+     * @param string $keyword 关键词
+     * @param integer $page 分页
+     * @param integer $pageSize 分页大小
+     * @param integer $isValid 是否有效
+     * @return array $return 
+     */
+    public function getListData(string $keyword, int $page, int $pageSize, int $isValid = null) {
         $query = $this->modelDao;
+        
+        //防止关键词为空时，SQL语句错误
+        $query->where('id', '>', 0);
+
         if (!empty($keyword)) {
-            $query->whereOr('title', 'like', '%' . $keyword . '%')
-                ->whereOr('summary', 'like', '%' . $keyword . '%');
+            $query->where(function($query) use($query, $keyword) {
+                $query->where('title', 'like', '%' . $keyword . '%')
+                    ->whereOr('summary', 'like', '%' . $keyword . '%');
+            });
         }
 
+        if (!empty($isValid)) {
+            $query->where('is_valid', $isValid);
+        }
+        
         $return = array(
             'page' => $page,
             'pageSize' => $pageSize,

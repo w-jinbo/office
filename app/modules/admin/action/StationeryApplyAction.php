@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-26 08:42:53 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-26 17:40:21
+ * @Last Modified time: 2019-08-01 16:38:56
  */
 
 namespace app\admin\action;
@@ -113,8 +113,12 @@ class StationeryApplyAction extends BaseAction {
      * @return void
      */
     public function audit(HttpRequest $request) {
+        $this->chkPermissionWeb('stationery_apply_audit');
         $applyId = $request->getIntParam('id');
         $applyInfo = $this->stationeryApplyService->getApplyInfo($applyId);
+        if (empty($applyInfo)) {
+            $this->error('没有找到对应的记录');
+        }
         $this->assign('applyInfo', $applyInfo);
         $this->assign('auditFlag', true);
         $this->setView('stationery_apply/detail');
@@ -127,8 +131,12 @@ class StationeryApplyAction extends BaseAction {
      * @return void
      */
     public function grant(HttpRequest $request) {
+        $this->chkPermissionWeb('stationery_apply_grant');
         $applyId = $request->getIntParam('id');
         $applyInfo = $this->stationeryApplyService->getApplyInfo($applyId);
+        if (empty($applyInfo)) {
+            $this->error('没有找到对应的记录');
+        }
         $this->assign('applyInfo', $applyInfo);
         $this->setView('stationery_apply/grant');
     }

@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:24:29 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-29 16:49:15
+ * @Last Modified time: 2019-08-01 16:14:16
  */
 
 namespace app\admin\action;
@@ -101,8 +101,20 @@ class BaseAction extends Controller {
         return true;
     } 
 
+    protected function chkPermissionWeb(string $permission) {
+        if (!$this->chkPermission($permission)) {
+            $this->error('您没有权限进行此操作');
+        }
+    }
+
     protected function addSystemTip(int $type, int $logId, int $userId = 0) {
         $systemTipModel = new SystemTipService();
         $systemTipModel->addTip($type, $logId, $userId);
+    }
+
+    protected function error(string $msg) {
+        $this->assign('msg', $msg);
+        $this->display('public/error');
+        die();
     }
 }

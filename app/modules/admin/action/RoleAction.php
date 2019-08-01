@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:37:10 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-29 18:02:29
+ * @Last Modified time: 2019-08-01 16:46:09
  */
 
 namespace app\admin\action;
@@ -31,6 +31,7 @@ class RoleAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function index(HttpRequest $request) {
+        $this->chkPermissionWeb('role_list');
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $this->assign('keyword', $keyword);
 
@@ -65,6 +66,7 @@ class RoleAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function add(HttpRequest $request) {
+        $this->chkPermissionWeb('role_list_add');
         $this->assignPower();
         $this->setView('role/add');
     }
@@ -75,8 +77,12 @@ class RoleAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function edit(HttpRequest $request) {
+        $this->chkPermissionWeb('role_list_edit');
         $id = $request->getStrParam('id');
         $role = $this->roleService->findById($id);
+        if (empty($role)) {
+            $this->error('没有找到对应的记录');
+        }
         $role['power_array'] = explode(',', $role['permissions']);
         $this->assign('role', $role);
         $this->assign('isEdit', true);
@@ -185,10 +191,12 @@ class RoleAction extends BaseAction {
         $permissions = $request->getParameter('permissions');
         
         $params = array(
-            'name' => $name,
             'is_valid' => $isValid,
             'permissions' => implode(',', (array)$permissions)
         );
+        if (!empty($name)) {
+            $params['name'] = $name;
+        }
         if (!empty($summary)) {
             $params['summary'] = $summary;
         }

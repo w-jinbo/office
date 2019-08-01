@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {include admin.public.head}
+</head>
+<body>
+<div class="layui-fluid pt10">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <form id="searchform" class="layui-form layui-card-header layuiadmin-card-header-auto pt10 pb10" target="_self">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label search-form-label">关键词</label>
+                            <div class="layui-input-inline w300">
+                                <input type="text" name="keyword" placeholder="公告名称" autocomplete="off" value="{$keyword}"
+                                       class="layui-input">
+                            </div>
+                        </div>
+
+                        <div class="layui-inline">
+                            <input type="hidden" name="action_type" id="action_type" value="1">
+                            <a class="layui-btn layuiadmin-btn-list" onclick="doSearch()">
+                                <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>搜索
+                            </a>
+                        </div>
+                    </div>
+                </form>
+
+                <script type="text/html" id="table-content-list">
+                    <a title="公告详情" class="layui-btn layui-btn-normal layui-btn-xs" lay-event="detail">
+                        <i class="layui-icon ml0">&#xe63c;</i> 公告详情
+                    </a>
+                </script>
+
+                <div class="layui-card-body">
+                    <div class="pb10">
+                    </div>
+                    <table class="layui-hide" id="list_table" lay-filter="list_table_event"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+
+    var table = layui.table
+        , form = layui.form;
+    //监听搜索
+    form.render();
+    tableRender();
+
+    function doSearch() {
+        $("#action_type").val(1);
+        $("#searchform").removeAttr("target").submit();
+    }
+
+    function tableRender() {
+        closeAll();
+        table.render({
+            elem: '#list_table'
+            , url: "{$dataUrl}"
+            ,autoSort: false
+            ,parseData: function(res){ //res 即为原始返回的数据
+                return {
+                    "code": res.code, //解析接口状态
+                    "msg": res.message, //解析提示文本
+                    "count": res.count, //解析数据长度
+                    "data": res.data //解析数据列表
+                };
+            }
+            , cols: [[
+                {field: 'title', title: '公告名称',width:250,fixed:'left'}
+                ,{field: 'summary', title: '公告描述',minWidth:200}
+                ,{title: '操作', width: 180, toolbar: '#table-content-list',fixed:'right'}
+            ]]
+            , page: true
+        });
+        //监听行工具事件
+        table.on('tool(list_table_event)', function (obj) {
+            var data = obj.data;
+            switch (obj.event) {
+                case "detail":
+                    var url = '/admin/notice/detail';
+                    url += '?id='+data.id;
+                    openWindow(url,'公告详情','100%','100%');
+                    break;
+                default:
+            }
+
+        });
+    }
+
+    function tableReload() {
+        closeAll();
+        //执行重载
+        table.reload('list_table', {});
+    }
+</script>
+</body>
+</html>

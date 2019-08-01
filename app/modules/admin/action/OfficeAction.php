@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:35:31 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-25 17:54:25
+ * @Last Modified time: 2019-08-01 16:15:58
  */
 
 namespace app\admin\action;
@@ -29,6 +29,7 @@ class OfficeAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function index(HttpRequest $request) {
+        $this->chkPermissionWeb('office_list');
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $this->assign('keyword', $keyword);
         $this->assign('dataUrl', url('/admin/office/getListData?keyword=' . urlencode($keyword)));
@@ -59,6 +60,7 @@ class OfficeAction extends BaseAction {
      * 新增办公室页面
      */
     public function add() {
+        $this->chkPermissionWeb('office_list_add');
         $this->setView('office/add');
     }
 
@@ -68,8 +70,12 @@ class OfficeAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function edit(HttpRequest $request) {
+        $this->chkPermissionWeb('office_list_edit');
         $officeId = $request->getStrParam('id');
         $office = $this->officeService->findById($officeId);
+        if (empty($office)) {
+            $this->error('没有找到对于的记录');
+        }
         $this->assign('office', $office);
         $this->setView('office/edit');
     }

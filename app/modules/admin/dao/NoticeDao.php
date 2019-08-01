@@ -1,11 +1,11 @@
 <?php
 
 /*
- * 系统公共Dao
+ * 系统公告Dao
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 18:00:08 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-25 18:00:30
+ * @Last Modified time: 2019-08-01 15:34:30
  */
 
 namespace app\admin\dao;

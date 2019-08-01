@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {include admin.public.head}
+    {res:css admin/css/main.css}
+</head>
+
+<body>
+    <div class="main">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md12">
+                <div class="layui-card quick-entry">
+                    <div class="layui-card-header">快捷入口</div>
+                    <div class="layui-card-body">
+                        <div class="entry-list clearfix">
+                            <div class="apply-btn layui-bg-red" title="假期申请" _href="/admin/vacationApply/add" 
+                                width="50%" heigh="75%">
+                                <i class="office-iconfont jiaqiguanli"></i>
+                                <div>假期申请</div>
+                            </div>
+                            <div class="apply-btn layui-bg-orange" title="办公室申请" _href="/admin/officeApply/add" 
+                                width="50%" heigh="75%">
+                                <i class="office-iconfont bangongshi"></i>
+                                <div>办公室申请</div>
+                            </div>
+                            <div class="apply-btn layui-bg-cyan" title="文具申请" _href="/admin/stationeryApply/add" 
+                                width="40%" heigh="76%">
+                                <i class="office-iconfont wenju"></i>
+                                <div>文具申请</div>
+                            </div>
+                            {if chkPower('vacation_apply_audit')}
+                            <div class="entry-btn layui-bg-green" title="假期审批列表" _href="/admin/vacationApply/index?type=2" _refresh="1">
+                                <i class="office-iconfont custom-business-t"></i>
+                                <div>假期审批</div>
+                            </div>
+                            {/if}
+                            {if chkPower('office_apply_audit')}
+                            <div class="entry-btn layui-bg-blue" title="办公室审批列表" _href="/admin/officeApply/index?type=2" _refresh="1">
+                                <i class="office-iconfont shenpi1"></i>
+                                <div>办公室审批</div>
+                            </div>
+                            {/if}
+                            {if chkPower('stationery_apply_audit')}
+                            <div class="entry-btn layui-bg-black" title="文具审批列表" _href="/admin/stationeryApply/index?type=2" _refresh="1">
+                                <i class="office-iconfont shenpi"></i>
+                                <div>文具审批</div>
+                            </div>
+                            {/if}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-col-md6">
+                <div class="layui-card">
+                    <div class="layui-card-header">新消息
+                        <a class="more" href="javascript:void(0)" _href="/admin/systemTip/index" title="消息列表" _refresh="1">更多<i class="office-iconfont jiantouarrow-right"></i></a>
+                    </div>
+                    <div class="layui-card-body">
+                        <div class="msg-list">
+                            {if empty($systemTipList['list'])}
+                            <div class="msg-item cursor_none">
+                                <div class="title">没有新的消息</div>
+                                <hr class="layui-bg-gray mt5">
+                            </div>
+                            {else}
+                            {loop $systemTipList['list'] $k $v}
+                            <div class="msg-item system-tip-item" title="{$v.title}" _href="/admin/systemTip/detail?id={$v.id}" width="90%" heigh="90%">
+                                <div class="title" title="{$v.title}">{$v.title}</div>
+                                <div class="date">{$v.create_time}</div>
+                                <hr class="layui-bg-gray mt5">
+                            </div>
+                            {/loop}
+                            {/if}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md6">
+                <div class="layui-card">
+                    <div class="layui-card-header">系统公告
+                        {if $noticeList['total'] > 5}
+                        <a class="more" href="javascript:void(0)" _href="/admin/notice/list" title="系统公告" _refresh="1">更多<i class="office-iconfont jiantouarrow-right"></i></a>
+                        {/if}
+                    </div>
+                    <div class="layui-card-body">
+                        <div class="msg-list">
+                            {if empty($noticeList['list'])}
+                            <div class="msg-item cursor_none">
+                                <div class="title">没有新的系统公告</div>
+                                <hr class="layui-bg-gray mt5">
+                            </div>
+                            {else}
+                            {loop $noticeList['list'] $k $v}
+                            <div class="msg-item notice-item" title="{$v.title}" _href="/admin/notice/detail?id={$v.id}">
+                                <div class="title" title="{$v.title}">{$v.title}</div>
+                                <div class="date">{$v.create_time}</div>
+                                <hr class="layui-bg-gray mt5">
+                            </div>
+                            {/loop}
+                            {/if}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    $(function(){
+        $('.apply-btn,.system-tip-item').on('click', function(){
+            var obj = $(this);
+            var url = obj.attr('_href');
+            var title = obj.attr('title');
+            var width = obj.attr('width');
+            var heigh = obj.attr('heigh'); 
+            openWindow(url, title, width, heigh); 
+        });
+
+        $('.entry-btn,.more').on('click', function(){
+            var obj = $(this);
+            var url = obj.attr('_href');
+            var title = obj.attr('title');
+            var refresh = obj.attr('_refresh');
+            parent.openTab(title, url, refresh)
+        });
+
+        $('.notice-item').on('click', function(){
+            var obj = $(this);
+            var url = obj.attr('_href');
+            var title = obj.attr('title');
+            openWindow(url, title, "100%", "100%"); 
+        });
+    });
+
+    function tableReload() {
+        layer.closeAll();
+    }
+</script>
+</html>

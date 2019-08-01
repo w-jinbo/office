@@ -31,6 +31,9 @@
                     <a title="修改信息" class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit">
                         <i class="layui-icon ml0">&#xe642;</i>
                     </a>
+                    <a title="公告详情" class="layui-btn layui-btn-normal layui-btn-xs" lay-event="detail">
+                        <i class="layui-icon ml0">&#xe63c;</i>
+                    </a>
                     <a title="删除" class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">
                         <i class="layui-icon ml0 mr0"> &#xe640;</i>
                     </a>
@@ -113,6 +116,11 @@
                     var url = '/admin/notice/edit';
                     url += '?id='+data.id;
                     openWindow(url,'修改公告信息','60%','80%');
+                    break;
+                case "detail":
+                    var url = '/admin/notice/detail';
+                    url += '?id='+data.id;
+                    openWindow(url,'公告详情','100%','100%');
                     break;
                 default:
             }

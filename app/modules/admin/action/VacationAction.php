@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:38:41 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-25 17:39:06
+ * @Last Modified time: 2019-08-01 16:41:48
  */
 
 namespace app\admin\action;
@@ -29,6 +29,7 @@ class VacationAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function index(HttpRequest $request) {
+        $this->chkPermissionWeb('vacation_list');
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $this->assign('keyword', $keyword);
         $this->assign('dataUrl', url('/admin/vacation/getListData?keyword=' . urlencode($keyword)));
@@ -58,6 +59,7 @@ class VacationAction extends BaseAction {
      * 新增假期类型页面
      */
     public function add() {
+        $this->chkPermissionWeb('vacation_list_add');
         $this->setView('vacation/add');
     }
 
@@ -67,8 +69,12 @@ class VacationAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function edit(HttpRequest $request) {
+        $this->chkPermissionWeb('vacation_list_edit');
         $vacationId = $request->getStrParam('id');
         $vacation = $this->vacationService->findById($vacationId);
+        if (empty($vacation)) {
+            $this->error('没有找到对应的记录');
+        } 
         $this->assign('vacation', $vacation);
         $this->setView('vacation/edit');
     }

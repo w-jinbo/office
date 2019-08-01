@@ -109,7 +109,7 @@ function openTab(title, url, is_refresh) {
         //新页面
         var newTab = '<div class="layout-pagetabs-item activity" _href="' + url + '">\n' +
             '           <cite title="' + title + '">' + title + '</cite>\n' +
-            '           <i class="rhly-iconfont guanbi" onclick="closeTab(this)"></i>\n' +
+            '           <i class="office-iconfont guanbi" onclick="closeTab(this)"></i>\n' +
             '       </div>';
         var newBody = '<div class="layout-body-item layout-body-item-show" _href="' + url + '">\n' +
             '            <iframe frameborder="0" src="' + url + '" class="layout-body-iframe" width="100%" height="100%"></iframe>\n' +

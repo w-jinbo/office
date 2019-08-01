@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.xom> 
  * @Date: 2019-07-25 17:39:18 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-26 17:33:00
+ * @Last Modified time: 2019-08-01 16:43:00
  */
 
 namespace app\admin\action;
@@ -97,6 +97,9 @@ class VacationApplyAction extends BaseAction {
     public function detail(HttpRequest $request) {
         $applyId = $request->getIntParam('id');
         $applyInfo = $this->vacationApplyService->getApplyInfo($applyId);
+        if (empty($applyInfo)) {
+            $this->error('没有找到对应的记录');
+        }
         $this->assign('applyInfo', $applyInfo);
         $this->setView('vacation_apply/detail');
     }
@@ -107,8 +110,12 @@ class VacationApplyAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function audit(HttpRequest $request) {
+        $this->chkPermissionWeb('vacation_apply_audit');
         $applyId = $request->getIntParam('id');
         $applyInfo = $this->vacationApplyService->getApplyInfo($applyId);
+        if (empty($applyInfo)) {
+            $this->error('没有找到对应的记录');
+        }
         $this->assign('applyInfo', $applyInfo);
         $this->assign('auditFlag', true);
         $this->setView('vacation_apply/detail');
@@ -148,7 +155,7 @@ class VacationApplyAction extends BaseAction {
         if ($result['success'] == false) {
             JsonResult::fail($result['message']);
         }
-        $this->addSystemTip(SystemTipService::VACATION_APPLY, $result);
+        $this->addSystemTip(SystemTipService::VACATION_APPLY, $result['apply_id']);
         JsonResult::success('申请成功');
     }
 
@@ -207,6 +214,12 @@ class VacationApplyAction extends BaseAction {
         JsonResult::fail('系统开了小差，请稍后重试');
     }
 
+    /**
+     * 获取表单数据并校验
+     *
+     * @param HttpRequest $request
+     * @return void
+     */
     private function getParams(HttpRequest $request) {
         $vacationName = $request->getStrParam('vacation_name');
         $vacationId = $request->getIntParam('vacation_id');

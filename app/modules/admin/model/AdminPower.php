@@ -70,7 +70,6 @@ class AdminPower {
             array('id'=>'notice_manage', 'pId'=>'', 'name'=>'公告管理'),
 
             array('id'=>'notice_list', 'pId'=>'notice_manage', 'name'=>'公告列表'),
-            array('id'=>'notice_list_view', 'pId'=>'notice_list', 'name'=>'查看'),
             array('id'=>'notice_list_add', 'pId'=>'notice_list', 'name'=>'添加'),
             array('id'=>'notice_list_edit', 'pId'=>'notice_list', 'name'=>'修改'),
             array('id'=>'notice_list_del', 'pId'=>'notice_list', 'name'=>'删除'),

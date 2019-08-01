@@ -31,3 +31,12 @@ function isDateValid(string $date, array $formats = array('Y-m-d', 'Y/m/d')) {
     }
     return false;
 }
+
+function chkPower(string $permission) {
+    $admin = $GLOBALS['admin'];
+    if ($admin['is_super'] == 1) {
+        return true;
+    }
+    $permissions = $admin['permissions'];
+    return in_array($permission, $permissions);
+}

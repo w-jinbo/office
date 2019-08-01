@@ -1,6 +1,14 @@
 <?php
 
-namespace app\admin\action;
+/*
+ * 系统公告控制器
+ * @Author: WangJinBo <wangjb@pvc123.com>
+ * @Date: 2019-08-01 15:29:21 
+ * @Last Modified by: WangJinBo
+ * @Last Modified time: 2019-08-01 16:43:47
+ */
+
+ namespace app\admin\action;
 
 use herosphp\core\Loader;
 use app\admin\service\NoticeService;
@@ -17,18 +25,45 @@ class NoticeAction extends BaseAction {
         $this->noticeService = Loader::service(NoticeService::class);
     }
 
+    /**
+     * 管理列表页
+     *
+     * @param HttpRequest $request
+     * @return void
+     */
     public function index(HttpRequest $request) {
+        $this->chkPermissionWeb('notice_list');
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $this->assign('keyword', $keyword);
         $this->assign('dataUrl', url('/admin/notice/getDataList?keyword=' . urlencode($keyword)));
         $this->setView('notice/index');
     }
 
+    /**
+     * 普通列表页
+     *
+     * @param HttpRequest $request
+     * @return void
+     */
+    public function list(HttpRequest $request) {
+        $keyword = $request->getParameter('keyword', 'trim|urldecode');
+        $this->assign('keyword', $keyword);
+        $this->assign('dataUrl', url('/admin/notice/getDataList?valid=1&keyword=' . urlencode($keyword)));
+        $this->setView('notice/list');
+    }
+
+    /**
+     * 获取列表数据
+     *
+     * @param HttpRequest $request
+     * @return void
+     */
     public function getDataList(HttpRequest $request) {
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $page = $request->getIntParam('page');
         $pageSize = $request->getIntParam('limit');
-        $data = $this->noticeService->getListData($keyword, $page, $pageSize);
+        $isValid = $request->getParameter('valid');
+        $data = $this->noticeService->getListData($keyword, $page, $pageSize, $isValid);
 
         $result = new JsonResult(JsonResult::CODE_SUCCESS, '获取数据成功');
         $result->setData($data['list']);
@@ -38,17 +73,55 @@ class NoticeAction extends BaseAction {
         $result->output();
     }
 
+    /**
+     * 新增公告页面
+     *
+     * @return void
+     */
     public function add() {
+        $this->chkPermissionWeb('notice_list_add');
         $this->setView('notice/add');
     }
 
+    /**
+     * 修改公告信息页面
+     *
+     * @param HttpRequest $request
+     * @return void
+     */
     public function edit(HttpRequest $request) {
+        $this->chkPermissionWeb('notice_list_edit');
         $id = $request->getIntParam('id');
         $notice = $this->noticeService->findById($id);
+        if (empty($notice)) {
+            $this->error('没有找到对应的记录');
+        }
         $this->assign('notice', $notice);
         $this->setView('notice/edit');
     }
 
+    /**
+     * 公告详情
+     *
+     * @param HttpRequest $request
+     * @return void
+     */
+    public function detail(HttpRequest $request) {
+        $id = $request->getIntParam('id');
+        $notice = $this->noticeService->findById($id);
+        if (empty($notice)) {
+            $this->error('没有找到对应的记录');
+        }
+        $this->assign('notice', $notice);
+        $this->setView('notice/detail');
+    }
+
+    /**
+     * 新增操作
+     *
+     * @param HttpRequest $request
+     * @return void
+     */
     public function doAdd(HttpRequest $request) {
         if (!$this->chkPermission('notice_list_add')) {
             JsonResult::fail('您没有权限进行此操作');
@@ -74,11 +147,11 @@ class NoticeAction extends BaseAction {
         $noticeId = $request->getIntParam('id');
         $data = $this->getParams($request);
         $result = $this->noticeService->updateNotice($noticeId, $data['title'], 
-            $data['summary'], $data['content'], $data['is_valid']);
-            if ($result <= 0) {
-                JsonResult::fail('修改失败');
-            }
-            JsonResult::success('修改成功');
+        $data['summary'], $data['content'], $data['is_valid']);
+        if ($result <= 0) {
+            JsonResult::fail('修改失败');
+        }
+        JsonResult::success('修改成功');
     }
 
     /**

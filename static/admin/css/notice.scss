@@ -1,0 +1,22 @@
+body {
+    background-color: #f2f2f2;
+
+    .detail {
+        padding: 20px;
+        width: 80%;
+        margin: 0 auto;
+
+        .title {
+            font-size: 40px;
+            height: auto;
+            line-height: 60px;
+            text-align: center;
+        }
+        .content {
+            padding: 10px 80px;
+            img{
+                max-width: 100%
+            }
+        }
+    }
+}
