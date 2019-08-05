@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:36:26 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-01 16:45:07
+ * @Last Modified time: 2019-08-05 15:43:07
  */
 
 namespace app\admin\action;
@@ -227,7 +227,7 @@ class OfficeApplyAction extends BaseAction {
         }
         $admin = $this->admin;
         $opinion = $request->getStrParam('audit_opinion');
-        $result = $this->officeApplyService->updateApply($admin['id'], $admin['realname'], $status, $opinion, $applyId);
+        $result = $this->officeApplyService->updateApply($admin->getId(), $admin->getRealname(), $status, $opinion, $applyId);
         if ($result <=0 ) {
             JsonResult::fail('审批失败');
         }

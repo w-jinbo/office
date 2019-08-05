@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:42:54 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-01 17:47:55
+ * @Last Modified time: 2019-08-05 15:40:03
  */
 
 namespace app\admin\service;
@@ -14,6 +14,8 @@ namespace app\admin\service;
 use herosphp\session\Session;
 use app\admin\dao\UserDao;
 use herosphp\core\Loader;
+use herosphp\utils\ModelTransformUtils;
+use app\admin\model\User;
 
 class UserService extends BaseService {
 
@@ -141,7 +143,7 @@ class UserService extends BaseService {
         int $isValid = null, string $roleIds = '', int $userId = 0) {
         if ($userId <= 0) {
             $user = self::getUser();
-            $userId = $user['id'];
+            $userId = $user->getId();
         }
         
         $data = array(
@@ -198,21 +200,21 @@ class UserService extends BaseService {
         if (!$user) {
             return false;
         }
-
-        $user['permissions'] = array();
-        //获取用户拥有的角色权限
-        $roleArr = explode(',', $user['role_ids']);
-        if (!empty($roleArr)) {
-            $roleService = Loader::service(RoleService::class);
-            $role = $roleService->where('is_valid', 1)->where('id', 'in', $roleArr)->fields('permissions')->find();
-            $permissions = array();
-            foreach ($role as $k => $v) {
-                $tempArr = explode(',', $v['permissions']);
-                $permissions = array_merge($permissions, $tempArr);
-            }
-            $permissions = array_unique($permissions);
-            $user['permissions'] = $permissions;
-        }
+        $user = ModelTransformUtils::map2Model(User::class, $user);
+        // $user['permissions'] = array();
+        // //获取用户拥有的角色权限
+        // $roleArr = explode(',', $user['role_ids']);
+        // if (!empty($roleArr)) {
+        //     $roleService = Loader::service(RoleService::class);
+        //     $role = $roleService->where('is_valid', 1)->where('id', 'in', $roleArr)->fields('permissions')->find();
+        //     $permissions = array();
+        //     foreach ($role as $k => $v) {
+        //         $tempArr = explode(',', $v['permissions']);
+        //         $permissions = array_merge($permissions, $tempArr);
+        //     }
+        //     $permissions = array_unique($permissions);
+        //     $user['permissions'] = $permissions;
+        // }
         return $user;
     }
 

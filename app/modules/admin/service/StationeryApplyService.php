@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-26 08:44:25 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-01 17:41:03
+ * @Last Modified time: 2019-08-05 15:36:01
  */
 
 namespace app\admin\service;
@@ -62,7 +62,7 @@ class StationeryApplyService extends BaseService {
             ->on('a.user_id = b.id');
             
         $user = $this->getUser();
-        $userId = $user['id'];
+        $userId = $user->getId();
         if ($type == 1) {
             //我的申请列表，只加载用户自己的申请记录
             $query->where('user_id', $userId);

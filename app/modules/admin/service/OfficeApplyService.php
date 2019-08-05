@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:40:45 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-07-25 17:41:18
+ * @Last Modified time: 2019-08-05 15:37:11
  */
 
 namespace app\admin\service;
@@ -55,7 +55,7 @@ class OfficeApplyService extends BaseService {
             
         
         $user = $this->getUser();
-        $userId = $user['id'];
+        $userId = $user->getId();
         if ($type == 1) {
             //我的申请列表，只加载用户自己的申请记录
             $query->where('user_id', $userId);
@@ -132,7 +132,7 @@ class OfficeApplyService extends BaseService {
             'message' => '',
         );
         $user = $this->getUser();
-        $userId = $user['id'];
+        $userId = $user->getId();
 
         $error = $this->chkApplyDate($officeId, $date, $beginTime, $endTime);
         if(!($error === true)){

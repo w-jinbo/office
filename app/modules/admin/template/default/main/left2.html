@@ -1,0 +1,19 @@
+{loop $menuList['sub'] $k $v}
+<li class="layout-nav-list-item">
+    <a href="javascript:void(0)" title="{$v.name}">
+        <cite>{$v.name}</cite>
+        <i class="office-iconfont jiantou-right right"></i>
+    </a>
+    <ul class="sub-nav-list">
+        {loop $v['sub'] $subK $subV}
+        <li>
+            <a href="javascript:void(0)" title="{$subV.name}" _href="{$subV.url}" _refresh="1">
+                <i class="office-iconfont yuandian"></i>
+                <cite>{$subV.name}</cite>
+                <i class="office-iconfont jiantouarrow-right right"></i>
+            </a>
+        </li>
+        {/loop}
+    </ul>
+</li>
+{/loop}

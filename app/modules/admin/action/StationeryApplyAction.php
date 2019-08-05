@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-26 08:42:53 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-01 16:38:56
+ * @Last Modified time: 2019-08-05 15:43:35
  */
 
 namespace app\admin\action;
@@ -157,7 +157,7 @@ class StationeryApplyAction extends BaseAction {
         }
 
         $admin = $this->admin;
-        $result = $this->stationeryApplyService->addApply($admin['id'], $data['apply_reason'], $data['item']);
+        $result = $this->stationeryApplyService->addApply($admin->getId(), $data['apply_reason'], $data['item']);
         if (!$result) {
             JsonResult::fail('申请失败');
         }
@@ -185,7 +185,7 @@ class StationeryApplyAction extends BaseAction {
         }
         $data = $this->getParams($request);
         $admin = $this->admin;
-        $result = $this->stationeryApplyService->auditApply($applyId, $admin['id'], 
+        $result = $this->stationeryApplyService->auditApply($applyId, $admin->getId(), 
             $admin['realname'], $data['status'], $data['audit_opinion']);
         if ($result <= 0) {
             JsonResult::fail('审批失败');

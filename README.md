@@ -6,4 +6,6 @@ office
 =====
 入口登录：
 http://www.office.my/
-
+超级管理员：admin
+普通员工：yuangong@pvc123.com
+密码：123456

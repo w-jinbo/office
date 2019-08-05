@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:47:22 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-01 11:38:01
+ * @Last Modified time: 2019-08-05 15:39:56
  */
 
 namespace app\admin\service;
@@ -56,7 +56,7 @@ class VacationApplyService extends BaseService {
             ->on('a.user_id = b.id');
             
         $user = self::getUser();
-        $userId = $user['id'];
+        $userId = $user->getId();
         if ($type == 1) {
             //我的申请列表，只加载用户自己的申请记录
             $query->where('user_id', $userId);
@@ -131,7 +131,7 @@ class VacationApplyService extends BaseService {
             'message' => '',
         );
         $user = self::getUser();
-        $userId = $user['id'];
+        $userId = $user->getId();
 
         $error = $this->chkApplyDate($userId, $beginDate, $endDate, $beginPeriod, $endPeriod);
         if(!($error === true)){
@@ -202,8 +202,8 @@ class VacationApplyService extends BaseService {
         $date = date('Y-m-d H:i:s');
         $data = array(
             'status' => $status,
-            'audit_user_id' => $admin['id'],
-            'audit_user_realname' => $admin['realname'],
+            'audit_user_id' => $admin->getId(),
+            'audit_user_realname' => $admin->getRealname(),
             'audit_opinion' => $opinion,
             'audit_time' => $date,
             'update_time' => $date,

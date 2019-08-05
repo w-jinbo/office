@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:37:10 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-01 16:46:09
+ * @Last Modified time: 2019-08-05 14:50:33
  */
 
 namespace app\admin\action;
@@ -17,6 +17,7 @@ use herosphp\core\Loader;
 use herosphp\http\HttpRequest;
 use herosphp\utils\JsonResult;
 use app\admin\dao\RoleDao;
+use app\admin\dao\PermissionDao;
 
 class RoleAction extends BaseAction {
     protected $roleService ;
@@ -100,6 +101,7 @@ class RoleAction extends BaseAction {
         if (!$this->chkPermission('role_list_add')) {
             JsonResult::fail('您没有权限进行此操作');
         }
+        // var_dump($request->getParameters());exit;
         $params = self::getParams($request);
         $data = $this->dataFilter(RoleDao::$filter, $params);
 
@@ -156,7 +158,11 @@ class RoleAction extends BaseAction {
             JsonResult::fail('您没有权限进行此操作');
         }
         $ids = $request->getStrParam('ids');
-        parent::doDel($this->roleService, $ids);
+        $result = $this->roleService->delRows($ids);
+        if ($result <= 0) {
+            JsonResult::fail('删除失败');
+        }
+        JsonResult::success('删除成功');
     }
 
     /**
@@ -210,26 +216,8 @@ class RoleAction extends BaseAction {
      */
     private function assignPower() {
         //获取权限
-        $powerArray = AdminPower::getPowerArray();
-        $power = $this->getPowerList('', $powerArray);
+        $permissionDao = Loader::model(PermissionDao::class);
+        $power = $permissionDao->getPermission();
         $this->assign('powerArray', $power);
-    }
-
-    /**
-     * 递归处理权限集合，构成成树状结构
-     *
-     * @param string $pkey
-     * @param array $power
-     * @return array $resData
-     */
-    private function getPowerList(string $pkey, array &$power) {
-        $resData = array();
-        foreach ($power as $k => $v) {
-            if ($pkey === $v['pId']) {
-                unset($power[$k]);
-                $resData['sub'][] = array_merge($v, $this->getPowerList($v['id'], $power));
-            }
-        }
-        return $resData;
     }
 }

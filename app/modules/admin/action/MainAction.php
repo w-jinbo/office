@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:33:35 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-01 15:49:39
+ * @Last Modified time: 2019-08-05 18:01:56
  */
 
 namespace app\admin\action;
@@ -15,6 +15,7 @@ use app\admin\dao\UserDao;
 use herosphp\utils\JsonResult;
 use app\admin\service\NoticeService;
 use app\admin\service\SystemTipService;
+use app\admin\dao\PermissionDao;
 
 class MainAction extends BaseAction {
     public function __construct() {
@@ -45,7 +46,7 @@ class MainAction extends BaseAction {
         $vacationAudit = $this->chkPermission('vacation_apply_audit');
         $stationeryAudit = $this->chkPermission('stationery_apply_audit');
         $systemTipModel = new SystemTipService();
-        $systemTipList = $systemTipModel->getListData($this->admin['id'], 1, 5, 0, $vacationAudit, $stationeryAudit);
+        // $systemTipList = $systemTipModel->getListData($this->admin['id'], 1, 5, 0, $vacationAudit, $stationeryAudit);
         $this->assign('systemTipList', $systemTipList);
         $this->setView('main/main');
     }
@@ -54,7 +55,16 @@ class MainAction extends BaseAction {
      *　左侧菜单栏
      */
     public function left() {
-        $this->setView('main/left');
+        //获取菜单列表
+        $permissionDao = new PermissionDao();
+        $menuList = $permissionDao->getPermission(1);
+        $menuList = dealPermission('0', $menuList);
+        if ($this->admin->getIsSuper() == 0) {
+            $menuList = $this->admin->getMenu();
+        }
+        // var_dump($menuList);exit;
+        $this->assign('menuList', $menuList);
+        $this->setView('main/left2');
     }
 
     /**

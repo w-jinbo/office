@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:24:29 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-01 16:14:16
+ * @Last Modified time: 2019-08-05 17:56:41
  */
 
 namespace app\admin\action;
@@ -89,15 +89,15 @@ class BaseAction extends Controller {
      * @return bool
      */
     protected function chkPermission(string $permission) {
-        if ($this->admin['is_super'] == 1) {
+        if ($this->admin->getIsSuper() == 1) {
             //超级管理员，无需验证权限
             return true;
         }
 
-        $permissions = $this->admin['permissions'];
-        if (!in_array($permission, $permissions)) {
-            return false;
-        }
+        // $permissions = $this->admin['permissions'];
+        // if (!in_array($permission, $permissions)) {
+        //     return false;
+        // }
         return true;
     } 
 

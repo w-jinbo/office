@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-08-01 15:31:44 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-01 16:47:34
+ * @Last Modified time: 2019-08-05 15:43:51
  */
 
  namespace app\admin\action;
@@ -43,7 +43,7 @@ class SystemTipAction extends BaseAction {
         $pageSize = $request->getIntParam('limit');
         $vacationAudit = $this->chkPermission('vacation_apply_audit');
         $stationeryAudit = $this->chkPermission('stationery_apply_audit');
-        $data = $this->systemTipService->getListData($this->admin['id'], $page, $pageSize, null, $vacationAudit, $stationeryAudit);
+        $data = $this->systemTipService->getListData($this->admin->getId(), $page, $pageSize, null, $vacationAudit, $stationeryAudit);
 
         $request = new JsonResult(JsonResult::CODE_SUCCESS, '获取数据成功');
         $request->setData($data['list']);

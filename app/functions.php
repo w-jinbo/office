@@ -32,7 +32,22 @@ function isDateValid(string $date, array $formats = array('Y-m-d', 'Y/m/d')) {
     return false;
 }
 
+
+function getRequestMethod(){
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+        $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
+            return 'AJAX';
+    }
+
+    if (!empty($_POST)) {
+        return 'POST';
+    }
+
+    return 'GET';
+}
+
 function chkPower(string $permission) {
+    return true;
     $admin = $GLOBALS['admin'];
     if ($admin['is_super'] == 1) {
         return true;
@@ -40,3 +55,21 @@ function chkPower(string $permission) {
     $permissions = $admin['permissions'];
     return in_array($permission, $permissions);
 }
+
+/**
+     * 递归处理权限集合，构成成树状结构
+     *
+     * @param string $pkey
+     * @param array $power
+     * @return array $resData
+     */
+    function dealPermission(string $pkey, array &$power) {
+        $resData = array();
+        foreach ($power as $k => $v) {
+            if ($pkey === $v['parent_id']) {
+                unset($power[$k]);
+                $resData['sub'][] = array_merge($v, dealPermission($v['id'], $power));
+            }
+        }
+        return $resData;
+    }
