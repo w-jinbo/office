@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 16:44:18 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-01 16:37:50
+ * @Last Modified time: 2019-08-06 10:35:41
  */
 
 namespace app\admin\action;
@@ -29,10 +29,9 @@ class StationeryAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function index(HttpRequest $request) {
-        $this->chkPermissionWeb('stationery_list');
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $this->assign('keyword', $keyword);
-        $this->assign('dataUrl', url('/admin/stationery/getListData?keyword=' . urlencode($keyword)));
+        $this->assign('dataUrl', url('/admin/stationery/findAll?keyword=' . urlencode($keyword)));
         $this->setView('stationery/index');
     }
 
@@ -42,7 +41,7 @@ class StationeryAction extends BaseAction {
      * @param HttpRequest $request
      * @return Json
      */
-    public function getListData(HttpRequest $request) {
+    public function findAll(HttpRequest $request) {
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $page = $request->getIntParam('page');
         $pageSize = $request->getIntParam('limit');
@@ -60,7 +59,6 @@ class StationeryAction extends BaseAction {
      * 新增文具页面
      */
     public function add() {
-        $this->chkPermissionWeb('stationery_list_add');
         $this->setView('stationery/add');
     }
 
@@ -70,7 +68,6 @@ class StationeryAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function edit(HttpRequest $request) {
-        $this->chkPermissionWeb('stationery_list_edit');
         $stationeryId = $request->getStrParam('id');
         $stationery = $this->stationeryService->findById($stationeryId);
         if (empty($stationery)) {
@@ -87,9 +84,6 @@ class StationeryAction extends BaseAction {
      * @return Json
      */
     public function doAdd(HttpRequest $request) {
-        if (!$this->chkPermission('stationery_list_add')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $data = $this->getParams($request);
 
         $result = $this->stationeryService->addStationery($data['name'], 
@@ -107,9 +101,6 @@ class StationeryAction extends BaseAction {
      * @return Json
      */
     public function doEdit(HttpRequest $request) {
-        if (!$this->chkPermission('stationery_list_edit')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $stationeryId = $request->getIntParam('id');
         $data = $this->getParams($request);
         $result = $this->stationeryService->updateStationery($stationeryId, 
@@ -127,9 +118,6 @@ class StationeryAction extends BaseAction {
      * @return Json
      */
     public function doDel(HttpRequest $request) {
-        if (!$this->chkPermission('stationery_list_del')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $ids = $request->getStrParam('ids');
         parent::doDel($this->officeService, $ids);
     }
@@ -141,9 +129,6 @@ class StationeryAction extends BaseAction {
      * @return JsonResult
      */
     public function doChangeValid(HttpRequest $request) {
-        if (!$this->chkPermission('stationery_list_edit')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $params = $request->getParameters();
         $res = parent::changeValid($params['id'], $params['valid'], $this->stationeryService);
         if ($res <= 0) {

@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:36:26 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-05 15:43:07
+ * @Last Modified time: 2019-08-06 09:56:26
  */
 
 namespace app\admin\action;
@@ -50,7 +50,7 @@ class OfficeApplyAction extends BaseAction {
         $this->assign('status', $status);
         $this->assign('type', $type);
         $this->assign('searchDate', $searchDate);
-        $this->assign('dataUrl', '/admin/officeApply/getListData?type=' . $type 
+        $this->assign('dataUrl', '/admin/officeApply/findAll?type=' . $type 
             . '&searchDate=' . urlencode($searchDate) . '&keyword=' . urlencode($keyword) . '&status=' . $status);
         $this->setView('office_apply/index');
     }
@@ -61,7 +61,7 @@ class OfficeApplyAction extends BaseAction {
      * @param HttpRequest $request
      * @return Json
      */
-    public function getListData(HttpRequest $request) {
+    public function findAll(HttpRequest $request) {
         $page = $request->getIntParam('page');
         $pageSize = $request->getIntParam('limit');
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
@@ -164,7 +164,6 @@ class OfficeApplyAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function audit(HttpRequest $request) {
-        $this->chkPermissionWeb('office_apply_audit');
         $applyId = $request->getIntParam('id');
         $applyInfo = $this->officeApplyService->getApplyInfo($applyId);
         if (empty($applyInfo)) {
@@ -182,9 +181,6 @@ class OfficeApplyAction extends BaseAction {
      * @return JsonResult
      */
     public function doAdd(HttpRequest $request) {
-        if (!$this->chkPermission('office_apply_add')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $data  = $this->getParams($request);
 
         //判断用户申请时间是否合法
@@ -208,9 +204,6 @@ class OfficeApplyAction extends BaseAction {
      * @return JsonResult
      */
     public function doUpdate(HttpRequest $request) {
-        if (!$this->chkPermission('office_apply_audit')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $applyId = $request->getIntParam('id');
         $applyInfo = $this->officeApplyService->findById($applyId);
         if (!$applyInfo) {

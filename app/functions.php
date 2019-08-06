@@ -50,16 +50,6 @@ function getRequestMethod(){
     return 'GET';
 }
 
-function chkPower(string $permission) {
-    return true;
-    $admin = $GLOBALS['admin'];
-    if ($admin['is_super'] == 1) {
-        return true;
-    }
-    $permissions = $admin['permissions'];
-    return in_array($permission, $permissions);
-}
-
 /**
  * 递归处理权限集合，构成成树状结构
  *

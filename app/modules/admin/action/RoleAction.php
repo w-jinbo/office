@@ -5,13 +5,11 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:37:10 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-05 14:50:33
+ * @Last Modified time: 2019-08-06 11:02:32
  */
 
 namespace app\admin\action;
 
-
-use app\admin\model\AdminPower;
 use app\admin\service\RoleService;
 use herosphp\core\Loader;
 use herosphp\http\HttpRequest;
@@ -32,12 +30,11 @@ class RoleAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function index(HttpRequest $request) {
-        $this->chkPermissionWeb('role_list');
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $this->assign('keyword', $keyword);
 
         //设置数据接口
-        $this->assign('dataUrl', url('/admin/role/getDataList?keyword=' . urlencode($keyword)));
+        $this->assign('dataUrl', url('/admin/role/findAll?keyword=' . urlencode($keyword)));
         $this->setView('role/index');
     }
 
@@ -47,7 +44,7 @@ class RoleAction extends BaseAction {
      * @param HttpRequest $request
      * @return JsonResult
      */
-    public function getDataList(HttpRequest $request) {
+    public function findAll(HttpRequest $request) {
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $page = $request->getIntParam('page');
         $pageSize = $request->getIntParam('limit');
@@ -67,7 +64,6 @@ class RoleAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function add(HttpRequest $request) {
-        $this->chkPermissionWeb('role_list_add');
         $this->assignPower();
         $this->setView('role/add');
     }
@@ -78,7 +74,6 @@ class RoleAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function edit(HttpRequest $request) {
-        $this->chkPermissionWeb('role_list_edit');
         $id = $request->getStrParam('id');
         $role = $this->roleService->findById($id);
         if (empty($role)) {
@@ -98,10 +93,6 @@ class RoleAction extends BaseAction {
      * @return JsonResult
      */
     public function doAdd(HttpRequest $request) {
-        if (!$this->chkPermission('role_list_add')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
-        // var_dump($request->getParameters());exit;
         $params = self::getParams($request);
         $data = $this->dataFilter(RoleDao::$filter, $params);
 
@@ -127,9 +118,6 @@ class RoleAction extends BaseAction {
      * @return JsonResult
      */
     public function doEdit(HttpRequest $request) {
-        if (!$this->chkPermission('role_list_edit')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $roleId = $request->getIntParam('id');
         $params = self::getParams($request);
         $data = $this->dataFilter(RoleDao::$filter, $params);
@@ -154,9 +142,6 @@ class RoleAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function doDel(HttpRequest $request){
-        if (!$this->chkPermission('role_list_del')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $ids = $request->getStrParam('ids');
         $result = $this->roleService->delRows($ids);
         if ($result <= 0) {
@@ -172,9 +157,6 @@ class RoleAction extends BaseAction {
      * @return JsonResult
      */
     public function doChangeValid(HttpRequest $request) {
-        if (!$this->chkPermission('role_list_edit')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $params = $request->getParameters();
         $res = parent::changeValid($params['id'], $params['valid'], $this->roleService);
         if ($res <= 0) {
@@ -218,6 +200,7 @@ class RoleAction extends BaseAction {
         //获取权限
         $permissionDao = Loader::model(PermissionDao::class);
         $power = $permissionDao->getPermission();
+        $power = dealPermission('0', $power);
         $this->assign('powerArray', $power);
     }
 }

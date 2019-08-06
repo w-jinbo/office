@@ -17,11 +17,37 @@ use app\admin\action\BaseAction;
  */
 class ModuleListener extends WebApplicationListenerMatcher implements IWebAplicationListener {
 
+    /**
+     * 白名单
+     *
+     * @var array
+     */
     protected static $uriWhileList = array(
-        '/',
         '/admin/login/',
         '/admin/main/',
+        '/admin/systemtip/',
+        '/admin/upload/',
+        '/admin/notice/list',
+        '/admin/notice/detail'
     );
+
+    /**
+     * 特殊过滤规则，替换method
+     *
+     * @var array
+     */
+    protected static $specialFilter = array(
+        //修改记录状态
+        'doChangeValid' => 'doEdit',
+        //查询用户名是否被注册
+        'chkFirst' => 'doAdd',
+        //预约情况
+        'officeBook' => 'doAdd',
+        //可以预约的办公室
+        'searchOfficeByTime' => 'doAdd'
+    );
+
+
 
     /**
      * action 方法调用之前
@@ -31,9 +57,6 @@ class ModuleListener extends WebApplicationListenerMatcher implements IWebAplica
         Session::start();
         //权限认证的代码可以写在这里
         //die("您没有权限。");
-        // $userService = new UserService();
-        // $user =$userService->getUser();
-        // var_dump($user);exit;
         $this->chkPermission($request);
     }
 
@@ -61,14 +84,20 @@ class ModuleListener extends WebApplicationListenerMatcher implements IWebAplica
         $module = $request->getModule();
         $action = $request->getAction();
         $method = $request->getMethod();
+
+        if (isset(self::$specialFilter[$method])) {
+            $method = self::$specialFilter[$method];
+        }
+
         $permission = $module . '_' . $action . '_' . $method;
         $permission = strtolower($permission);
 
-        $requestUri = '/' . $module . '/' . $action . '/';
-        $requestUri = strtolower($requestUri);
-
         //白名单过滤
-        if (in_array($requestUri, self::$uriWhileList)) {
+        $requestUri1 = '/' . $module . '/' . $action . '/' . $method;
+        $requestUri2 = '/' . $module . '/' . $action . '/';
+        $requestUri1 = strtolower($requestUri1);
+        $requestUri2 = strtolower($requestUri2);
+        if (in_array($requestUri1, self::$uriWhileList) || in_array($requestUri2, self::$uriWhileList)) {
             return true;
         }
 
@@ -83,6 +112,16 @@ class ModuleListener extends WebApplicationListenerMatcher implements IWebAplica
         if (!$chkFlag) {
             //不通过，验证url
             $requestUri = $request->getRequestUri();
+            //根据Method类型清除参数
+            switch ($method) {
+                case 'edit' :
+                case 'resetPwd' :
+                case 'audit' :
+                case 'grant' :
+                    $requestUri = current(explode('?', $requestUri));
+                    break;
+                default :
+            }
             $chkFlag = filterByValue($permissionArr, 'url', $requestUri);
         }
 

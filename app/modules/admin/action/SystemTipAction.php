@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-08-01 15:31:44 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-05 15:43:51
+ * @Last Modified time: 2019-08-06 11:38:53
  */
 
  namespace app\admin\action;
@@ -41,8 +41,9 @@ class SystemTipAction extends BaseAction {
     public function getListData(HttpRequest $request) {
         $page = $request->getIntParam('page');
         $pageSize = $request->getIntParam('limit');
-        $vacationAudit = $this->chkPermission('vacation_apply_audit');
-        $stationeryAudit = $this->chkPermission('stationery_apply_audit');
+        $permissions = $this->admin->getPermissions();
+        $vacationAudit = empty(filterByValue($permissions, 'permission', 'admin_vacationapply_audit')) ? false : true;
+        $stationeryAudit = empty(filterByValue($permissions, 'permission', 'admin_stationeryapply_audit')) ? false : true;
         $data = $this->systemTipService->getListData($this->admin->getId(), $page, $pageSize, null, $vacationAudit, $stationeryAudit);
 
         $request = new JsonResult(JsonResult::CODE_SUCCESS, '获取数据成功');

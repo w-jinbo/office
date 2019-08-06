@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:35:31 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-01 16:15:58
+ * @Last Modified time: 2019-08-06 09:54:41
  */
 
 namespace app\admin\action;
@@ -29,10 +29,9 @@ class OfficeAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function index(HttpRequest $request) {
-        $this->chkPermissionWeb('office_list');
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $this->assign('keyword', $keyword);
-        $this->assign('dataUrl', url('/admin/office/getListData?keyword=' . urlencode($keyword)));
+        $this->assign('dataUrl', url('/admin/office/findAll?keyword=' . urlencode($keyword)));
         $this->setView('office/index');
     }
 
@@ -42,7 +41,7 @@ class OfficeAction extends BaseAction {
      * @param HttpRequest $request
      * @return Json
      */
-    public function getListData(HttpRequest $request) {
+    public function findAll(HttpRequest $request) {
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $page = $request->getIntParam('page');
         $pageSize = $request->getIntParam('limit');
@@ -60,7 +59,6 @@ class OfficeAction extends BaseAction {
      * 新增办公室页面
      */
     public function add() {
-        $this->chkPermissionWeb('office_list_add');
         $this->setView('office/add');
     }
 
@@ -70,7 +68,6 @@ class OfficeAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function edit(HttpRequest $request) {
-        $this->chkPermissionWeb('office_list_edit');
         $officeId = $request->getStrParam('id');
         $office = $this->officeService->findById($officeId);
         if (empty($office)) {
@@ -87,9 +84,6 @@ class OfficeAction extends BaseAction {
      * @return JsonResult
      */
     public function doAdd(HttpRequest $request) {
-        if (!$this->chkPermission('office_list_add')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $data = self::getParams($request);
 
         $result = $this->officeService->addOffice($data['name'], $data['address'], $data['summary'], $data['is_valid']);
@@ -106,9 +100,6 @@ class OfficeAction extends BaseAction {
      * @return JsonResult
      */
     public function doEdit(HttpRequest $request) {
-        if (!$this->chkPermission('office_list_edit')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $officeId = $request->getIntParam('id');
         $data = self::getParams($request);
 
@@ -126,9 +117,6 @@ class OfficeAction extends BaseAction {
      * @return Json
      */
     public function doDel(HttpRequest $request) {
-        if (!$this->chkPermission('office_list_del')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $ids = $request->getStrParam('ids');
         parent::doDel($this->officeService, $ids);
     }
@@ -140,9 +128,6 @@ class OfficeAction extends BaseAction {
      * @return JsonResult
      */
     public function doChangeValid(HttpRequest $request) {
-        if (!$this->chkPermission('office_list_edit')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $params = $request->getParameters();
         $res = parent::changeValid($params['id'], $params['valid'], $this->officeService);
         if ($res <= 0) {

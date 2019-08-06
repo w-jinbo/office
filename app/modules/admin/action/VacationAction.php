@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:38:41 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-01 16:41:48
+ * @Last Modified time: 2019-08-06 10:41:00
  */
 
 namespace app\admin\action;
@@ -29,10 +29,9 @@ class VacationAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function index(HttpRequest $request) {
-        $this->chkPermissionWeb('vacation_list');
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $this->assign('keyword', $keyword);
-        $this->assign('dataUrl', url('/admin/vacation/getListData?keyword=' . urlencode($keyword)));
+        $this->assign('dataUrl', url('/admin/vacation/findAll?keyword=' . urlencode($keyword)));
         $this->setView('vacation/index');
     }
 
@@ -41,7 +40,7 @@ class VacationAction extends BaseAction {
      *
      * @param HttpRequest $request
      */
-    public function getListData(HttpRequest $request) {
+    public function findAll(HttpRequest $request) {
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $page = $request->getIntParam('page');
         $pageSize = $request->getIntParam('limit');
@@ -59,7 +58,6 @@ class VacationAction extends BaseAction {
      * 新增假期类型页面
      */
     public function add() {
-        $this->chkPermissionWeb('vacation_list_add');
         $this->setView('vacation/add');
     }
 
@@ -69,7 +67,6 @@ class VacationAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function edit(HttpRequest $request) {
-        $this->chkPermissionWeb('vacation_list_edit');
         $vacationId = $request->getStrParam('id');
         $vacation = $this->vacationService->findById($vacationId);
         if (empty($vacation)) {
@@ -86,9 +83,6 @@ class VacationAction extends BaseAction {
      * @return Json
      */
     public function doAdd(HttpRequest $request) {
-        if (!$this->chkPermission('vacation_list_add')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $data = self::getParams($request);
         
         $result = $this->vacationService->addVacation($data['name'], $data['summary'], $data['is_valid']);
@@ -105,9 +99,6 @@ class VacationAction extends BaseAction {
      * @return Json
      */
     public function doEdit(HttpRequest $request) {
-        if (!$this->chkPermission('vacation_list_edit')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $vacationId = $request->getIntParam('id');
         $data = self::getParams($request);
     
@@ -125,9 +116,6 @@ class VacationAction extends BaseAction {
      * @return Json
      */
     public function doDel(HttpRequest $request) {
-        if (!$this->chkPermission('vacation_list_del')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $ids = $request->getStrParam('ids');
         parent::doDel($this->vacationService, $ids);
     }
@@ -139,9 +127,6 @@ class VacationAction extends BaseAction {
      * @return JsonResult
      */
     public function doChangeValid(HttpRequest $request) {
-        if (!$this->chkPermission('vacation_list_edit')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $params = $request->getParameters();
         $res = parent::changeValid($params['id'], $params['valid'], $this->vacationService);
         if ($res <= 0) {

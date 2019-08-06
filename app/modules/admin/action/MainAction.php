@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:33:35 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-05 18:01:56
+ * @Last Modified time: 2019-08-06 15:39:40
  */
 
 namespace app\admin\action;
@@ -21,7 +21,6 @@ class MainAction extends BaseAction {
     public function __construct() {
         parent::__construct();
         $this->assign('admin', $this->admin);
-        $GLOBALS['admin'] = $this->admin;
     }
 
     /**
@@ -37,16 +36,52 @@ class MainAction extends BaseAction {
      * @return void
      */
     public function main() {
+        //获取用户拥有的权限
+        $permissions = $this->admin->getPermissions();
+        //快速入口数组
+        $quickEnterArr = array(
+            'vacation_apply' => array(
+                'permission' => 'admin_vacationapply_doadd',
+                'show' => true,
+            ),
+            'office_apply' => array(
+                'permission' => 'admin_officeapply_doadd',
+                'show' => true,
+            ),
+            'stationery_apply' => array(
+                'permission' => 'admin_stationeryapply_doadd',
+                'show' => true,
+            ),
+            'vacation_audit' => array(
+                'permission' => 'admin_vacationapply_doaudit',
+                'show' => true,
+            ),
+            'office_audit' => array(
+                'permission' => 'admin_officeapply_doaudit',
+                'show' => true,
+            ),
+            'stationery_audit' => array(
+                'permission' => 'admin_stationeryapply_doaudit',
+                'show' => true,
+            ),
+        );
+
+        foreach ($quickEnterArr as $k => $v) {
+            $show = empty(filterByValue($permissions, 'permission', $v['permission'])) ? false : true;
+            $quickEnterArr[$k]['show'] = $show;
+        }
+        $this->assign('quickEnter', $quickEnterArr);
+
         //获取系统公告
         $noticeModel = new NoticeService();
         $noticeList = $noticeModel->getListData('', 1, 5, 1);
         $this->assign('noticeList', $noticeList);
 
-        //获取系统通知
-        $vacationAudit = $this->chkPermission('vacation_apply_audit');
-        $stationeryAudit = $this->chkPermission('stationery_apply_audit');
+        //判断用户是否拥有假期审批、文具审批权限，用于获取新申请消息记录
+        $vacationAudit = empty(filterByValue($permissions, 'permission', 'admin_vacationapply_audit')) ? false : true;
+        $stationeryAudit = empty(filterByValue($permissions, 'permission', 'admin_stationeryapply_audit')) ? false : true;
         $systemTipModel = new SystemTipService();
-        // $systemTipList = $systemTipModel->getListData($this->admin['id'], 1, 5, 0, $vacationAudit, $stationeryAudit);
+        $systemTipList = $systemTipModel->getListData($this->admin->getId(), 1, 5, 0, $vacationAudit, $stationeryAudit);
         $this->assign('systemTipList', $systemTipList);
         $this->setView('main/main');
     }
@@ -56,13 +91,7 @@ class MainAction extends BaseAction {
      */
     public function left() {
         //获取菜单列表
-        $permissionDao = new PermissionDao();
-        $menuList = $permissionDao->getPermission(1);
-        $menuList = dealPermission('0', $menuList);
-        if ($this->admin->getIsSuper() == 0) {
-            $menuList = $this->admin->getMenu();
-        }
-        // var_dump($menuList);exit;
+        $menuList = $this->admin->getMenu();
         $this->assign('menuList', $menuList);
         $this->setView('main/left2');
     }

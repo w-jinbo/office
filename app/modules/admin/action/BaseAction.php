@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:24:29 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-06 09:22:26
+ * @Last Modified time: 2019-08-06 11:43:04
  */
 
 namespace app\admin\action;
@@ -15,7 +15,6 @@ use app\admin\service\UserService;
 use herosphp\core\Controller;
 use herosphp\core\Loader;
 use herosphp\utils\JsonResult;
-use herosphp\http\HttpRequest;
 use app\demo\service\RoleService;
 use app\admin\traits\DataFilterTraits;
 use app\admin\service\SystemTipService;
@@ -83,36 +82,13 @@ class BaseAction extends Controller {
     }
 
     /**
-     * 检测权限
+     * 增加新的系统消息提醒
      *
-     * @param string $permission
-     * @return bool
-     */
-    protected function chkPermission(string $permission) {
-        if ($this->admin->getIsSuper() == 1) {
-            //超级管理员，无需验证权限
-            return true;
-        }
-
-        // $permissions = $this->admin['permissions'];
-        // if (!in_array($permission, $permissions)) {
-        //     return false;
-        // }
-        return true;
-    } 
-
-    /**
-     * 检测页面权限
-     *
-     * @param string $permission
+     * @param integer $type 通知类型
+     * @param integer $logId 记录id
+     * @param integer $userId 用户id
      * @return void
      */
-    protected function chkPermissionWeb(string $permission) {
-        if (!$this->chkPermission($permission)) {
-            $this->error('您没有权限进行此操作');
-        }
-    }
-
     protected function addSystemTip(int $type, int $logId, int $userId = 0) {
         $systemTipModel = new SystemTipService();
         $systemTipModel->addTip($type, $logId, $userId);

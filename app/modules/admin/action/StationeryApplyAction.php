@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-26 08:42:53 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-05 15:43:35
+ * @Last Modified time: 2019-08-06 11:46:57
  */
 
 namespace app\admin\action;
@@ -52,7 +52,7 @@ class StationeryApplyAction extends BaseAction {
         $this->assign('status', $status);
         $this->assign('type', $type);
         $this->assign('searchDate', $searchDate);
-        $this->assign('dataUrl', '/admin/stationeryApply/getListData?type=' . $type 
+        $this->assign('dataUrl', '/admin/stationeryApply/findAll?type=' . $type 
             . '&searchDate=' . urlencode($searchDate) . '&keyword=' . urlencode($keyword) . '&status=' . $status);
         $this->setView('stationery_apply/index');
     }
@@ -63,7 +63,7 @@ class StationeryApplyAction extends BaseAction {
      * @param HttpRequest $request
      * @return Json
      */
-    public function getListData(HttpRequest $request) {
+    public function findAll(HttpRequest $request) {
         $page = $request->getIntParam('page');
         $pageSize = $request->getIntParam('limit');
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
@@ -113,7 +113,6 @@ class StationeryApplyAction extends BaseAction {
      * @return void
      */
     public function audit(HttpRequest $request) {
-        $this->chkPermissionWeb('stationery_apply_audit');
         $applyId = $request->getIntParam('id');
         $applyInfo = $this->stationeryApplyService->getApplyInfo($applyId);
         if (empty($applyInfo)) {
@@ -131,7 +130,6 @@ class StationeryApplyAction extends BaseAction {
      * @return void
      */
     public function grant(HttpRequest $request) {
-        $this->chkPermissionWeb('stationery_apply_grant');
         $applyId = $request->getIntParam('id');
         $applyInfo = $this->stationeryApplyService->getApplyInfo($applyId);
         if (empty($applyInfo)) {
@@ -148,9 +146,6 @@ class StationeryApplyAction extends BaseAction {
      * @return void
      */
     public function doAdd(HttpRequest $request) {
-        if (!$this->chkPermission('stationery_apply_add')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $data = $this->getParams($request);
         if (empty($data['item'])) {
             JsonResult::fail('请选择要申请的项目');
@@ -172,9 +167,6 @@ class StationeryApplyAction extends BaseAction {
      * @return void
      */
     public function doAudit(HttpRequest $request) {
-        if (!$this->chkPermission('stationery_apply_audit')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $applyId = $request->getIntParam('id');
         $applyInfo = $this->stationeryApplyService->findById($applyId);
         if (!$applyInfo) {
@@ -186,7 +178,7 @@ class StationeryApplyAction extends BaseAction {
         $data = $this->getParams($request);
         $admin = $this->admin;
         $result = $this->stationeryApplyService->auditApply($applyId, $admin->getId(), 
-            $admin['realname'], $data['status'], $data['audit_opinion']);
+            $admin->getRealname(), $data['status'], $data['audit_opinion']);
         if ($result <= 0) {
             JsonResult::fail('审批失败');
         }
@@ -201,9 +193,6 @@ class StationeryApplyAction extends BaseAction {
      * @return void
      */
     public function doGrant(HttpRequest $request) {
-        if (!$this->chkPermission('stationery_apply_grant')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $applyId = $request->getIntParam('id');
         $applyInfo = $this->stationeryApplyService->findById($applyId);
         if (!$applyInfo) {

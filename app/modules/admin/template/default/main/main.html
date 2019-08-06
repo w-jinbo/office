@@ -14,34 +14,40 @@
                     <div class="layui-card-header">快捷入口</div>
                     <div class="layui-card-body">
                         <div class="entry-list clearfix">
+                            {if $quickEnter['vacation_apply']['show']}
                             <div class="apply-btn layui-bg-red" title="假期申请" _href="/admin/vacationApply/add" 
                                 width="50%" heigh="75%">
                                 <i class="office-iconfont jiaqiguanli"></i>
                                 <div>假期申请</div>
                             </div>
+                            {/if}
+                            {if $quickEnter['office_apply']['show']}
                             <div class="apply-btn layui-bg-orange" title="办公室申请" _href="/admin/officeApply/add" 
                                 width="50%" heigh="75%">
                                 <i class="office-iconfont bangongshi"></i>
                                 <div>办公室申请</div>
                             </div>
+                            {/if}
+                            {if $quickEnter['stationery_apply']['show']}
                             <div class="apply-btn layui-bg-cyan" title="文具申请" _href="/admin/stationeryApply/add" 
                                 width="40%" heigh="76%">
                                 <i class="office-iconfont wenju"></i>
                                 <div>文具申请</div>
                             </div>
-                            {if chkPower('vacation_apply_audit')}
+                            {/if}
+                            {if $quickEnter['vacation_audit']['show']}
                             <div class="entry-btn layui-bg-green" title="假期审批列表" _href="/admin/vacationApply/index?type=2" _refresh="1">
                                 <i class="office-iconfont custom-business-t"></i>
                                 <div>假期审批</div>
                             </div>
                             {/if}
-                            {if chkPower('office_apply_audit')}
+                            {if $quickEnter['office_audit']['show']}
                             <div class="entry-btn layui-bg-blue" title="办公室审批列表" _href="/admin/officeApply/index?type=2" _refresh="1">
                                 <i class="office-iconfont shenpi1"></i>
                                 <div>办公室审批</div>
                             </div>
                             {/if}
-                            {if chkPower('stationery_apply_audit')}
+                            {if $quickEnter['stationery_audit']['show']}
                             <div class="entry-btn layui-bg-black" title="文具审批列表" _href="/admin/stationeryApply/index?type=2" _refresh="1">
                                 <i class="office-iconfont shenpi"></i>
                                 <div>文具审批</div>

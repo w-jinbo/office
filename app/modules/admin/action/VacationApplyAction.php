@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.xom> 
  * @Date: 2019-07-25 17:39:18 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-01 16:43:00
+ * @Last Modified time: 2019-08-06 10:41:42
  */
 
 namespace app\admin\action;
@@ -50,7 +50,7 @@ class VacationApplyAction extends BaseAction {
         $this->assign('status', $status);
         $this->assign('type', $type);
         $this->assign('searchDate', $searchDate);
-        $this->assign('dataUrl', '/admin/vacationApply/getListData?type=' . $type 
+        $this->assign('dataUrl', '/admin/vacationApply/findAll?type=' . $type 
             . '&searchDate=' . urlencode($searchDate) . '&keyword=' . urlencode($keyword) . '&status=' . $status);
         $this->setView('vacation_apply/index');
     }
@@ -61,7 +61,7 @@ class VacationApplyAction extends BaseAction {
      * @param HttpRequest $request
      * @return Json
      */
-    public function getListData(HttpRequest $request) {
+    public function findAll(HttpRequest $request) {
         $page = $request->getIntParam('page');
         $pageSize = $request->getIntParam('limit');
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
@@ -110,7 +110,6 @@ class VacationApplyAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function audit(HttpRequest $request) {
-        $this->chkPermissionWeb('vacation_apply_audit');
         $applyId = $request->getIntParam('id');
         $applyInfo = $this->vacationApplyService->getApplyInfo($applyId);
         if (empty($applyInfo)) {
@@ -128,9 +127,6 @@ class VacationApplyAction extends BaseAction {
      * @return void
      */
     public function doAdd(HttpRequest $request) {
-        if (!$this->chkPermission('vacation_apply_add')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $data = self::getParams($request);
         //判断用户申请时间是否合法
         $beginDate = $data['apply_begin_date'];
@@ -166,9 +162,6 @@ class VacationApplyAction extends BaseAction {
      * @return Json
      */
     public function doAudit(HttpRequest $request) {
-        if (!$this->chkPermission('vacation_apply_audit')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $applyId = $request->getIntParam('id');
         $applyInfo = $this->vacationApplyService->findById($applyId);
         if (!$applyInfo) {
@@ -193,9 +186,6 @@ class VacationApplyAction extends BaseAction {
      * @return Json
      */
     public function doCancel(HttpRequest $request) {
-        if (!$this->chkPermission('vacation_apply_cancel')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $applyId = $request->getIntParam('id');
         $applyInfo = $this->vacationApplyService->findById($applyId);
         if (!$applyInfo) {

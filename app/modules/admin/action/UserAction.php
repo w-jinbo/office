@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:38:03 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-01 17:47:05
+ * @Last Modified time: 2019-08-06 10:39:45
  */
 
 namespace app\admin\action;
@@ -30,10 +30,9 @@ class UserAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function index(HttpRequest $request) {
-        $this->chkPermissionWeb('user_list');
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $this->assign('keyword', $keyword);
-        $this->assign('dataUrl', url('/admin/user/getListData?keyword=' . urlencode($keyword)));
+        $this->assign('dataUrl', url('/admin/user/findAll?keyword=' . urlencode($keyword)));
         $this->setView('user/index');
     }
 
@@ -43,7 +42,7 @@ class UserAction extends BaseAction {
      * @param HttpRequest $request
      * @return Json
      */
-    public function getListData(HttpRequest $request) {
+    public function findAll(HttpRequest $request) {
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $page = $request->getIntParam('page');
         $pageSize = $request->getIntParam('limit');
@@ -62,7 +61,6 @@ class UserAction extends BaseAction {
      * 增加用户页面
      */
     public function add() {
-        $this->chkPermissionWeb('user_list_add');
         self::assignRole();
         $this->setView('user/add');
     }
@@ -73,7 +71,6 @@ class UserAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function edit(HttpRequest $request) {
-        $this->chkPermissionWeb('user_list_edit');
         $userId = $request->getStrParam('id');
         $user = $this->userService->findById($userId);
         if (empty($user)) {
@@ -92,7 +89,6 @@ class UserAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function resetPwd(HttpRequest $request) {
-        $this->chkPermissionWeb('user_list_reset_pwd');
         $userId = $request->getStrParam('id');
         $user = $this->userService->findById($userId);
         if (empty($user)) {
@@ -109,9 +105,6 @@ class UserAction extends BaseAction {
      * @return Json
      */
     public function doAdd(HttpRequest $request) {
-        if (!$this->chkPermission('user_list_add')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $params = self::getParams($request);
         $data = $this->dataFilter(UserDao::$filter, $params);
         if (!is_array($data)) {
@@ -138,9 +131,6 @@ class UserAction extends BaseAction {
      * @return Json
      */
     public function doEdit(HttpRequest $request) {
-        if (!$this->chkPermission('user_list_edit')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $userId = $request->getStrParam('id');
         $params = self::getParams($request);
         $data = $this->dataFilter(UserDao::$filter, $params);
@@ -166,9 +156,6 @@ class UserAction extends BaseAction {
      * @return Json
      */
     public function doResetPwd(HttpRequest $request) {
-        if (!$this->chkPermission('user_list_reset_pwd')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $result = new JsonResult(JsonResult::CODE_FAIL, '系统开了小差');
         $userId = $request->getStrParam('id');
         $pwd = $request->getStrParam('new_pwd');
@@ -201,9 +188,6 @@ class UserAction extends BaseAction {
      * @return JsonResult
      */
     public function doDel(HttpRequest $request){
-        if (!$this->chkPermission('user_list_del')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $ids = $request->getStrParam('ids');
         parent::doDel($this->userService, $ids);
     }
@@ -215,9 +199,6 @@ class UserAction extends BaseAction {
      * @return JsonResult
      */
     public function doChangeValid(HttpRequest $request) {
-        if (!$this->chkPermission('user_list_edit')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $params = $request->getParameters();
         $res = parent::changeValid($params['id'], $params['valid'], $this->userService);
         if ($res <= 0) {

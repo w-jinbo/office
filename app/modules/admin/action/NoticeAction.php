@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-08-01 15:29:21 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-01 16:43:47
+ * @Last Modified time: 2019-08-06 09:53:36
  */
 
  namespace app\admin\action;
@@ -32,10 +32,9 @@ class NoticeAction extends BaseAction {
      * @return void
      */
     public function index(HttpRequest $request) {
-        $this->chkPermissionWeb('notice_list');
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $this->assign('keyword', $keyword);
-        $this->assign('dataUrl', url('/admin/notice/getDataList?keyword=' . urlencode($keyword)));
+        $this->assign('dataUrl', url('/admin/notice/findAll?keyword=' . urlencode($keyword)));
         $this->setView('notice/index');
     }
 
@@ -48,7 +47,7 @@ class NoticeAction extends BaseAction {
     public function list(HttpRequest $request) {
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $this->assign('keyword', $keyword);
-        $this->assign('dataUrl', url('/admin/notice/getDataList?valid=1&keyword=' . urlencode($keyword)));
+        $this->assign('dataUrl', url('/admin/notice/findAll?valid=1&keyword=' . urlencode($keyword)));
         $this->setView('notice/list');
     }
 
@@ -58,7 +57,7 @@ class NoticeAction extends BaseAction {
      * @param HttpRequest $request
      * @return void
      */
-    public function getDataList(HttpRequest $request) {
+    public function findAll(HttpRequest $request) {
         $keyword = $request->getParameter('keyword', 'trim|urldecode');
         $page = $request->getIntParam('page');
         $pageSize = $request->getIntParam('limit');
@@ -79,7 +78,6 @@ class NoticeAction extends BaseAction {
      * @return void
      */
     public function add() {
-        $this->chkPermissionWeb('notice_list_add');
         $this->setView('notice/add');
     }
 
@@ -90,7 +88,6 @@ class NoticeAction extends BaseAction {
      * @return void
      */
     public function edit(HttpRequest $request) {
-        $this->chkPermissionWeb('notice_list_edit');
         $id = $request->getIntParam('id');
         $notice = $this->noticeService->findById($id);
         if (empty($notice)) {
@@ -123,9 +120,6 @@ class NoticeAction extends BaseAction {
      * @return void
      */
     public function doAdd(HttpRequest $request) {
-        if (!$this->chkPermission('notice_list_add')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $data = $this->getParams($request);
         $result = $this->noticeService->addNotice($data['title'], 
             $data['summary'], $data['content'], $data['is_valid']);
@@ -141,9 +135,6 @@ class NoticeAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function doEdit(HttpRequest $request) {
-        if (!$this->chkPermission('notice_list_edit')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $noticeId = $request->getIntParam('id');
         $data = $this->getParams($request);
         $result = $this->noticeService->updateNotice($noticeId, $data['title'], 
@@ -160,9 +151,6 @@ class NoticeAction extends BaseAction {
      * @param HttpRequest $request
      */
     public function doDel(HttpRequest $request){
-        if (!$this->chkPermission('notice_list_del')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $ids = $request->getStrParam('ids');
         parent::doDel($this->noticeService, $ids);
     }
@@ -174,9 +162,6 @@ class NoticeAction extends BaseAction {
      * @return JsonResult
      */
     public function doChangeValid(HttpRequest $request) {
-        if (!$this->chkPermission('notice_list_edit')) {
-            JsonResult::fail('您没有权限进行此操作');
-        }
         $params = $request->getParameters();
         $res = parent::changeValid($params['id'], $params['valid'], $this->noticeService);
         if ($res <= 0) {
