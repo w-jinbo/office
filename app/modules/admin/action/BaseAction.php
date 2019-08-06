@@ -5,7 +5,7 @@
  * @Author: WangJinBo <wangjb@pvc123.com>
  * @Date: 2019-07-25 17:24:29 
  * @Last Modified by: WangJinBo
- * @Last Modified time: 2019-08-05 17:56:41
+ * @Last Modified time: 2019-08-06 09:22:26
  */
 
 namespace app\admin\action;
@@ -101,6 +101,12 @@ class BaseAction extends Controller {
         return true;
     } 
 
+    /**
+     * 检测页面权限
+     *
+     * @param string $permission
+     * @return void
+     */
     protected function chkPermissionWeb(string $permission) {
         if (!$this->chkPermission($permission)) {
             $this->error('您没有权限进行此操作');
@@ -112,7 +118,13 @@ class BaseAction extends Controller {
         $systemTipModel->addTip($type, $logId, $userId);
     }
 
-    protected function error(string $msg) {
+    /**
+     * 返回错误页面
+     *
+     * @param string $msg 错误信息
+     * @return void
+     */
+    public function error(string $msg) {
         $this->assign('msg', $msg);
         $this->display('public/error');
         die();

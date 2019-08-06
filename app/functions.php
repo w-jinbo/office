@@ -32,7 +32,11 @@ function isDateValid(string $date, array $formats = array('Y-m-d', 'Y/m/d')) {
     return false;
 }
 
-
+/**
+ * 获取请求的类型
+ *
+ * @return string
+ */
 function getRequestMethod(){
     if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && 
         $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
@@ -57,19 +61,41 @@ function chkPower(string $permission) {
 }
 
 /**
-     * 递归处理权限集合，构成成树状结构
-     *
-     * @param string $pkey
-     * @param array $power
-     * @return array $resData
-     */
-    function dealPermission(string $pkey, array &$power) {
-        $resData = array();
-        foreach ($power as $k => $v) {
-            if ($pkey === $v['parent_id']) {
-                unset($power[$k]);
-                $resData['sub'][] = array_merge($v, dealPermission($v['id'], $power));
-            }
+ * 递归处理权限集合，构成成树状结构
+ *
+ * @param string $pkey
+ * @param array $power
+ * @return array $resData
+ */
+function dealPermission(string $pkey, array &$power) {
+    $resData = array();
+    foreach ($power as $k => $v) {
+        if ($pkey === $v['parent_id']) {
+            unset($power[$k]);
+            $resData['sub'][] = array_merge($v, dealPermission($v['id'], $power));
         }
-        return $resData;
     }
+    return $resData;
+}
+
+/**
+ * 根据特定值查询二维数组中是否包含该值
+ *
+ * @param array $array 待查询二维数组
+ * @param string $index 要查询的键
+ * @param string $value 要查询的值
+ * @return void
+ */
+function filterByValue (array $array, string $index, string $value) { 
+    $newArray = array();
+    if(is_array($array) && count($array) > 0) { 
+        foreach(array_keys($array) as $key){ 
+            $temp[$key] = $array[$key][$index]; 
+             
+            if ($temp[$key] == $value) { 
+                $newArray[$key] = $array[$key]; 
+            } 
+        } 
+    } 
+    return $newArray; 
+} 

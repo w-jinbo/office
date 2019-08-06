@@ -19,10 +19,17 @@ class User {
     private $isValid;
     private $department;
 
+    /**
+     * 获取用户拥有的权限
+     *
+     * @param integer $type 类型，1：菜单，2：操作
+     * @return array $result
+     */
     public function getPermissions(int $type = 0) {
         if ($this->isSuper == 1) {
+            //超级管理员，返回所有权限
             $permissionDao = new PermissionDao();
-            return $permissionDao->getPermission();
+            return $permissionDao->getPermission($type);
         }
         $result = array();
         $roleArr = explode(',', $this->roleIds);
@@ -64,6 +71,11 @@ class User {
         return $result;
     }
 
+    /**
+     * 获取左侧菜单列表
+     *
+     * @return void
+     */
     public function getMenu() {
         $permission = $this->getPermissions(1);
         $menu = dealPermission('0', $permission);
