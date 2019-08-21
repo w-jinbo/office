@@ -11,7 +11,7 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">账号</label>
                 <div class="layui-input-inline ">
-                    <label class="layui-form-label tl">{$admin.username}</label>
+                    <label class="layui-form-label tl">{$admin->getUserName()}</label>
                 </div>
             </div>
 
@@ -19,7 +19,7 @@
                 <label class="layui-form-label"><span class="red">* </span>姓名</label>
                 <div class="layui-input-inline ">
                     <input type="text" name="realname" datatype="*" nullmsg="请输入您的姓名" placeholder="输入您的姓名" autocomplete="off"
-                           class="layui-input" value="{$admin.realname}">
+                           class="layui-input" value="{$admin->getRealName()}">
                 </div>
             </div>
 
@@ -27,7 +27,7 @@
                 <label class="layui-form-label"><span class="red">* </span>手机号码</label>
                 <div class="layui-input-inline ">
                     <input type="text" name="tel" datatype="m" nullmsg="请输入您的手机号码" errormsg="手机号码格式不正确" placeholder="输入手机号码"
-                           autocomplete="off" class="layui-input" value="{$admin.tel}">
+                           autocomplete="off" class="layui-input" value="{$admin->getTel()}">
                 </div>
             </div>
 
@@ -35,7 +35,7 @@
                 <label class="layui-form-label"><span class="red">* </span>部门</label>
                 <div class="layui-input-inline ">
                     <input type="text" name="department" datatype="*" nullmsg="请输入您所属的部门" placeholder="输入您所属的部门" autocomplete="off"
-                           class="layui-input" value="{$admin.department}">
+                           class="layui-input" value="{$admin->getDepartment()}">
                 </div>
             </div>
             <div class="layui-form-item">
