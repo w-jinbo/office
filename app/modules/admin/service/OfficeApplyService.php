@@ -137,9 +137,9 @@ class OfficeApplyService extends BaseService {
         $error = $this->chkApplyDate($officeId, $date, $beginTime, $endTime);
         if(!($error === true)){
             $result['message'] = $error;
-            return result;
+            return $result;
         }
-        $date = date('Y-m-d H:i:s');
+        $dateTime = date('Y-m-d H:i:s');
         $data = array(
             'user_id' => $userId,
             'office_id' => $officeId,
@@ -149,8 +149,8 @@ class OfficeApplyService extends BaseService {
             'apply_end_time' => $endTime,
             'apply_reason' => $reason,
             'status' => self::APPLIED,
-            'create_time' => $date,
-            'update_time' => $date,
+            'create_time' => $dateTime,
+            'update_time' => $dateTime,
         );
         $res = $this->modelDao->add($data);
         if ($res <= 0) {
